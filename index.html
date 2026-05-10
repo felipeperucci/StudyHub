@@ -875,7 +875,31 @@ async function startLearn(modeId){
   if(modeId==="brief"){
     if(hasAIKey()){
       try{
-        const text=await callAI([{role:"user",content:`Gere um "daily brief" curto e prático sobre ${t.name}. Escolha um conceito relevante e explique em 3-4 parágrafos com: 1) o conceito central, 2) um exemplo prático do dia a dia profissional, 3) uma dica de aplicação. Seja direto e útil.`}], "", 3000);
+        // Build context from history to avoid repetition and personalize
+        const trackHistory = S.history.filter(h=>h.trackId===t.id).slice(0,30);
+        const seenTitles = trackHistory.map(h=>h.title).filter(Boolean).join(", ");
+        const recentNotes = trackHistory.filter(h=>h.note).map(h=>h.note).slice(0,5).join(" | ");
+        const errorTopics = trackHistory.filter(h=>h.correct===false).map(h=>h.title).join(", ");
+        const level = S.stats[t.id]?.level || 1;
+
+        const contextParts = [];
+        if(seenTitles) contextParts.push("Tópicos já estudados: " + seenTitles);
+        if(errorTopics) contextParts.push("Tópicos com dificuldade: " + errorTopics);
+        if(recentNotes) contextParts.push("Anotações recentes do aluno: " + recentNotes);
+        contextParts.push("Nível atual do aluno: " + level + " (1=iniciante, 5=avançado)");
+
+        const context = contextParts.length ? "\n\nContexto do aluno:\n" + contextParts.join("\n") : "";
+
+        const text=await callAI([{role:"user",content:`Você é um tutor especialista em ${t.name}. Gere um "daily brief" personalizado — um conceito específico que este aluno ainda não viu ou que vale revisar dado seu histórico.${context}
+
+Escolha um tópico diferente dos já estudados. Se o aluno for iniciante, escolha algo fundamental mas não óbvio. Se for avançado, vá fundo em nuances ou casos práticos reais.
+
+Estruture o brief assim:
+1) O conceito escolhido e por que é relevante agora
+2) Explicação clara com exemplo prático do ambiente profissional
+3) Uma dica de aplicação ou armadilha comum a evitar
+
+Seja direto, específico e útil. Não comece com "Bom dia" nem introduções genéricas.`}], "", 3000);
         S.learnChunks=[text];
       }catch{S.learnChunks=["Erro ao gerar brief. Verifique sua API key."];}
     } else {
