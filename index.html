@@ -632,11 +632,11 @@ async function startPractice(typeId){
         flashcard:`Crie UM flashcard sobre um conceito importante de ${t.name}. Formato: {"front":"...","back":"...","tip":"..."}`,
         challenge:`Crie UM desafio prático de ${t.name}. Formato: {"title":"...","scenario":"...","task":"...","hint":"...","solution":"..."}`,
       };
-      S.currentItem = await callAIJson([{role:"user",content:prompts[typeId]}], sys);
+      S.currentItem = await callAIJson([{role:"user",content:prompts[typeId]}], sys, 1500);
     }catch(e){
       // fallback to static
       S.currentItem = pick(STATIC_CONTENT[t.id][typeId]);
-      notif("IA indisponível — usando banco estático","#5b8cff");
+      notif("IA falhou: " + e.message.slice(0,60),"#E05C5C");
     }
   } else {
     S.currentItem = pick(STATIC_CONTENT[t.id][typeId]);
@@ -718,7 +718,7 @@ function renderChallenge(){
     `:`
       <div class="solution-box">
         <div style="font-weight:700;color:#7d9dd8;margin-bottom:10px;font-size:14px">📖 Solução de referência</div>
-        <div class="solution-text">${item.solution}</div>
+        <div class="solution-text">${mdToHtml(item.solution||"")}</div>
         ${renderNoteInput(30,true)}
       </div>
     `}`;
@@ -803,8 +803,8 @@ async function startLearn(modeId){
 
   if(modeId==="guide"){
     try{
-      const text=await callAI([{role:"user",content:`Crie uma microaula sobre um tópico relevante de "${t.name}" para um analista júnior. Estruture em 4 blocos com headers: ## 1. Contexto, ## 2. O Conceito, ## 3. Exemplo Prático, ## 4. Pontos-Chave. Seja específico e didático.`}]);
-      S.learnChunks=text.split(/(?=## )/).filter(Boolean);
+      const text=await callAI([{role:"user",content:`Crie uma microaula sobre um tópico relevante de "${t.name}" para um analista júnior. Estruture em exatamente 4 seções separadas pelo marcador ---BLOCO--- entre elas. Cada seção começa com ## seguido do título. Use **negrito** para termos importantes. Seja específico e didático. Formato obrigatório:\n\n## 1. Contexto\n[conteúdo]\n\n---BLOCO---\n\n## 2. O Conceito\n[conteúdo]\n\n---BLOCO---\n\n## 3. Exemplo Prático\n[conteúdo]\n\n---BLOCO---\n\n## 4. Pontos-Chave\n[conteúdo]`}], "", 2000);
+      S.learnChunks=text.split("---BLOCO---").map(s=>s.trim()).filter(Boolean);
     }catch(e){notif(e.message,"#E05C5C");}
     render();return;
   }
@@ -843,11 +843,22 @@ function renderLearnSession(){
   </div>`;
 }
 
+function mdToHtml(text){
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^## (.+)$/gm,'<h3 style="color:#eee;font-size:15px;margin:14px 0 8px">$1</h3>')
+    .replace(/^# (.+)$/gm,'<h2 style="color:#eee;font-size:17px;margin:16px 0 8px">$1</h2>')
+    .replace(/^- (.+)$/gm,'<li style="margin:4px 0;color:#ccc">$1</li>')
+    .replace(/(<li.*<\/li>)/gs,'<ul style="padding-left:18px;margin:8px 0">$1</ul>')
+    .replace(/\n/g,'<br>');
+}
+
 function renderBrief(){
   const t=S.activeTrack;
   if(!S.learnChunks.length) return `<div style="text-align:center;padding:40px;color:#444"><span class="spinner"></span> Gerando brief...</div>`;
   return `
-    <div class="learn-chunk" style="white-space:pre-wrap">${S.learnChunks[0]}</div>
+    <div class="learn-chunk">${mdToHtml(S.learnChunks[0])}</div>
     ${renderNoteInput(10,true)}`;
 }
 
@@ -858,7 +869,7 @@ function renderGuide(){
   const isLast=S.learnChunkIdx>=S.learnChunks.length-1;
   return `
     <div style="font-family:monospace;font-size:10px;color:#444;margin-bottom:12px">${S.learnChunkIdx+1} / ${S.learnChunks.length}</div>
-    <div class="learn-chunk" style="white-space:pre-wrap">${chunk}</div>
+    <div class="learn-chunk">${mdToHtml(chunk)}</div>
     <div style="display:flex;gap:8px;margin-top:12px">
       ${S.learnChunkIdx>0?`<button class="btn-ghost" onclick="S.learnChunkIdx--;render()">← Anterior</button>`:""}
       ${!isLast?`<button class="btn btn-primary" style="background:${t.color};flex:1" onclick="S.learnChunkIdx++;render()">Próximo →</button>`
@@ -1070,7 +1081,7 @@ function renderAnalysis(){
     </div>`:""}
 
     ${S.analysisText?`
-      <div class="analysis-box" style="white-space:pre-wrap">${S.analysisText}</div>
+      <div class="analysis-box">${mdToHtml(S.analysisText)}</div>
       <button class="btn-ghost btn-full" style="margin-top:8px" onclick="S.analysisText='';render()">Nova análise</button>
     `:`
       <div style="color:#555;font-size:13px;line-height:1.7;margin-bottom:20px">
