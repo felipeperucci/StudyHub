@@ -284,6 +284,7 @@ function setLocal(k,v){try{localStorage.setItem(k,v)}catch{}}
 function getKeys(){
   return {
     gemini:  getLocal("sh_gemini_key")||"",
+    groq:    getLocal("sh_groq_key")||"",
     github:  getLocal("sh_github_token")||"",
     repo:    getLocal("sh_github_repo")||"felipeperucci/studyhub",
   };
@@ -355,49 +356,64 @@ async function saveData(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// AI — Google Gemini API
+// AI — Multi-provider (Gemini primeiro, Groq como fallback)
 // ═══════════════════════════════════════════════════════════════
-async function callAI(messages, system="", maxTokens=1000){
+async function callGemini(messages, system, maxTokens){
   const {gemini} = getKeys();
-  if(!gemini) throw new Error("API key do Gemini não configurada. Va em Configuracoes.");
-
-  // Convert to Gemini format
-  const raw = messages.map(m=>({
-    role: m.role === "assistant" ? "model" : "user",
-    text: m.content
-  }));
-
-  // Gemini requires strict user/model alternation — merge consecutive same-role messages
+  if(!gemini) throw new Error("Gemini não configurado");
+  const raw = messages.map(m=>({role:m.role==="assistant"?"model":"user", text:m.content}));
   const merged = [];
   for(const msg of raw){
-    if(merged.length > 0 && merged[merged.length-1].role === msg.role){
-      merged[merged.length-1].text += "\n" + msg.text;
-    } else {
-      merged.push({role: msg.role, text: msg.text});
-    }
+    if(merged.length>0 && merged[merged.length-1].role===msg.role) merged[merged.length-1].text+="\n"+msg.text;
+    else merged.push({role:msg.role, text:msg.text});
   }
-
-  // Must start with user
-  if(merged.length === 0 || merged[0].role !== "user"){
-    merged.unshift({role:"user", text:"Ola"});
-  }
-
-  const geminiMessages = merged.map(m=>({role:m.role, parts:[{text:m.text}]}));
-
+  if(!merged.length || merged[0].role!=="user") merged.unshift({role:"user",text:"Olá"});
   const body = {
-    contents: geminiMessages,
-    generationConfig: {maxOutputTokens: maxTokens, temperature: 0.7},
+    contents: merged.map(m=>({role:m.role,parts:[{text:m.text}]})),
+    generationConfig: {maxOutputTokens:maxTokens, temperature:0.7},
   };
-  if(system) body.systemInstruction = {parts:[{text: system}]};
-
+  if(system) body.systemInstruction = {parts:[{text:system}]};
   const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{
     method:"POST",
-    headers:{"Content-Type":"application/json","x-goog-api-key": gemini},
+    headers:{"Content-Type":"application/json","x-goog-api-key":gemini},
     body:JSON.stringify(body)
   });
   const j = await r.json();
-  if(j.error) throw new Error(j.error.message);
-  return j.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if(j.error) throw new Error("Gemini: "+j.error.message);
+  return j.candidates?.[0]?.content?.parts?.[0]?.text||"";
+}
+
+async function callGroq(messages, system, maxTokens){
+  const {groq} = getKeys();
+  if(!groq) throw new Error("Groq não configurado");
+  const msgs = [];
+  if(system) msgs.push({role:"system",content:system});
+  messages.forEach(m=>msgs.push({role:m.role==="assistant"?"assistant":"user",content:m.content}));
+  const r = await fetch("https://api.groq.com/openai/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+groq},
+    body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:msgs,max_tokens:maxTokens,temperature:0.7})
+  });
+  const j = await r.json();
+  if(j.error) throw new Error("Groq: "+(j.error.message||JSON.stringify(j.error)));
+  return j.choices?.[0]?.message?.content||"";
+}
+
+async function callAI(messages, system="", maxTokens=1000){
+  const {gemini, groq} = getKeys();
+  if(!gemini && !groq) throw new Error("Nenhuma API key configurada. Vá em Configurações.");
+  if(gemini){
+    try{ return await callGemini(messages, system, maxTokens); }
+    catch(e){
+      const msg = e.message||"";
+      if(groq && (msg.includes("quota") || msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("rate") || msg.includes("limit"))){
+        notif("Gemini esgotado — usando Groq 🔄","#C9A84C");
+        return await callGroq(messages, system, maxTokens);
+      }
+      throw e;
+    }
+  }
+  return await callGroq(messages, system, maxTokens);
 }
 
 async function callAIJson(messages, system="", maxTokens=1500){
@@ -439,7 +455,7 @@ function notif(msg,color="#5dba7d"){
   clearTimeout(notifT);notifT=setTimeout(()=>el.style.display="none",3000);
 }
 
-function hasAIKey(){return !!getLocal("sh_gemini_key")}
+function hasAIKey(){return !!(getLocal("sh_gemini_key")||getLocal("sh_groq_key"))}
 function hasGHKey(){return !!getLocal("sh_github_token")}
 
 // ═══════════════════════════════════════════════════════════════
@@ -1190,7 +1206,7 @@ function renderSettings(){
     <!-- Gemini -->
     <div class="card" style="margin-bottom:14px">
       <div style="font-weight:700;font-size:14px;margin-bottom:4px">🤖 Google Gemini API Key</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px">Gratuita — acesse o Google AI Studio e gere uma key. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#C9A84C">Obter key grátis →</a></div>
+      <div style="font-size:12px;color:#888;margin-bottom:14px">Gratuita — 1500 requests/dia. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#C9A84C">Obter key grátis →</a></div>
       <div class="form-group">
         <input class="form-input" type="password" id="gemini-key" placeholder="AIza..." value="${keys.gemini}"/>
       </div>
@@ -1199,6 +1215,20 @@ function renderSettings(){
         ${keys.gemini?`<button class="btn-ghost" onclick="clearKey('sh_gemini_key')">Remover</button>`:""}
       </div>
       ${keys.gemini?`<div style="color:#5dba7d;font-size:12px;margin-top:8px;font-family:monospace">✓ Configurada</div>`:`<div style="color:#E05C5C;font-size:12px;margin-top:8px;font-family:monospace">✗ Não configurada</div>`}
+    </div>
+
+    <!-- Groq -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">⚡ Groq API Key</div>
+      <div style="font-size:12px;color:#888;margin-bottom:14px">Gratuita — sem limite diário, só por minuto. Fallback automático quando Gemini esgotar. <a href="https://console.groq.com/keys" target="_blank" style="color:#C9A84C">Obter key grátis →</a></div>
+      <div class="form-group">
+        <input class="form-input" type="password" id="groq-key" placeholder="gsk_..." value="${keys.groq}"/>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="background:#C9A84C" onclick="saveGroqKey()">Salvar</button>
+        ${keys.groq?`<button class="btn-ghost" onclick="clearKey('sh_groq_key')">Remover</button>`:""}
+      </div>
+      ${keys.groq?`<div style="color:#5dba7d;font-size:12px;margin-top:8px;font-family:monospace">✓ Configurada</div>`:`<div style="color:#E05C5C;font-size:12px;margin-top:8px;font-family:monospace">✗ Não configurada</div>`}
     </div>
 
     <!-- GitHub -->
@@ -1228,6 +1258,10 @@ function renderSettings(){
   </div>`;
 }
 
+function saveGroqKey(){
+  const v=document.getElementById("groq-key")?.value?.trim();
+  if(v){setLocal("sh_groq_key",v);notif("API key do Groq salva ✓");render();}
+}
 function saveGeminiKey(){
   const v=document.getElementById("gemini-key")?.value?.trim();
   if(v){setLocal("sh_gemini_key",v);notif("API key do Gemini salva ✓");render();}
