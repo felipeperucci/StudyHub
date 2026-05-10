@@ -658,10 +658,13 @@ function renderTrackPage(){
 // PRACTICE SESSION
 // ═══════════════════════════════════════════════════════════════
 function parseTextFormat(text, type){
-  const get = (key) => {
-    const re = new RegExp(key + ":([\\s\\S]*?)(?=\\n[A-ZÁÉÍÓÚ_]+:|$)", "i");
-    const m = text.match(re);
-    return m ? m[1].trim() : "";
+  const get = (...keys) => {
+    for(const key of keys){
+      const re = new RegExp(key + "\\s*:([\\s\\S]*?)(?=\\n[A-Z\\u00C0-\\u00DC_]+\\s*:|$)", "i");
+      const m = text.match(re);
+      if(m && m[1].trim()) return m[1].trim();
+    }
+    return "";
   };
   if(type === "quiz"){
     const opts = [];
@@ -670,13 +673,13 @@ function parseTextFormat(text, type){
       const m = text.match(re);
       if(m) opts.push(l + ") " + m[1].trim());
     });
-    return {q: get("PERGUNTA"), opts, ans: get("RESPOSTA").trim().toUpperCase().charAt(0), exp: get("EXPLICACAO")};
+    return {q: get("PERGUNTA"), opts, ans: get("RESPOSTA","RESPOSTA CORRETA").trim().toUpperCase().charAt(0), exp: get("EXPLICACAO","EXPLICAÇÃO")};
   }
   if(type === "flashcard"){
-    return {front: get("CONCEITO"), back: get("EXPLICACAO"), tip: get("DICA")};
+    return {front: get("CONCEITO"), back: get("EXPLICACAO","EXPLICAÇÃO"), tip: get("DICA")};
   }
   if(type === "challenge"){
-    return {title: get("TITULO"), scenario: get("CENARIO"), task: get("TAREFA"), hint: get("DICA"), solution: get("SOLUCAO")};
+    return {title: get("TITULO","TÍTULO"), scenario: get("CENARIO","CENÁRIO"), task: get("TAREFA"), hint: get("DICA"), solution: get("SOLUCAO","SOLUÇÃO")};
   }
   return {};
 }
@@ -897,8 +900,8 @@ DESCRICAO: [explicação em 2-3 frases]
 IMPORTANCIA: [por que é importante aprender isso]
 ---`}], "", 2000);
       S.learnChunks = mapRaw.split("---").map(block => {
-        const get = (key) => { const re = new RegExp(key + ":([\s\S]*?)(?=\n[A-ZÁÉÍÓÚ_]+:|$)","i"); const m = block.match(re); return m ? m[1].trim() : ""; };
-        return {title: get("TITULO"), description: get("DESCRICAO"), why: get("IMPORTANCIA")};
+        const get = (...keys) => { for(const key of keys){ const re = new RegExp(key + "\\s*:([\\s\\S]*?)(?=\\n[A-ZÀ-Ú_]+\\s*:|$)","i"); const m = block.match(re); if(m&&m[1].trim()) return m[1].trim(); } return ""; };
+        return {title: get("TITULO","TÍTULO"), description: get("DESCRICAO","DESCRIÇÃO"), why: get("IMPORTANCIA","IMPORTÂNCIA")};
       }).filter(c => c.title);
     }catch(e){notif(e.message,"#E05C5C");}
     render();return;
