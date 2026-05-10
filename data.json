@@ -1,10 +1,10 @@
 {
   "stats": {
     "tp": {
-      "xp": 85,
+      "xp": 95,
       "level": 1,
       "xpNext": 100,
-      "streak": 5
+      "streak": 6
     },
     "sql": {
       "xp": 0,
@@ -19,8 +19,19 @@
       "streak": 0
     }
   },
-  "totalXP": 85,
+  "totalXP": 95,
   "history": [
+    {
+      "date": "2026-05-10T18:28:00.817Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "learn",
+      "type": "brief",
+      "xp": 10,
+      "correct": true,
+      "note": "eu sei conceitualmente o que é tranfer pricing. inclusive vivo na pratica ja tem um tempo, por trabalhar numa big four nessa area",
+      "title": "brief"
+    },
     {
       "date": "2026-05-10T18:19:44.220Z",
       "trackId": "tp",
@@ -41,7 +52,7 @@
       "xp": 15,
       "correct": true,
       "note": "",
-      "title": "Qual Ã© o princÃ­pio fundamental do Transfer Pricing estabelecido pela OCDE?"
+      "title": "Qual ÃÂ© o princÃÂ­pio fundamental do Transfer Pricing estabelecido pela OCDE?"
     },
     {
       "date": "2026-05-10T17:21:59.815Z",
@@ -52,7 +63,7 @@
       "xp": 20,
       "correct": true,
       "note": "",
-      "title": "Qual mÃ©todo Ã© mais indicado para distrib"
+      "title": "Qual mÃÂ©todo ÃÂ© mais indicado para distrib"
     },
     {
       "date": "2026-05-10T04:05:08.964Z",
@@ -63,7 +74,7 @@
       "xp": 20,
       "correct": true,
       "note": "",
-      "title": "O que ÃÂ© 'delineation' de uma transaÃÂ§ÃÂ£o c"
+      "title": "O que ÃÂÃÂ© 'delineation' de uma transaÃÂÃÂ§ÃÂÃÂ£o c"
     },
     {
       "date": "2026-05-10T03:49:54.587Z",
@@ -74,7 +85,7 @@
       "xp": 20,
       "correct": false,
       "note": "",
-      "title": "O mÃÂ©todo CPL ÃÂ© mais adequado para qual t"
+      "title": "O mÃÂÃÂ©todo CPL ÃÂÃÂ© mais adequado para qual t"
     }
   ]
 }
