@@ -400,11 +400,22 @@ async function callAI(messages, system="", maxTokens=1000){
   return j.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
-async function callAIJson(messages, system=""){
-  const raw = await callAI(messages, system);
-  const m = raw.match(/\{[\s\S]*\}/);
-  if(!m) throw new Error("Resposta inválida da IA");
-  return JSON.parse(m[0]);
+async function callAIJson(messages, system="", maxTokens=1500){
+  const raw = await callAI(messages, system, maxTokens);
+  // Strip markdown code fences
+  const cleaned = raw.replace(/```(?:json)?\s*/gi, "").replace(/```/g, "").trim();
+  // Find the outermost JSON object or array
+  const objMatch = cleaned.match(/\{[\s\S]*\}/);
+  const arrMatch = cleaned.match(/\[[\s\S]*\]/);
+  const match = objMatch && arrMatch
+    ? (cleaned.indexOf("{") < cleaned.indexOf("[") ? objMatch : arrMatch)
+    : (objMatch || arrMatch);
+  if(!match) throw new Error("IA não retornou JSON válido. Tente novamente.");
+  try {
+    return JSON.parse(match[0]);
+  } catch(e) {
+    throw new Error("Erro ao processar resposta da IA. Tente novamente.");
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -626,11 +637,11 @@ async function startPractice(typeId){
   if(hasAIKey()){
     render(); // show loading state
     try{
-      const sys=`Você é um tutor especialista em "${t.name}". Responda APENAS com JSON puro, sem markdown.`;
+      const sys=`Você é um tutor especialista em "${t.name}". IMPORTANTE: Responda SOMENTE com o objeto JSON puro. Não use markdown, não use blocos de código, não escreva nada antes ou depois do JSON. Comece sua resposta diretamente com { e termine com }.`;
       const prompts={
-        quiz:`Crie UMA pergunta de múltipla escolha de nível intermediário/avançado sobre ${t.name}. Formato: {"q":"...","opts":["A) ...","B) ...","C) ...","D) ..."],"ans":"A","exp":"..."}`,
-        flashcard:`Crie UM flashcard sobre um conceito importante de ${t.name}. Formato: {"front":"...","back":"...","tip":"..."}`,
-        challenge:`Crie UM desafio prático de ${t.name}. Formato: {"title":"...","scenario":"...","task":"...","hint":"...","solution":"..."}`,
+        quiz:`Crie UMA pergunta de múltipla escolha de nível intermediário/avançado sobre ${t.name}. Responda APENAS com este JSON (sem mais nada): {"q":"texto da pergunta","opts":["A) opção","B) opção","C) opção","D) opção"],"ans":"A","exp":"explicação detalhada"}`,
+        flashcard:`Crie UM flashcard sobre um conceito importante de ${t.name}. Responda APENAS com este JSON (sem mais nada): {"front":"nome do conceito","back":"explicação completa","tip":"dica prática"}`,
+        challenge:`Crie UM desafio prático de ${t.name}. Responda APENAS com este JSON (sem mais nada): {"title":"título curto","scenario":"descrição do cenário","task":"o que fazer","hint":"dica","solution":"solução detalhada"}`,
       };
       S.currentItem = await callAIJson([{role:"user",content:prompts[typeId]}], sys, 1500);
     }catch(e){
@@ -792,7 +803,7 @@ async function startLearn(modeId){
   if(modeId==="brief"){
     if(hasAIKey()){
       try{
-        const text=await callAI([{role:"user",content:`Gere um "daily brief" curto e prático sobre ${t.name}. Escolha um conceito relevante e explique em 3-4 parágrafos com: 1) o conceito central, 2) um exemplo prático do dia a dia profissional, 3) uma dica de aplicação. Seja direto e útil.`}]);
+        const text=await callAI([{role:"user",content:`Gere um "daily brief" curto e prático sobre ${t.name}. Escolha um conceito relevante e explique em 3-4 parágrafos com: 1) o conceito central, 2) um exemplo prático do dia a dia profissional, 3) uma dica de aplicação. Seja direto e útil.`}], "", 2000);
         S.learnChunks=[text];
       }catch{S.learnChunks=["Erro ao gerar brief. Verifique sua API key."];}
     } else {
@@ -811,7 +822,7 @@ async function startLearn(modeId){
 
   if(modeId==="map"){
     try{
-      const json=await callAIJson([{role:"user",content:`Crie um mapa de 5 conceitos fundamentais de "${t.name}" em ordem do mais básico ao mais avançado. Responda APENAS em JSON: {"concepts":[{"title":"...","level":1,"description":"...","why":"por que é importante saber isso"}]}`}]);
+      const json=await callAIJson([{role:"user",content:`Crie um mapa de 5 conceitos fundamentais de "${t.name}" em ordem do mais basico ao mais avancado. Responda APENAS com JSON puro sem markdown: {"concepts":[{"title":"nome","level":1,"description":"explicacao","why":"por que aprender"}]}`}]);
       S.learnChunks=json.concepts||[];
     }catch(e){notif(e.message,"#E05C5C");}
     render();return;
@@ -819,7 +830,7 @@ async function startLearn(modeId){
 
   if(modeId==="socratic"){
     try{
-      const first=await callAI([{role:"user",content:`Você vai conduzir um diálogo socrático sobre "${t.name}" com um analista em aprendizado. Faça a primeira pergunta aberta para explorar o que ele já sabe sobre o tema. Seja conciso e estimulante.`}]);
+      const first=await callAI([{role:"user",content:`Você vai conduzir um diálogo socrático sobre "${t.name}" com um analista em aprendizado. Faça a primeira pergunta aberta para explorar o que ele já sabe sobre o tema. Seja conciso e estimulante.`}], "", 1500);
       S.chatHistory=[{role:"ai",text:first}];
     }catch(e){notif(e.message,"#E05C5C");}
     render();return;
