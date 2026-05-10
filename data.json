@@ -1,10 +1,10 @@
 {
   "stats": {
     "tp": {
-      "xp": 60,
+      "xp": 75,
       "level": 1,
       "xpNext": 100,
-      "streak": 3
+      "streak": 4
     },
     "sql": {
       "xp": 0,
@@ -19,8 +19,19 @@
       "streak": 0
     }
   },
-  "totalXP": 60,
+  "totalXP": 75,
   "history": [
+    {
+      "date": "2026-05-10T17:22:13.892Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "practice",
+      "type": "flashcard",
+      "xp": 15,
+      "correct": true,
+      "note": "",
+      "title": "Qual é o princípio fundamental do Transfer Pricing estabelecido pela OCDE?"
+    },
     {
       "date": "2026-05-10T17:21:59.815Z",
       "trackId": "tp",
