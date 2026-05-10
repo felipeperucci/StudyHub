@@ -1,0 +1,36 @@
+{
+  "stats": {
+    "tp": {
+      "xp": 20,
+      "level": 1,
+      "xpNext": 100,
+      "streak": 1
+    },
+    "sql": {
+      "xp": 0,
+      "level": 1,
+      "xpNext": 100,
+      "streak": 0
+    },
+    "es": {
+      "xp": 0,
+      "level": 1,
+      "xpNext": 100,
+      "streak": 0
+    }
+  },
+  "totalXP": 20,
+  "history": [
+    {
+      "date": "2026-05-10T03:49:54.587Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "practice",
+      "type": "quiz",
+      "xp": 20,
+      "correct": false,
+      "note": "",
+      "title": "O método CPL é mais adequado para qual t"
+    }
+  ]
+}
