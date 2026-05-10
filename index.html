@@ -628,6 +628,30 @@ function renderTrackPage(){
 // ═══════════════════════════════════════════════════════════════
 // PRACTICE SESSION
 // ═══════════════════════════════════════════════════════════════
+function parseTextFormat(text, type){
+  const get = (key) => {
+    const re = new RegExp(key + ":([\\s\\S]*?)(?=\\n[A-ZÁÉÍÓÚ_]+:|$)", "i");
+    const m = text.match(re);
+    return m ? m[1].trim() : "";
+  };
+  if(type === "quiz"){
+    const opts = [];
+    ["A","B","C","D"].forEach(l => {
+      const re = new RegExp("^" + l + "\\)(.+)$","m");
+      const m = text.match(re);
+      if(m) opts.push(l + ") " + m[1].trim());
+    });
+    return {q: get("PERGUNTA"), opts, ans: get("RESPOSTA").trim().toUpperCase().charAt(0), exp: get("EXPLICACAO")};
+  }
+  if(type === "flashcard"){
+    return {front: get("CONCEITO"), back: get("EXPLICACAO"), tip: get("DICA")};
+  }
+  if(type === "challenge"){
+    return {title: get("TITULO"), scenario: get("CENARIO"), task: get("TAREFA"), hint: get("DICA"), solution: get("SOLUCAO")};
+  }
+  return {};
+}
+
 async function startPractice(typeId){
   S.sessionMode="practice";
   S.sessionType=typeId;
@@ -637,13 +661,29 @@ async function startPractice(typeId){
   if(hasAIKey()){
     render(); // show loading state
     try{
-      const sys=`Você é um tutor especialista em "${t.name}". IMPORTANTE: Responda SOMENTE com o objeto JSON puro. Não use markdown, não use blocos de código, não escreva nada antes ou depois do JSON. Comece sua resposta diretamente com { e termine com }.`;
+      // Use plain text format to avoid JSON parsing issues with Gemini
       const prompts={
-        quiz:`Crie UMA pergunta de múltipla escolha de nível intermediário/avançado sobre ${t.name}. Responda APENAS com este JSON (sem mais nada): {"q":"texto da pergunta","opts":["A) opção","B) opção","C) opção","D) opção"],"ans":"A","exp":"explicação detalhada"}`,
-        flashcard:`Crie UM flashcard sobre um conceito importante de ${t.name}. Responda APENAS com este JSON (sem mais nada): {"front":"nome do conceito","back":"explicação completa","tip":"dica prática"}`,
-        challenge:`Crie UM desafio prático de ${t.name}. Responda APENAS com este JSON (sem mais nada): {"title":"título curto","scenario":"descrição do cenário","task":"o que fazer","hint":"dica","solution":"solução detalhada"}`,
+        quiz:`Você é tutor de ${t.name}. Crie uma pergunta de múltipla escolha avançada. Responda EXATAMENTE neste formato (sem nada antes ou depois):
+PERGUNTA: [escreva a pergunta aqui]
+A) [opção A]
+B) [opção B]
+C) [opção C]
+D) [opção D]
+RESPOSTA: [letra correta, ex: B]
+EXPLICACAO: [explicação detalhada de 2-3 frases]`,
+        flashcard:`Você é tutor de ${t.name}. Crie um flashcard de estudo. Responda EXATAMENTE neste formato (sem nada antes ou depois):
+CONCEITO: [nome do conceito]
+EXPLICACAO: [explicação completa em 3-5 frases]
+DICA: [dica prática de 1 frase]`,
+        challenge:`Você é tutor de ${t.name}. Crie um desafio prático. Responda EXATAMENTE neste formato (sem nada antes ou depois):
+TITULO: [título curto]
+CENARIO: [descrição do cenário em 2-4 frases]
+TAREFA: [o que o aluno deve fazer]
+DICA: [uma dica]
+SOLUCAO: [solução detalhada]`,
       };
-      S.currentItem = await callAIJson([{role:"user",content:prompts[typeId]}], sys, 1500);
+      const raw = await callAI([{role:"user",content:prompts[typeId]}], "", 1500);
+      S.currentItem = parseTextFormat(raw, typeId);
     }catch(e){
       // fallback to static
       S.currentItem = pick(STATIC_CONTENT[t.id][typeId]);
@@ -803,7 +843,7 @@ async function startLearn(modeId){
   if(modeId==="brief"){
     if(hasAIKey()){
       try{
-        const text=await callAI([{role:"user",content:`Gere um "daily brief" curto e prático sobre ${t.name}. Escolha um conceito relevante e explique em 3-4 parágrafos com: 1) o conceito central, 2) um exemplo prático do dia a dia profissional, 3) uma dica de aplicação. Seja direto e útil.`}], "", 2000);
+        const text=await callAI([{role:"user",content:`Gere um "daily brief" curto e prático sobre ${t.name}. Escolha um conceito relevante e explique em 3-4 parágrafos com: 1) o conceito central, 2) um exemplo prático do dia a dia profissional, 3) uma dica de aplicação. Seja direto e útil.`}], "", 3000);
         S.learnChunks=[text];
       }catch{S.learnChunks=["Erro ao gerar brief. Verifique sua API key."];}
     } else {
@@ -822,8 +862,15 @@ async function startLearn(modeId){
 
   if(modeId==="map"){
     try{
-      const json=await callAIJson([{role:"user",content:`Crie um mapa de 5 conceitos fundamentais de "${t.name}" em ordem do mais basico ao mais avancado. Responda APENAS com JSON puro sem markdown: {"concepts":[{"title":"nome","level":1,"description":"explicacao","why":"por que aprender"}]}`}]);
-      S.learnChunks=json.concepts||[];
+      const mapRaw = await callAI([{role:"user",content:`Você é tutor de ${t.name}. Liste 5 conceitos fundamentais do mais básico ao mais avançado. Para cada um use EXATAMENTE este formato separado por ---:
+TITULO: [nome do conceito]
+DESCRICAO: [explicação em 2-3 frases]
+IMPORTANCIA: [por que é importante aprender isso]
+---`}], "", 2000);
+      S.learnChunks = mapRaw.split("---").map(block => {
+        const get = (key) => { const re = new RegExp(key + ":([\s\S]*?)(?=\n[A-ZÁÉÍÓÚ_]+:|$)","i"); const m = block.match(re); return m ? m[1].trim() : ""; };
+        return {title: get("TITULO"), description: get("DESCRICAO"), why: get("IMPORTANCIA")};
+      }).filter(c => c.title);
     }catch(e){notif(e.message,"#E05C5C");}
     render();return;
   }
@@ -857,7 +904,8 @@ function renderLearnSession(){
 function mdToHtml(text){
   return text
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:#eee">$1</strong>')
+    .replace(/\*([^*]+)\*/g,'<em>$1</em>')
     .replace(/^## (.+)$/gm,'<h3 style="color:#eee;font-size:15px;margin:14px 0 8px">$1</h3>')
     .replace(/^# (.+)$/gm,'<h2 style="color:#eee;font-size:17px;margin:16px 0 8px">$1</h2>')
     .replace(/^- (.+)$/gm,'<li style="margin:4px 0;color:#ccc">$1</li>')
