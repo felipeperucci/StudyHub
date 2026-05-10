@@ -236,6 +236,12 @@ const LEARN_MODES = [
   {id:"brief",   icon:"⚡",label:"Daily Brief",        desc:"Conceito rápido do dia com exemplo prático",     xp:10},
 ];
 
+const VOICE_MODES = [
+  {id:"voice_conv",    icon:"🎙️",label:"Conversação",  desc:"Fale em espanhol — a IA responde e corrige", xp:40},
+  {id:"voice_shadow",  icon:"🔊",label:"Shadowing",    desc:"Ouça e repita — treine pronúncia",           xp:25},
+  {id:"voice_dictado", icon:"✍️",label:"Ditado",       desc:"Ouça e escreva — treine escuta e escrita",   xp:30},
+];
+
 const PRACTICE_MODES = [
   {id:"quiz",      icon:"❓",label:"Quiz",     desc:"Pergunta de múltipla escolha",xp:20},
   {id:"flashcard", icon:"🃏",label:"Flashcard",desc:"Conceito + explicação",       xp:15},
@@ -270,6 +276,11 @@ let S = {
   learnChunks:[],       // for guide mode
   learnChunkIdx:0,
   docContent:"",
+  voiceMode:null,
+  voiceTranscript:"",
+  voiceShadowText:"",
+  voiceDictadoText:"",
+  voiceConvHistory:[],
   analysisText:"",
   analysisLoading:false,
   dailyBrief:null,
@@ -598,6 +609,7 @@ function renderTrackPage(){
   if(!t) return "";
 
   if(S.sessionMode==="practice" && S.sessionType) return renderPracticeSession();
+  if(S.sessionMode==="voice" && S.sessionType) return renderVoiceSession();
   if(S.sessionMode==="learn" && S.sessionType) return renderLearnSession();
 
   return `<div class="container">
@@ -631,6 +643,27 @@ function renderTrackPage(){
         </button>
       `).join("")}
     </div>
+
+    <!-- VOZ (só para idiomas) -->
+    ${t.id==="es"||t.id==="fr"?`
+    <div class="sec-label" style="color:${t.color}88">FALAR & OUVIR <span style="font-size:9px;color:#555">· requer Chrome</span></div>
+    <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:24px">
+      ${VOICE_MODES.map(m=>`
+        <button class="session-type-btn" style="border-color:${h(t.color,.18)}"
+          onmouseenter="this.style.background='${h(t.color,.05)}';this.style.borderColor='${h(t.color,.4)}'"
+          onmouseleave="this.style.background='';this.style.borderColor='${h(t.color,.18)}'"
+          onclick="startVoice('${m.id}')">
+          <div style="display:flex;align-items:center;gap:11px">
+            <span style="font-size:20px">${m.icon}</span>
+            <div style="text-align:left">
+              <div style="font-weight:700;font-size:13px">${m.label}</div>
+              <div style="font-size:11px;color:#888">${m.desc}</div>
+            </div>
+          </div>
+          <span style="font-family:monospace;font-size:11px;color:${t.color}">+${m.xp} XP</span>
+        </button>
+      `).join("")}
+    </div>`:""}
 
     <!-- PRATICAR -->
     <div class="sec-label" style="color:${t.color}88">PRATICAR</div>
@@ -1326,6 +1359,201 @@ async function resetData(){
   S.stats=JSON.parse(JSON.stringify(DEFAULT_STATS));
   S.totalXP=0;S.history=[];
   await saveData();notif("Progresso resetado","#E05C5C");render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VOICE MODES
+// ═══════════════════════════════════════════════════════════════
+function speakLast(type){
+  if(type==='shadow') speak(S.voiceShadowText,'es-ES');
+  else if(type==='dictado') speak(S.voiceDictadoText,'es-ES');
+}
+function checkSpeechSupport(){
+  if(!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)){
+    notif("Voz não suportada — use o Chrome","#E05C5C");
+    return false;
+  }
+  return true;
+}
+
+function speak(text, lang="es-ES", onEnd){
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang; u.rate = 0.9; u.pitch = 1;
+  if(onEnd) u.onend = onEnd;
+  window.speechSynthesis.speak(u);
+}
+
+function startVoice(modeId){
+  if(!checkSpeechSupport()) return;
+  S.sessionMode="voice"; S.sessionType=modeId;
+  S.voiceTranscript=""; S.voiceConvHistory=[];
+  S.voiceShadowText=""; S.voiceDictadoText="";
+  render();
+  if(modeId==="voice_shadow") loadShadowPhrase();
+  if(modeId==="voice_dictado") loadDictadoPhrase();
+}
+
+async function loadShadowPhrase(){
+  const t=S.activeTrack;
+  try{
+    const text = await callAI([{role:"user",content:`Gere UMA frase em espanhol de nível intermediário sobre negócios ou cotidiano profissional. Apenas a frase, sem explicações, sem aspas.`}],"",200);
+    S.voiceShadowText = text.trim();
+  }catch(e){
+    S.voiceShadowText = "Los precios de transferencia son fundamentales para las empresas multinacionales.";
+  }
+  render();
+  setTimeout(()=>speak(S.voiceShadowText,"es-ES"),300);
+}
+
+async function loadDictadoPhrase(){
+  try{
+    const text = await callAI([{role:"user",content:`Gere UMA frase em espanhol de nível intermediário para ditado. Pode ser sobre negócios, cotidiano ou cultura. Apenas a frase, sem explicações.`}],"",200);
+    S.voiceDictadoText = text.trim();
+    S.voiceTranscript = "";
+  }catch(e){
+    S.voiceDictadoText = "El análisis de los precios de transferencia requiere datos comparables del mercado.";
+  }
+  render();
+  setTimeout(()=>speak(S.voiceDictadoText,"es-ES"),300);
+}
+
+let _recognition = null;
+function startListening(onResult, onEnd){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  _recognition = new SR();
+  _recognition.lang = "es-ES";
+  _recognition.continuous = false;
+  _recognition.interimResults = false;
+  _recognition.onresult = e => { const t = e.results[0][0].transcript; onResult(t); };
+  _recognition.onend = () => { if(onEnd) onEnd(); };
+  _recognition.onerror = e => { notif("Erro no microfone: "+e.error,"#E05C5C"); if(onEnd) onEnd(); };
+  _recognition.start();
+}
+function stopListening(){ try{ _recognition?.stop(); }catch{} }
+
+function renderVoiceSession(){
+  const t=S.activeTrack;
+  const m=VOICE_MODES.find(x=>x.id===S.sessionType);
+  return `<div class="container">
+    <button class="btn-ghost" style="margin-bottom:20px" onclick="window.speechSynthesis.cancel();stopListening();S.sessionMode=null;S.sessionType=null;render()">← Voltar</button>
+    <div style="font-size:12px;color:${t.color};font-family:monospace;margin-bottom:16px">${t.icon} ${t.name} · ${m?.label}</div>
+    ${S.sessionType==="voice_conv"?renderVoiceConv()
+     :S.sessionType==="voice_shadow"?renderVoiceShadow()
+     :renderVoiceDictado()}
+  </div>`;
+}
+
+function renderVoiceConv(){
+  const t=S.activeTrack;
+  return `
+    <div style="color:#888;font-size:13px;margin-bottom:16px;line-height:1.6">Converse em espanhol. A IA vai te responder e corrigir erros naturalmente.</div>
+    <div class="chat-messages" id="chat-msgs" style="max-height:340px">
+      ${S.voiceConvHistory.length===0?`<div class="chat-msg ai">¡Hola! Estoy aquí para practicar español contigo. ¿De qué quieres hablar hoy?</div>`:""}
+      ${S.voiceConvHistory.map(m=>`<div class="chat-msg ${m.role}">${m.text}</div>`).join("")}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" style="background:${t.color};flex:1" id="mic-btn" onclick="toggleVoiceConv()">
+        🎙️ Falar
+      </button>
+      <button class="btn-ghost" onclick="speak(S.voiceConvHistory.filter(m=>m.role==='ai').slice(-1)[0]?.text||'','es-ES')">🔊</button>
+    </div>
+    ${S.voiceConvHistory.length>=4?renderNoteInput(40,true):""}`;
+}
+
+let _convListening = false;
+async function toggleVoiceConv(){
+  const btn = document.getElementById("mic-btn");
+  if(_convListening){ stopListening(); return; }
+  if(!btn) return;
+  _convListening = true;
+  btn.textContent = "⏹ Parar";
+  btn.style.background = "#E05C5C";
+  startListening(
+    async (transcript) => {
+      _convListening = false;
+      if(btn){ btn.textContent = "🎙️ Falar"; btn.style.background = S.activeTrack.color; }
+      S.voiceConvHistory.push({role:"user", text:transcript});
+      render();
+      try{
+        const history = S.voiceConvHistory.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
+        const reply = await callAI(history,
+          "Você é um professor de espanhol conversacional. Responda em espanhol de forma natural e envolvente. Se o aluno cometer erros gramaticais ou de vocabulário, corrija sutilmente dentro da resposta sem interromper o fluxo. Seja amigável e encoraje a conversa.",
+          500);
+        S.voiceConvHistory.push({role:"ai", text:reply});
+        render();
+        speak(reply,"es-ES");
+      }catch(e){ notif(e.message,"#E05C5C"); }
+    },
+    ()=>{ _convListening=false; if(btn){btn.textContent="🎙️ Falar";btn.style.background=S.activeTrack?.color||"#C9A84C";} }
+  );
+}
+
+function renderVoiceShadow(){
+  const t=S.activeTrack;
+  return `
+    <div style="color:#888;font-size:13px;margin-bottom:16px">Ouça a frase, repita em voz alta e veja como ficou.</div>
+    ${!S.voiceShadowText?`<div style="text-align:center;padding:30px;color:#444"><span class="spinner"></span> Gerando frase...</div>`:`
+      <div class="learn-chunk" style="font-size:18px;text-align:center;padding:24px;letter-spacing:.3px">${S.voiceShadowText}</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn-ghost" style="flex:1" onclick="speak('${S.voiceShadowText.replace(/'/g,"\'")}','es-ES')">🔊 Ouvir novamente</button>
+        <button class="btn btn-primary" style="background:${t.color};flex:1" id="shadow-btn" onclick="doShadow()">🎙️ Repetir</button>
+      </div>
+      ${S.voiceTranscript?`
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;color:#555;font-family:monospace;margin-bottom:6px">VOCÊ DISSE:</div>
+          <div class="learn-chunk" style="font-size:15px">${S.voiceTranscript}</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button class="btn-ghost" style="flex:1" onclick="S.voiceTranscript='';loadShadowPhrase()">Nova frase</button>
+          ${renderNoteInput(25,true)}
+        </div>
+      `:`<div style="color:#444;font-size:12px;text-align:center">Pressione Repetir e fale a frase acima em espanhol</div>`}
+    `}`;
+}
+
+function doShadow(){
+  const btn=document.getElementById("shadow-btn");
+  if(btn){btn.textContent="⏳ Ouvindo...";btn.disabled=true;}
+  startListening(
+    t=>{ S.voiceTranscript=t; render(); },
+    ()=>{ if(btn){btn.textContent="🎙️ Repetir";btn.disabled=false;} }
+  );
+}
+
+function renderVoiceDictado(){
+  const t=S.activeTrack;
+  return `
+    <div style="color:#888;font-size:13px;margin-bottom:16px">Ouça a frase e escreva o que entendeu em espanhol.</div>
+    ${!S.voiceDictadoText?`<div style="text-align:center;padding:30px;color:#444"><span class="spinner"></span> Gerando frase...</div>`:`
+      <button class="btn-ghost btn-full" style="margin-bottom:16px" onclick="speak('${S.voiceDictadoText.replace(/'/g,"\'")}','es-ES')">🔊 Ouvir a frase</button>
+      <textarea class="form-textarea" id="dictado-input" placeholder="Escreva aqui o que ouviu..." style="min-height:80px">${S.voiceTranscript}</textarea>
+      ${!S.voiceTranscript?`<button class="btn btn-primary btn-full" style="background:${t.color};margin-top:8px" onclick="checkDictado()">Verificar</button>`:`
+        <div style="margin-top:12px">
+          <div style="font-size:11px;color:#555;font-family:monospace;margin-bottom:6px">FRASE ORIGINAL:</div>
+          <div class="learn-chunk">${S.voiceDictadoText}</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn-ghost" style="flex:1" onclick="S.voiceTranscript='';loadDictadoPhrase()">Nova frase</button>
+        </div>
+        ${renderNoteInput(30,true)}
+      `}
+    `}`;
+}
+
+async function checkDictado(){
+  const input = document.getElementById("dictado-input")?.value?.trim();
+  if(!input) return;
+  S.voiceTranscript = "checking";
+  render();
+  try{
+    const feedback = await callAI([{role:"user",content:`Frase original em espanhol: "${S.voiceDictadoText}"\nO que o aluno escreveu: "${input}"\n\nCompare e dê feedback curto: o que acertou, o que errou (se houver), e a frase correta. Seja encorajador.`}],"",400);
+    S.voiceTranscript = input + "\n\n\ud83d\udcac " + feedback;
+  }catch(e){
+    S.voiceTranscript = input;
+    notif(e.message,"#E05C5C");
+  }
+  render();
 }
 
 // ═══════════════════════════════════════════════════════════════
