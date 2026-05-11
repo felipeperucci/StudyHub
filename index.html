@@ -283,6 +283,7 @@ let S = {
   voiceConvHistory:[],
   shadowListening:false,
   convListening:false,
+  voiceManualMode:false,
   analysisText:"",
   analysisLoading:false,
   dailyBrief:null,
@@ -1421,15 +1422,37 @@ async function loadDictadoPhrase(){
 }
 
 let _recognition = null;
+
 function startListening(onResult, onEnd){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   _recognition = new SR();
   _recognition.lang = "es-ES";
-  _recognition.continuous = false;
   _recognition.interimResults = false;
-  _recognition.onresult = e => { const t = e.results[0][0].transcript; onResult(t); };
-  _recognition.onend = () => { if(onEnd) onEnd(); };
-  _recognition.onerror = e => { notif("Erro no microfone: "+e.error,"#E05C5C"); if(onEnd) onEnd(); };
+
+  if(S.voiceManualMode){
+    // Manual mode: continuous, accumulates transcript until stopListening() is called
+    _recognition.continuous = true;
+    let accumulated = "";
+    _recognition.onresult = e => {
+      for(let i = e.resultIndex; i < e.results.length; i++){
+        if(e.results[i].isFinal) accumulated += e.results[i][0].transcript + " ";
+      }
+    };
+    _recognition.onend = () => {
+      if(onEnd) onEnd();
+      if(accumulated.trim()) onResult(accumulated.trim());
+    };
+  } else {
+    // Auto mode: stops after silence
+    _recognition.continuous = false;
+    _recognition.onresult = e => { const t = e.results[0][0].transcript; onResult(t); };
+    _recognition.onend = () => { if(onEnd) onEnd(); };
+  }
+
+  _recognition.onerror = e => {
+    if(e.error !== "no-speech") notif("Erro no microfone: "+e.error,"#E05C5C");
+    if(onEnd) onEnd();
+  };
   _recognition.start();
 }
 function stopListening(){ try{ _recognition?.stop(); }catch{} }
@@ -1439,7 +1462,19 @@ function renderVoiceSession(){
   const m=VOICE_MODES.find(x=>x.id===S.sessionType);
   return `<div class="container">
     <button class="btn-ghost" style="margin-bottom:20px" onclick="window.speechSynthesis.cancel();stopListening();S.sessionMode=null;S.sessionType=null;S.shadowListening=false;S.convListening=false;render()">← Voltar</button>
-    <div style="font-size:12px;color:${t.color};font-family:monospace;margin-bottom:16px">${t.icon} ${t.name} · ${m?.label}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:12px;color:${t.color};font-family:monospace">${t.icon} ${t.name} · ${m?.label}</div>
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="S.voiceManualMode=!S.voiceManualMode;render()">
+        <span style="font-size:11px;color:#555;font-family:monospace">AUTO</span>
+        <div style="width:36px;height:20px;border-radius:99px;background:${S.voiceManualMode?t.color:'#1e1e2e'};position:relative;transition:all .2s">
+          <div style="position:absolute;top:2px;left:${S.voiceManualMode?'18':'2'}px;width:16px;height:16px;border-radius:50%;background:#eee;transition:left .2s"></div>
+        </div>
+        <span style="font-size:11px;color:#555;font-family:monospace">MANUAL</span>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#444;margin-bottom:16px;font-family:monospace">
+      ${S.voiceManualMode?"Modo manual: pressione Falar, fale no seu ritmo, pressione Parar quando terminar":"Modo auto: para automaticamente após detectar silêncio"}
+    </div>
     ${S.sessionType==="voice_conv"?renderVoiceConv()
      :S.sessionType==="voice_shadow"?renderVoiceShadow()
      :renderVoiceDictado()}
