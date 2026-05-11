@@ -281,6 +281,8 @@ let S = {
   voiceShadowText:"",
   voiceDictadoText:"",
   voiceConvHistory:[],
+  shadowListening:false,
+  convListening:false,
   analysisText:"",
   analysisLoading:false,
   dailyBrief:null,
@@ -1436,7 +1438,7 @@ function renderVoiceSession(){
   const t=S.activeTrack;
   const m=VOICE_MODES.find(x=>x.id===S.sessionType);
   return `<div class="container">
-    <button class="btn-ghost" style="margin-bottom:20px" onclick="window.speechSynthesis.cancel();stopListening();S.sessionMode=null;S.sessionType=null;render()">← Voltar</button>
+    <button class="btn-ghost" style="margin-bottom:20px" onclick="window.speechSynthesis.cancel();stopListening();S.sessionMode=null;S.sessionType=null;S.shadowListening=false;S.convListening=false;render()">← Voltar</button>
     <div style="font-size:12px;color:${t.color};font-family:monospace;margin-bottom:16px">${t.icon} ${t.name} · ${m?.label}</div>
     ${S.sessionType==="voice_conv"?renderVoiceConv()
      :S.sessionType==="voice_shadow"?renderVoiceShadow()
@@ -1453,39 +1455,40 @@ function renderVoiceConv(){
       ${S.voiceConvHistory.map(m=>`<div class="chat-msg ${m.role}">${m.text}</div>`).join("")}
     </div>
     <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn btn-primary" style="background:${t.color};flex:1" id="mic-btn" onclick="toggleVoiceConv()">
-        🎙️ Falar
+      <button class="btn btn-primary" style="background:${S.convListening?'#E05C5C':t.color};flex:1" onclick="toggleVoiceConv()">
+        ${S.convListening?'⏹ Parar':'🎙️ Falar'}
       </button>
       <button class="btn-ghost" onclick="speak(S.voiceConvHistory.filter(m=>m.role==='ai').slice(-1)[0]?.text||'','es-ES')">🔊</button>
     </div>
+    ${S.convListening?`<div style="text-align:center;font-size:12px;color:#888;font-family:monospace;margin-top:8px">⏺ ouvindo... fale e pressione Parar</div>`:""}
     ${S.voiceConvHistory.length>=4?renderNoteInput(40,true):""}`;
 }
 
-let _convListening = false;
 async function toggleVoiceConv(){
-  const btn = document.getElementById("mic-btn");
-  if(_convListening){ stopListening(); return; }
-  if(!btn) return;
-  _convListening = true;
-  btn.textContent = "⏹ Parar";
-  btn.style.background = "#E05C5C";
+  if(S.convListening){
+    stopListening();
+    S.convListening = false;
+    render();
+    return;
+  }
+  S.convListening = true;
+  render();
   startListening(
     async (transcript) => {
-      _convListening = false;
-      if(btn){ btn.textContent = "🎙️ Falar"; btn.style.background = S.activeTrack.color; }
+      S.convListening = false;
       S.voiceConvHistory.push({role:"user", text:transcript});
       render();
       try{
         const history = S.voiceConvHistory.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
         const reply = await callAI(history,
-          "Você é um professor de espanhol conversacional. Responda em espanhol de forma natural e envolvente. Se o aluno cometer erros gramaticais ou de vocabulário, corrija sutilmente dentro da resposta sem interromper o fluxo. Seja amigável e encoraje a conversa.",
-          500);
+          "Você é um professor de espanhol conversacional. Responda em espanhol de forma natural. Se o aluno cometer erros gramaticais, corrija sutilmente dentro da resposta. Seja amigável e encoraje a conversa. Respostas curtas, máximo 3 frases.",
+          300);
         S.voiceConvHistory.push({role:"ai", text:reply});
         render();
         speak(reply,"es-ES");
-      }catch(e){ notif(e.message,"#E05C5C"); }
+      }catch(e){ S.convListening=false; notif(e.message,"#E05C5C"); render(); }
     },
-    ()=>{ _convListening=false; if(btn){btn.textContent="🎙️ Falar";btn.style.background=S.activeTrack?.color||"#C9A84C";} }
+    () => { S.convListening=false; render(); }
   );
 }
 
@@ -1496,9 +1499,12 @@ function renderVoiceShadow(){
     ${!S.voiceShadowText?`<div style="text-align:center;padding:30px;color:#444"><span class="spinner"></span> Gerando frase...</div>`:`
       <div class="learn-chunk" style="font-size:18px;text-align:center;padding:24px;letter-spacing:.3px">${S.voiceShadowText}</div>
       <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button class="btn-ghost" style="flex:1" onclick="speak('${S.voiceShadowText.replace(/'/g,"\'")}','es-ES')">🔊 Ouvir novamente</button>
-        <button class="btn btn-primary" style="background:${t.color};flex:1" id="shadow-btn" onclick="doShadow()">🎙️ Repetir</button>
+        <button class="btn-ghost" style="flex:1" onclick="speakLast('shadow')">🔊 Ouvir</button>
+        <button class="btn btn-primary" style="background:${S.shadowListening?'#E05C5C':t.color};flex:1" onclick="doShadow()">
+          ${S.shadowListening?'⏹ Parar':'🎙️ Repetir'}
+        </button>
       </div>
+      ${S.shadowListening?`<div style="text-align:center;font-size:12px;color:#888;font-family:monospace;margin-bottom:8px">⏺ ouvindo... fale e pressione Parar</div>`:""}
       ${S.voiceTranscript?`
         <div style="margin-bottom:12px">
           <div style="font-size:11px;color:#555;font-family:monospace;margin-bottom:6px">VOCÊ DISSE:</div>
@@ -1513,11 +1519,19 @@ function renderVoiceShadow(){
 }
 
 function doShadow(){
-  const btn=document.getElementById("shadow-btn");
-  if(btn){btn.textContent="⏳ Ouvindo...";btn.disabled=true;}
+  if(S.shadowListening){
+    // Stop listening manually
+    stopListening();
+    S.shadowListening = false;
+    render();
+    return;
+  }
+  S.shadowListening = true;
+  S.voiceTranscript = "";
+  render();
   startListening(
-    t=>{ S.voiceTranscript=t; render(); },
-    ()=>{ if(btn){btn.textContent="🎙️ Repetir";btn.disabled=false;} }
+    t => { S.voiceTranscript = t; S.shadowListening = false; render(); },
+    ()  => { S.shadowListening = false; render(); }
   );
 }
 
