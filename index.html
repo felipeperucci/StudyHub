@@ -1400,7 +1400,10 @@ function startVoice(modeId){
 async function loadShadowPhrase(){
   const t=S.activeTrack;
   try{
-    const text = await callAI([{role:"user",content:`Gere UMA frase COMPLETA em espanhol de nível intermediário sobre negócios ou cotidiano profissional. A frase deve ter começo, meio e fim — nunca deixe incompleta. Máximo 15 palavras. Responda APENAS com a frase, sem explicações, sem aspas, sem ponto final duplo.`}],"",150);
+    const temas = ["uma reunião de trabalho","uma negociação comercial","um email profissional","o mercado financeiro","uma viagem de negócios","um restaurante","o transporte público","fazer compras","o tempo livre","um fim de semana"];
+    const tema = temas[Math.floor(Math.random()*temas.length)];
+    const rawText = await callAI([{role:"user",content:`Crie UMA frase em espanhol sobre: ${tema}. Regras: frase completa com sujeito e verbo, máximo 12 palavras, sem aspas, sem explicações, sem palavras em inglês ou português, apenas a frase em espanhol.`}],"",100);
+    const text = rawText.trim().replace(/["'`]/g,"").replace(/\b(Initialized|undefined|null|error)\b/gi,"").trim();
     S.voiceShadowText = text.trim();
   }catch(e){
     S.voiceShadowText = "Los precios de transferencia son fundamentales para garantizar el cumplimiento fiscal en empresas multinacionales.";
@@ -1411,7 +1414,10 @@ async function loadShadowPhrase(){
 
 async function loadDictadoPhrase(){
   try{
-    const text = await callAI([{role:"user",content:`Gere UMA frase COMPLETA em espanhol de nível intermediário para ditado. A frase deve ter começo, meio e fim — nunca deixe incompleta. Máximo 15 palavras. Responda APENAS com a frase, sem explicações, sem aspas.`}],"",150);
+    const temasDictado = ["uma notícia do dia","a natureza","tecnologia","saúde","educação","arte e cultura","esportes","culinária","viagens","amizade"];
+    const temaDictado = temasDictado[Math.floor(Math.random()*temasDictado.length)];
+    const rawDictado = await callAI([{role:"user",content:`Crie UMA frase em espanhol sobre: ${temaDictado}. Regras: frase completa com sujeito e verbo, máximo 12 palavras, sem aspas, sem explicações, sem palavras em inglês ou português, apenas a frase em espanhol.`}],"",100);
+    const text = rawDictado.trim().replace(/["'`]/g,"").replace(/\b(Initialized|undefined|null|error)\b/gi,"").trim();
     S.voiceDictadoText = text.trim();
     S.voiceTranscript = "";
   }catch(e){
