@@ -13,14 +13,25 @@
       "streak": 0
     },
     "es": {
-      "xp": 25,
+      "xp": 65,
       "level": 1,
       "xpNext": 100,
-      "streak": 1
+      "streak": 2
     }
   },
-  "totalXP": 120,
+  "totalXP": 160,
   "history": [
+    {
+      "date": "2026-05-11T01:03:21.118Z",
+      "trackId": "es",
+      "trackName": "Espanhol",
+      "mode": "voice",
+      "type": "voice_conv",
+      "xp": 40,
+      "correct": true,
+      "note": "charlar un rato é algo tipo \"jogar conversa fora\", \"bater papo\" bem descontraído.",
+      "title": "voice_conv"
+    },
     {
       "date": "2026-05-11T00:55:54.967Z",
       "trackId": "es",
@@ -40,7 +51,7 @@
       "type": "brief",
       "xp": 10,
       "correct": true,
-      "note": "eu sei conceitualmente o que Ã© tranfer pricing. inclusive vivo na pratica ja tem um tempo, por trabalhar numa big four nessa area",
+      "note": "eu sei conceitualmente o que ÃÂ© tranfer pricing. inclusive vivo na pratica ja tem um tempo, por trabalhar numa big four nessa area",
       "title": "brief"
     },
     {
@@ -63,7 +74,7 @@
       "xp": 15,
       "correct": true,
       "note": "",
-      "title": "Qual ÃÂÃÂ© o princÃÂÃÂ­pio fundamental do Transfer Pricing estabelecido pela OCDE?"
+      "title": "Qual ÃÂÃÂÃÂÃÂ© o princÃÂÃÂÃÂÃÂ­pio fundamental do Transfer Pricing estabelecido pela OCDE?"
     },
     {
       "date": "2026-05-10T17:21:59.815Z",
@@ -74,7 +85,7 @@
       "xp": 20,
       "correct": true,
       "note": "",
-      "title": "Qual mÃÂÃÂ©todo ÃÂÃÂ© mais indicado para distrib"
+      "title": "Qual mÃÂÃÂÃÂÃÂ©todo ÃÂÃÂÃÂÃÂ© mais indicado para distrib"
     },
     {
       "date": "2026-05-10T04:05:08.964Z",
@@ -85,7 +96,7 @@
       "xp": 20,
       "correct": true,
       "note": "",
-      "title": "O que ÃÂÃÂÃÂÃÂ© 'delineation' de uma transaÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ£o c"
+      "title": "O que ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© 'delineation' de uma transaÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ£o c"
     },
     {
       "date": "2026-05-10T03:49:54.587Z",
@@ -96,7 +107,7 @@
       "xp": 20,
       "correct": false,
       "note": "",
-      "title": "O mÃÂÃÂÃÂÃÂ©todo CPL ÃÂÃÂÃÂÃÂ© mais adequado para qual t"
+      "title": "O mÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©todo CPL ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© mais adequado para qual t"
     }
   ]
 }
