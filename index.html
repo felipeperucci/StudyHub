@@ -1399,10 +1399,10 @@ function startVoice(modeId){
 async function loadShadowPhrase(){
   const t=S.activeTrack;
   try{
-    const text = await callAI([{role:"user",content:`Gere UMA frase em espanhol de nível intermediário sobre negócios ou cotidiano profissional. Apenas a frase, sem explicações, sem aspas.`}],"",200);
+    const text = await callAI([{role:"user",content:`Gere UMA frase COMPLETA em espanhol de nível intermediário sobre negócios ou cotidiano profissional. A frase deve ter começo, meio e fim — nunca deixe incompleta. Máximo 15 palavras. Responda APENAS com a frase, sem explicações, sem aspas, sem ponto final duplo.`}],"",150);
     S.voiceShadowText = text.trim();
   }catch(e){
-    S.voiceShadowText = "Los precios de transferencia son fundamentales para las empresas multinacionales.";
+    S.voiceShadowText = "Los precios de transferencia son fundamentales para garantizar el cumplimiento fiscal en empresas multinacionales.";
   }
   render();
   setTimeout(()=>speak(S.voiceShadowText,"es-ES"),300);
@@ -1410,11 +1410,11 @@ async function loadShadowPhrase(){
 
 async function loadDictadoPhrase(){
   try{
-    const text = await callAI([{role:"user",content:`Gere UMA frase em espanhol de nível intermediário para ditado. Pode ser sobre negócios, cotidiano ou cultura. Apenas a frase, sem explicações.`}],"",200);
+    const text = await callAI([{role:"user",content:`Gere UMA frase COMPLETA em espanhol de nível intermediário para ditado. A frase deve ter começo, meio e fim — nunca deixe incompleta. Máximo 15 palavras. Responda APENAS com a frase, sem explicações, sem aspas.`}],"",150);
     S.voiceDictadoText = text.trim();
     S.voiceTranscript = "";
   }catch(e){
-    S.voiceDictadoText = "El análisis de los precios de transferencia requiere datos comparables del mercado.";
+    S.voiceDictadoText = "El análisis de precios de transferencia requiere identificar transacciones comparables entre partes independientes.";
   }
   render();
   setTimeout(()=>speak(S.voiceDictadoText,"es-ES"),300);
@@ -1481,8 +1481,8 @@ async function toggleVoiceConv(){
       try{
         const history = S.voiceConvHistory.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
         const reply = await callAI(history,
-          "Você é um professor de espanhol conversacional. Responda em espanhol de forma natural. Se o aluno cometer erros gramaticais, corrija sutilmente dentro da resposta. Seja amigável e encoraje a conversa. Respostas curtas, máximo 3 frases.",
-          300);
+          "Você é um professor de espanhol conversacional. Responda em espanhol de forma natural. Se o aluno cometer erros, corrija sutilmente. Seja amigável. IMPORTANTE: sempre escreva frases completas, nunca corte no meio. Máximo 3 frases completas.",
+          400);
         S.voiceConvHistory.push({role:"ai", text:reply});
         render();
         speak(reply,"es-ES");
@@ -1561,7 +1561,7 @@ async function checkDictado(){
   S.voiceTranscript = "checking";
   render();
   try{
-    const feedback = await callAI([{role:"user",content:`Frase original em espanhol: "${S.voiceDictadoText}"\nO que o aluno escreveu: "${input}"\n\nCompare e dê feedback curto: o que acertou, o que errou (se houver), e a frase correta. Seja encorajador.`}],"",400);
+    const feedback = await callAI([{role:"user",content:`Frase original em espanhol: "${S.voiceDictadoText}"\nO que o aluno escreveu: "${input}"\n\nEscreva um feedback COMPLETO e encorajador: diga o que acertou, o que errou (se houver) e mostre a frase correta. Seja direto e positivo. Máximo 4 frases completas.`}],"",500);
     S.voiceTranscript = input + "\n\n\ud83d\udcac " + feedback;
   }catch(e){
     S.voiceTranscript = input;
