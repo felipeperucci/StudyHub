@@ -415,7 +415,7 @@ async function callGroq(messages, system, maxTokens){
   return j.choices?.[0]?.message?.content||"";
 }
 
-async function callAI(messages, system="", maxTokens=1000){
+async function callAI(messages, system="", maxTokens=4000){
   const {gemini, groq} = getKeys();
   if(!gemini && !groq) throw new Error("Nenhuma API key configurada. Vá em Configurações.");
   if(gemini){
@@ -935,7 +935,7 @@ Estruture o brief assim:
 2) Explicação clara com exemplo prático do ambiente profissional
 3) Uma dica de aplicação ou armadilha comum a evitar
 
-Seja direto, específico e útil. Não comece com "Bom dia" nem introduções genéricas.`}], "", 3000);
+Seja direto, específico e útil. Não comece com "Bom dia" nem introduções genéricas.`}], "", 4000);
         S.learnChunks=[text];
       }catch{S.learnChunks=["Erro ao gerar brief. Verifique sua API key."];}
     } else {
@@ -946,7 +946,7 @@ Seja direto, específico e útil. Não comece com "Bom dia" nem introduções ge
 
   if(modeId==="guide"){
     try{
-      const text=await callAI([{role:"user",content:`Crie uma microaula sobre um tópico relevante de "${t.name}" para um analista júnior. Estruture em exatamente 4 seções separadas pelo marcador ---BLOCO--- entre elas. Cada seção começa com ## seguido do título. Use **negrito** para termos importantes. Seja específico e didático. Formato obrigatório:\n\n## 1. Contexto\n[conteúdo]\n\n---BLOCO---\n\n## 2. O Conceito\n[conteúdo]\n\n---BLOCO---\n\n## 3. Exemplo Prático\n[conteúdo]\n\n---BLOCO---\n\n## 4. Pontos-Chave\n[conteúdo]`}], "", 2000);
+      const text=await callAI([{role:"user",content:`Crie uma microaula sobre um tópico relevante de "${t.name}" para um analista júnior. Estruture em exatamente 4 seções separadas pelo marcador ---BLOCO--- entre elas. Cada seção começa com ## seguido do título. Use **negrito** para termos importantes. Seja específico e didático. Formato obrigatório:\n\n## 1. Contexto\n[conteúdo]\n\n---BLOCO---\n\n## 2. O Conceito\n[conteúdo]\n\n---BLOCO---\n\n## 3. Exemplo Prático\n[conteúdo]\n\n---BLOCO---\n\n## 4. Pontos-Chave\n[conteúdo]`}], "", 4000);
       S.learnChunks=text.split("---BLOCO---").map(s=>s.trim()).filter(Boolean);
     }catch(e){notif(e.message,"#E05C5C");}
     render();return;
@@ -969,7 +969,7 @@ IMPORTANCIA: [por que é importante aprender isso]
 
   if(modeId==="socratic"){
     try{
-      const first=await callAI([{role:"user",content:`Você vai conduzir um diálogo socrático sobre "${t.name}" com um analista em aprendizado. Faça a primeira pergunta aberta para explorar o que ele já sabe sobre o tema. Seja conciso e estimulante.`}], "", 1500);
+      const first=await callAI([{role:"user",content:`Você vai conduzir um diálogo socrático sobre "${t.name}" com um analista em aprendizado. Faça a primeira pergunta aberta para explorar o que ele já sabe sobre o tema. Seja conciso e estimulante.`}], "", 2000);
       S.chatHistory=[{role:"ai",text:first}];
     }catch(e){notif(e.message,"#E05C5C");}
     render();return;
@@ -1076,7 +1076,7 @@ async function sendSocratic(){
   render();
   try{
     const msgs=S.chatHistory.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
-    const reply=await callAI(msgs,`Você conduz um diálogo socrático sobre "${S.activeTrack.name}". Responda à fala do aluno com outra pergunta ou reflexão que aprofunde o entendimento. Seja conciso.`);
+    const reply=await callAI(msgs,`Você conduz um diálogo socrático sobre "${S.activeTrack.name}". Responda à fala do aluno com outra pergunta ou reflexão que aprofunde o entendimento. Seja conciso.`, 2000);
     S.chatHistory.push({role:"ai",text:reply});
   }catch(e){S.chatHistory.push({role:"ai",text:"Erro: "+e.message});}
   render();
@@ -1139,7 +1139,7 @@ async function sendDocChat(){
       {role:"user",content:`Documento:\n\n${S.docContent}\n\n---\nPergunta: ${text}`},
       ...S.chatHistory.slice(1).map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}))
     ];
-    const reply=await callAI([{role:"user",content:`Documento de referência:\n\n${S.docContent}\n\n---\nHistórico:\n${S.chatHistory.slice(0,-1).map(m=>`${m.role==="ai"?"IA":"Aluno"}: ${m.text}`).join("\n")}\n\nAluno: ${text}`},],`Você é um tutor especialista em ${S.activeTrack.name}. Responda com base no documento fornecido, citando partes relevantes quando útil. Seja preciso e didático.`);
+    const reply=await callAI([{role:"user",content:`Documento de referência:\n\n${S.docContent}\n\n---\nHistórico:\n${S.chatHistory.slice(0,-1).map(m=>`${m.role==="ai"?"IA":"Aluno"}: ${m.text}`).join("\n")}\n\nAluno: ${text}`},],`Você é um tutor especialista em ${S.activeTrack.name}. Responda com base no documento fornecido, citando partes relevantes quando útil. Seja preciso e didático.`, 4000);
     S.chatHistory.push({role:"ai",text:reply});
   }catch(e){S.chatHistory.push({role:"ai",text:"Erro: "+e.message});}
   render();
@@ -1263,7 +1263,7 @@ Estatísticas:
 ${statsStr}
 
 Histórico recente (mais recente primeiro):
-${summary}`}]);
+${summary}`}], 8000);
     S.analysisText=text;
   }catch(e){S.analysisText="Erro: "+e.message;}
   S.analysisLoading=false;
