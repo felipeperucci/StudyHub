@@ -1,10 +1,10 @@
 {
   "stats": {
     "tp": {
-      "xp": 95,
-      "level": 1,
-      "xpNext": 100,
-      "streak": 6
+      "xp": 25,
+      "level": 2,
+      "xpNext": 150,
+      "streak": 7
     },
     "sql": {
       "xp": 0,
@@ -19,8 +19,19 @@
       "streak": 3
     }
   },
-  "totalXP": 185,
+  "totalXP": 215,
   "history": [
+    {
+      "date": "2026-05-27T01:29:00.201Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "learn",
+      "type": "socratic",
+      "xp": 30,
+      "correct": true,
+      "note": "a subsidiária P aumenta o lucro declarado mas diminui o lucro da D. o problema é que isso pode gerar um risco de TP no país da subsidiaria D",
+      "title": "socratic"
+    },
     {
       "date": "2026-05-11T01:03:54.017Z",
       "trackId": "es",
@@ -40,7 +51,7 @@
       "type": "voice_conv",
       "xp": 40,
       "correct": true,
-      "note": "charlar un rato Ã© algo tipo \"jogar conversa fora\", \"bater papo\" bem descontraÃ­do.",
+      "note": "charlar un rato ÃÂ© algo tipo \"jogar conversa fora\", \"bater papo\" bem descontraÃÂ­do.",
       "title": "voice_conv"
     },
     {
@@ -62,7 +73,7 @@
       "type": "brief",
       "xp": 10,
       "correct": true,
-      "note": "eu sei conceitualmente o que ÃÂÃÂ© tranfer pricing. inclusive vivo na pratica ja tem um tempo, por trabalhar numa big four nessa area",
+      "note": "eu sei conceitualmente o que ÃÂÃÂÃÂÃÂ© tranfer pricing. inclusive vivo na pratica ja tem um tempo, por trabalhar numa big four nessa area",
       "title": "brief"
     },
     {
@@ -85,7 +96,7 @@
       "xp": 15,
       "correct": true,
       "note": "",
-      "title": "Qual ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© o princÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­pio fundamental do Transfer Pricing estabelecido pela OCDE?"
+      "title": "Qual ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© o princÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ­pio fundamental do Transfer Pricing estabelecido pela OCDE?"
     },
     {
       "date": "2026-05-10T17:21:59.815Z",
@@ -96,7 +107,7 @@
       "xp": 20,
       "correct": true,
       "note": "",
-      "title": "Qual mÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©todo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© mais indicado para distrib"
+      "title": "Qual mÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©todo ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© mais indicado para distrib"
     },
     {
       "date": "2026-05-10T04:05:08.964Z",
@@ -107,7 +118,7 @@
       "xp": 20,
       "correct": true,
       "note": "",
-      "title": "O que ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© 'delineation' de uma transaÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ£o c"
+      "title": "O que ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© 'delineation' de uma transaÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ£o c"
     },
     {
       "date": "2026-05-10T03:49:54.587Z",
@@ -118,7 +129,7 @@
       "xp": 20,
       "correct": false,
       "note": "",
-      "title": "O mÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©todo CPL ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© mais adequado para qual t"
+      "title": "O mÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©todo CPL ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© mais adequado para qual t"
     }
   ]
 }
