@@ -694,14 +694,36 @@ function renderTrackPage(){
 // PRACTICE SESSION
 // ═══════════════════════════════════════════════════════════════
 function parseTextFormat(text, type){
+  // Parse line-by-line: only lines that START with ALL-CAPS word(s) + colon are treated as section headers.
+  // This avoids false matches on normal sentence text that happens to contain "word: value".
+  const sections = {};
+  let currentKey = null;
+  let currentLines = [];
+  const HEADER_RE = /^([A-ZÁÉÍÓÚÃÕÂÊÎÔÛÀÇÑÜ][A-ZÁÉÍÓÚÃÕÂÊÎÔÛÀÇÑÜ _]{1,}[A-ZÁÉÍÓÚÃÕÂÊÎÔÛÀÇÑÜ]|[A-ZÁÉÍÓÚÃÕÂÊÎÔÛÀÇÑÜ]{2,})\s*:\s*(.*)/;
+  for(const line of text.split('\n')){
+    const hm = line.match(HEADER_RE);
+    if(hm){
+      if(currentKey) sections[currentKey] = currentLines.join('\n').trim();
+      currentKey = hm[1].trim().toUpperCase();
+      currentLines = hm[2] ? [hm[2]] : [];
+    } else if(currentKey){
+      currentLines.push(line);
+    }
+  }
+  if(currentKey) sections[currentKey] = currentLines.join('\n').trim();
+
+  const norm = s => s.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const get = (...keys) => {
     for(const key of keys){
-      const re = new RegExp(key + "\\s*:([\\s\\S]*?)(?=\\n[A-Z\\u00C0-\\u00DC_]+\\s*:|$)", "i");
-      const m = text.match(re);
-      if(m && m[1].trim()) return m[1].trim();
+      const kn = norm(key);
+      if(sections[key.toUpperCase()]) return sections[key.toUpperCase()];
+      for(const sk of Object.keys(sections)){
+        if(norm(sk) === kn && sections[sk]) return sections[sk];
+      }
     }
-    return "";
+    return '';
   };
+
   if(type === "quiz"){
     const opts = [];
     ["A","B","C","D"].forEach(l => {
