@@ -893,8 +893,9 @@ async function startMode(modeId){
   const t=S.track;
   const ctx=buildMemoryContext(t.id);
   const italiaCtx=["historia","cultura","lingua","cidadania"].includes(t.id);
-  const italiaSubName=italiaCtx?ITALIA_SUBS.find(s=>s.id===t.id)?.name:null;
-  const italiaTheme=italiaCtx?`${italiaSubName} italiana (subcategoria de Cultura e História da Itália)`:"";
+  const italiaSubInfo=italiaCtx?ITALIA_SUBS.find(s=>s.id===t.id):null;
+  const italiaTheme=italiaCtx?italiaSubInfo?.name:"";
+  const italiaSys=italiaCtx?`Você é um tutor especializado em ${italiaSubInfo?.name} da Itália. Seu objetivo é ensinar Felipe, um brasileiro com cidadania italiana que quer conhecer melhor suas raízes. TODO o conteúdo deve ser sobre a Itália — história, cultura, língua ou cidadania italianas, conforme a subcategoria. Nunca confunda "Italia" com um nome de pessoa ou empresa. Contexto da subcategoria: ${italiaSubInfo?.desc}`:"";
 
   try{
     if(modeId==="quiz"){
@@ -910,7 +911,7 @@ B) [texto da alternativa B]
 C) [texto da alternativa C]
 D) [texto da alternativa D]
 RESPOSTA: [apenas a letra, ex: B]
-EXPLICAÇÃO: [explicação de 2-3 frases sobre por que a resposta está correta]`}]);
+EXPLICAÇÃO: [explicação de 2-3 frases sobre por que a resposta está correta]`}],italiaSys);
       S.item=parseAIText(raw,"quiz");
       if(!S.item.q||!S.item.opts?.length) throw new Error("Formato inválido");
       if(S.item.q) recordTopic(t.id, S.item.q.slice(0,60));
@@ -923,7 +924,7 @@ ${ctx}
 Responda EXATAMENTE assim, com cada campo em sua própria linha, sem texto adicional antes ou depois:
 CONCEITO: [apenas o nome do conceito aqui, nada mais]
 EXPLICAÇÃO: [apenas a explicação aqui, 3-5 frases]
-DICA: [apenas a dica aqui, 1 frase]`}]);
+DICA: [apenas a dica aqui, 1 frase]`}],italiaSys);
       // More robust flashcard parser
       const lines = raw.split("\n");
       const fc = {front:"", back:"", tip:""};
@@ -950,13 +951,13 @@ TÍTULO: [título curto]
 CENÁRIO: [descrição do cenário em 3-5 frases]
 TAREFA: [o que o aluno deve fazer]
 DICA: [uma dica útil]
-SOLUÇÃO: [solução detalhada e didática]`}]);
+SOLUÇÃO: [solução detalhada e didática]`}],italiaSys);
       S.item=parseAIText(raw,"challenge");
       if(!S.item.title) throw new Error("Formato inválido");
       if(S.item.title) recordTopic(t.id, S.item.title);
 
     } else if(modeId==="guide"){
-      const text=await ai([{role:"user",content:`Você é tutor de ${italiaTheme||t.name}. Crie uma microaula sobre um tópico NOVO e ESPECÍFICO.
+      const text=await ai([{role:"user",content:`Crie uma microaula sobre um tópico NOVO e ESPECÍFICO de ${italiaTheme||t.name}.
 
 ${ctx}
 
@@ -977,14 +978,14 @@ Estruture em 4 blocos separados por ---BLOCO---:
 ---BLOCO---
 
 ## 4. Para Fixar
-[3 pontos-chave para lembrar]`}]);
+[3 pontos-chave para lembrar]`}],italiaSys,4000);
       S.chunks=text.split("---BLOCO---").map(s=>s.trim()).filter(Boolean);
       S.chunkIdx=0;
       const guideTitle=S.chunks[0]?.match(/##[^\n]+/)?.[0]?.replace(/##\s*/,"")?.trim();
       if(guideTitle) recordTopic(t.id, guideTitle);
 
     } else if(modeId==="brief"){
-      const text=await ai([{role:"user",content:`Você é tutor de ${italiaTheme||t.name}. Escreva um daily brief sobre um conceito NOVO — algo que o aluno ainda não viu ou que vale reforçar.
+      const text=await ai([{role:"user",content:`Escreva um daily brief sobre um conceito NOVO de ${italiaTheme||t.name} — algo que o aluno ainda não viu ou que vale reforçar.
 
 ${ctx}
 
@@ -994,15 +995,15 @@ Estrutura:
 3. **Exemplo prático** — situação real
 4. **Por que importa** — relevância profissional
 
-Seja específico, direto e útil. Não use introduções genéricas.`}],""  ,5000);
+Seja específico, direto e útil. Não use introduções genéricas.`}],italiaSys,5000);
       S.chunks=[text]; S.chunkIdx=0;
 
     } else if(modeId==="socratic"){
-      const first=await ai([{role:"user",content:`Você vai conduzir um diálogo socrático sobre ${italiaTheme||t.name}.
+      const first=await ai([{role:"user",content:`Conduza um diálogo socrático sobre ${italiaTheme||t.name}.
 
 ${ctx}
 
-Faça a primeira pergunta aberta — explore o que o aluno sabe sobre um tópico que ele ainda não viu recentemente. Seja direto e estimulante.`}],"",2000);
+Faça a primeira pergunta aberta — explore o que o aluno sabe sobre um tópico que ele ainda não viu recentemente. Seja direto e estimulante.`}],italiaSys,2000);
       S.chatHist=[{role:"ai",text:first}];
 
     } else if(modeId==="doc"){
