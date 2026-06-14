@@ -8,303 +8,237 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh;background:#060610;color:#eee;font-family:'Syne',sans-serif}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#1e1e2e;border-radius:99px}
-input,textarea,button{font-family:'Syne',sans-serif}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#2a2a3e;border-radius:99px}
+input,textarea,select,button{font-family:'Syne',sans-serif}
+a{color:#C9A84C;text-decoration:none}
 
-/* ── LAYOUT ── */
-.grid-bg{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(#12122011 1px,transparent 1px),linear-gradient(90deg,#12122011 1px,transparent 1px);background-size:36px 36px}
-#root{min-height:100vh;padding:24px 18px 40px}
-.container{max-width:680px;margin:0 auto;position:relative}
+/* LAYOUT */
+.grid-bg{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(#12122011 1px,transparent 1px),linear-gradient(90deg,#12122011 1px,transparent 1px);background-size:36px 36px;z-index:0}
+#app{min-height:100vh;padding:24px 18px 60px;position:relative;z-index:1}
+.wrap{max-width:680px;margin:0 auto}
 
-/* ── NAV ── */
-.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-.logo{font-weight:800;font-size:22px;letter-spacing:-.5px;cursor:pointer}
-.logo span{color:#C9A84C}
+/* NAV */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.5px;cursor:pointer;user-select:none}
+.logo em{color:#C9A84C;font-style:normal}
 .nav-links{display:flex;gap:6px}
-.nav-btn{background:none;border:1px solid #1e1e2e;border-radius:8px;padding:6px 12px;color:#888;font-size:12px;cursor:pointer;transition:all .2s}
-.nav-btn:hover,.nav-btn.active{border-color:#C9A84C44;color:#C9A84C;background:#C9A84C0a}
+.nav-btn{background:none;border:1px solid #1e1e2e;border-radius:8px;padding:6px 14px;color:#555;font-size:12px;cursor:pointer;transition:all .2s}
+.nav-btn:hover,.nav-btn.on{border-color:#C9A84C55;color:#C9A84C;background:#C9A84C0a}
 
-/* ── SECTION TITLES ── */
-.sec-label{font-family:monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#666;margin-bottom:12px}
-.sec-label.dim{color:#3a3a50}
-.page-title{font-weight:800;font-size:22px;margin-bottom:6px}
-.page-sub{color:#888;font-size:13px;margin-bottom:24px}
+/* CARDS */
+.card{background:#0c0c18;border:1px solid #1a1a2e;border-radius:14px;padding:18px;transition:border-color .2s,box-shadow .2s,transform .2s}
+.card.click{cursor:pointer}
+.card.click:hover{transform:translateY(-2px)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:11px}
 
-/* ── CARDS ── */
-.card{background:#0c0c18;border-radius:14px;padding:18px;border:1px solid #1a1a28;transition:all .2s;position:relative}
-.card.clickable{cursor:pointer}
-.card.clickable:hover{transform:translateY(-2px)}
-.grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:11px}
-.grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:11px}
+/* XP BAR */
+.xpbar{width:100%;height:5px;background:#111122;border-radius:99px;overflow:hidden;margin-top:10px}
+.xpfill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+.xprow{display:flex;justify-content:space-between;margin-top:5px;font-family:monospace;font-size:10px;color:#555}
 
-/* ── XP BAR ── */
-.xp-bar-wrap{width:100%;height:5px;background:#111122;border-radius:99px;overflow:hidden;margin-top:12px}
-.xp-bar-fill{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.34,1.56,.64,1)}
-.xp-row{display:flex;justify-content:space-between;margin-top:5px;font-family:monospace;font-size:10px;color:#777}
-.streak{color:#ff9f43}
-.badge{font-size:10px;font-family:monospace;padding:2px 7px;border-radius:99px}
-
-/* ── BUTTONS ── */
-.btn{border:none;border-radius:10px;padding:11px 18px;cursor:pointer;font-weight:700;font-size:14px;transition:all .2s}
+/* BUTTONS */
+.btn{border:none;border-radius:10px;padding:11px 20px;cursor:pointer;font-weight:700;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn-primary{color:#08080f}
-.btn-ghost{background:none;border:1px solid #2a2a3e;color:#888;border-radius:10px;padding:9px 16px;cursor:pointer;font-size:13px;transition:all .2s}
-.btn-ghost:hover{border-color:#444;color:#aaa}
+.btn-ghost{background:none;border:1px solid #2a2a3e;color:#777;border-radius:10px;padding:9px 16px;cursor:pointer;font-size:13px;transition:all .2s}
+.btn-ghost:hover{border-color:#444;color:#bbb}
+.btn-danger{background:none;border:1px solid #E05C5C33;color:#E05C5C66;border-radius:10px;padding:9px 16px;cursor:pointer;font-size:13px}
 .btn-full{width:100%}
-.btn:disabled{opacity:.4;cursor:default}
+.btn:disabled,.btn-ghost:disabled{opacity:.35;cursor:default}
 
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
-.modal-overlay.open{display:flex}
-.modal-box{background:#090914;border-radius:18px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto}
-.modal-header{padding:16px 20px;border-bottom:1px solid #ffffff08;display:flex;justify-content:space-between;align-items:center}
-.modal-close{background:none;border:none;color:#444;font-size:22px;cursor:pointer;line-height:1}
+/* FORMS */
+.label{font-size:11px;color:#666;margin-bottom:6px;display:block;font-family:monospace;letter-spacing:.5px;text-transform:uppercase}
+.input{width:100%;background:#0e0e1c;border:1px solid #2a2a3e;border-radius:10px;padding:11px 14px;color:#ddd;font-size:13px;outline:none;transition:border-color .2s}
+.input:focus{border-color:#C9A84C55}
+.textarea{width:100%;background:#0e0e1c;border:1px solid #2a2a3e;border-radius:10px;padding:11px 14px;color:#ddd;font-size:13px;resize:vertical;outline:none;min-height:80px}
+.textarea:focus{border-color:#C9A84C55}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.overlay.open{display:flex}
+.modal{background:#090914;border-radius:18px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto}
+.modal-head{padding:16px 20px;border-bottom:1px solid #ffffff08;display:flex;justify-content:space-between;align-items:center}
 .modal-body{padding:20px}
+.modal-close{background:none;border:none;color:#444;font-size:22px;cursor:pointer;line-height:1;padding:0}
 
-/* ── FORMS ── */
-.form-group{margin-bottom:16px}
-.form-label{font-size:12px;color:#999;margin-bottom:6px;display:block;font-family:monospace}
-.form-input{width:100%;background:#0e0e1c;border:1px solid #2a2a3e;border-radius:10px;padding:11px 14px;color:#eee;font-size:13px;outline:none;transition:border-color .2s}
-.form-input:focus{border-color:#C9A84C44}
-.form-textarea{width:100%;background:#0e0e1c;border:1px solid #2a2a3e;border-radius:10px;padding:11px 14px;color:#eee;font-size:13px;resize:vertical;outline:none;min-height:80px}
-.form-textarea:focus{border-color:#C9A84C44}
-
-/* ── NOTIF ── */
-#notif{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:9px 22px;border-radius:99px;font-family:monospace;font-size:13px;z-index:200;white-space:nowrap;display:none;background:#0c0c18;animation:fadeUp .3s ease}
+/* NOTIF */
+#notif{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:9px 24px;border-radius:99px;font-family:monospace;font-size:13px;z-index:200;white-space:nowrap;display:none;background:#0c0c18;pointer-events:none}
 @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+#notif.show{display:block;animation:fadeUp .3s ease}
 
-/* ── LOADING ── */
-#loading{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:monospace;color:#333;font-size:13px}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid #1e1e2e;border-top-color:#C9A84C;border-radius:50%;animation:spin .8s linear infinite;margin-right:10px}
+/* LOADING */
+.loading{min-height:60vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#333;font-family:monospace;font-size:13px}
+.spin{width:20px;height:20px;border:2px solid #1e1e2e;border-top-color:#C9A84C;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── SESSION ── */
-.session-type-btn{background:#0e0e1c;border-radius:12px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s;color:#ccc;border:1px solid #1e1e2e;margin-bottom:9px;width:100%}
-.session-type-btn:hover{background:#ffffff06}
-.question-text{font-weight:700;font-size:15px;color:#eee;margin-bottom:18px;line-height:1.6}
-.options{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
-.option-btn{border-radius:10px;padding:12px 14px;cursor:pointer;text-align:left;font-size:13px;border:1px solid #2a2a3e;background:#0e0e1c;color:#ddd;transition:all .2s;width:100%}
-.option-btn:hover:not(:disabled){background:#ffffff06}
-.option-btn.selected{color:#fff}
-.option-btn.correct{background:#0f2010!important;border-color:#3a8a3a!important;color:#7dd87d!important}
-.option-btn.wrong{background:#20100e!important;border-color:#8a3a3a!important;color:#d87d7d!important}
-.feedback-box{border-radius:12px;padding:16px;margin-top:12px}
-.feedback-box.ok{background:#0f2010;border:1px solid #3a8a3a44}
-.feedback-box.fail{background:#20100e;border:1px solid #8a3a3a44}
-.tip-box{background:#15130a;border:1px solid #C9A84C33;border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:#C9A84C99}
-.flashcard-wrap{perspective:1000px;height:190px;margin-bottom:14px;cursor:pointer}
-.flashcard-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s ease}
-.flashcard-inner.flipped{transform:rotateY(180deg)}
-.flashcard-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;justify-content:center;padding:22px}
-.flashcard-back{transform:rotateY(180deg)}
-.f-label{font-size:10px;font-family:monospace;letter-spacing:1px;margin-bottom:10px}
-.f-content{font-weight:700;font-size:16px;color:#eee;text-align:center;line-height:1.4}
-.f-hint{margin-top:12px;font-size:10px;color:#666;text-align:center}
-.f-back-text{color:#ddd;font-size:13px;line-height:1.8}
-.challenge-box{border-radius:12px;padding:15px;margin-bottom:14px}
-.solution-box{background:#0e0e1c;border:1px solid #2a2a3e;border-radius:12px;padding:16px}
-.solution-text{color:#bbb;font-size:13px;line-height:1.8;white-space:pre-wrap;margin-bottom:14px}
+/* QUIZ */
+.question{font-weight:700;font-size:15px;line-height:1.7;margin-bottom:20px;color:#eee}
+.opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.opt{border-radius:10px;padding:12px 15px;cursor:pointer;text-align:left;font-size:13px;border:1px solid #2a2a3e;background:#0e0e1c;color:#ccc;transition:all .2s;width:100%;font-family:'Syne',sans-serif}
+.opt:hover:not(:disabled){background:#ffffff05;border-color:#444}
+.opt.sel{color:#fff}
+.opt.ok{background:#0f2010!important;border-color:#3a8a3a!important;color:#7dd87d!important}
+.opt.fail{background:#20100e!important;border-color:#8a3a3a!important;color:#d87d7d!important}
+.feedback{border-radius:12px;padding:16px;margin-top:12px}
+.feedback.ok{background:#0f2010;border:1px solid #3a8a3a44}
+.feedback.fail{background:#20100e;border:1px solid #8a3a3a44}
 
-/* ── AI LEARN MODES ── */
-.learn-chunk{background:#0e0e1c;border:1px solid #2a2a3e;border-radius:12px;padding:16px;margin-bottom:12px;font-size:14px;color:#ddd;line-height:1.8}
-.learn-chunk h3{color:#eee;font-size:15px;margin-bottom:8px}
-.chat-messages{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;max-height:340px;overflow-y:auto}
-.chat-msg{padding:12px 15px;border-radius:12px;font-size:13px;line-height:1.7;max-width:90%}
-.chat-msg.user{background:#1a1a2e;color:#ddd;align-self:flex-end;border:1px solid #2a2a4e}
-.chat-msg.ai{background:#0e0e1c;color:#ddd;align-self:flex-start;border:1px solid #1e1e2e}
-.chat-input-row{display:flex;gap:8px}
-.chat-input{flex:1;background:#0e0e1c;border:1px solid #2a2a3e;border-radius:10px;padding:10px 13px;color:#eee;font-size:13px;outline:none}
+/* FLASHCARD */
+.fc-wrap{perspective:1000px;height:195px;margin-bottom:16px;cursor:pointer}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s ease}
+.fc-inner.flip{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;justify-content:center;padding:24px}
+.fc-back{transform:rotateY(180deg)}
+.fc-tag{font-size:10px;font-family:monospace;letter-spacing:1px;margin-bottom:10px}
+.fc-title{font-weight:700;font-size:17px;text-align:center;line-height:1.4;color:#eee}
+.fc-hint{margin-top:14px;font-size:10px;color:#444;text-align:center}
+.fc-text{font-size:14px;line-height:1.8;color:#ddd}
+
+/* SELF EVAL */
+.self-eval{display:flex;gap:8px;margin-top:14px}
+.eval-btn{flex:1;border:none;border-radius:10px;padding:10px 6px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;transition:all .2s}
+
+/* CHALLENGE */
+.scenario{border-radius:12px;padding:16px;margin-bottom:14px}
+.tip{background:#15130a;border:1px solid #C9A84C1a;border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:#C9A84C88}
+.solution{background:#0e0e1c;border:1px solid #2a2a3e;border-radius:12px;padding:16px}
+
+/* CHAT */
+.chat-msgs{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;max-height:360px;overflow-y:auto;padding-right:4px}
+.msg{padding:12px 15px;border-radius:12px;font-size:13px;line-height:1.7;max-width:92%}
+.msg.user{background:#1a1a2e;color:#ddd;align-self:flex-end;border:1px solid #2a2a4e}
+.msg.ai{background:#0e0e1c;color:#ddd;align-self:flex-start;border:1px solid #1e1e2e}
+.chat-row{display:flex;gap:8px}
+.chat-in{flex:1;background:#0e0e1c;border:1px solid #2a2a3e;border-radius:10px;padding:10px 13px;color:#ddd;font-size:13px;outline:none}
+.chat-in:focus{border-color:#C9A84C44}
 .chat-send{background:#C9A84C;border:none;border-radius:10px;padding:10px 16px;cursor:pointer;color:#08080f;font-weight:700;font-size:13px}
 
-/* ── ROADMAP ── */
-.timeline{position:relative;padding-left:24px}
-.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:#1e1e2e}
-.timeline-item{position:relative;margin-bottom:20px}
-.timeline-dot{position:absolute;left:-20px;top:4px;width:10px;height:10px;border-radius:50%;border:2px solid #1e1e2e;background:#060610}
-.timeline-date{font-family:monospace;font-size:10px;color:#777;margin-bottom:4px}
-.timeline-content{background:#0c0c18;border:1px solid #252535;border-radius:12px;padding:14px}
-.timeline-title{font-weight:700;font-size:13px;margin-bottom:4px}
-.timeline-meta{font-size:12px;color:#888}
-.timeline-note{font-size:12px;color:#999;margin-top:8px;font-style:italic;border-top:1px solid #1a1a28;padding-top:8px}
+/* LEARN CHUNKS */
+.chunk{background:#0e0e1c;border:1px solid #2a2a3e;border-radius:12px;padding:18px;margin-bottom:12px;font-size:14px;color:#ddd;line-height:1.85}
+.chunk h2{color:#eee;font-size:17px;margin:0 0 12px}
+.chunk h3{color:#eee;font-size:15px;margin:14px 0 8px}
+.chunk strong{color:#eee}
+.chunk li{margin:5px 0 5px 18px;color:#ccc}
 
-/* ── STATS ── */
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.stat-box{background:#0c0c18;border:1px solid #1a1a28;border-radius:12px;padding:14px;text-align:center}
-.stat-val{font-weight:800;font-size:22px;margin-bottom:2px}
-.stat-lbl{font-family:monospace;font-size:10px;color:#777}
+/* ROADMAP */
+.tl{position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:7px;top:4px;bottom:0;width:1px;background:#1e1e2e}
+.tl-item{position:relative;margin-bottom:18px}
+.tl-dot{position:absolute;left:-18px;top:5px;width:10px;height:10px;border-radius:50%;border:2px solid #1e1e2e;background:#060610}
+.tl-date{font-family:monospace;font-size:10px;color:#555;margin-bottom:4px}
+.tl-card{background:#0c0c18;border:1px solid #1a1a2e;border-radius:11px;padding:13px}
+.tl-title{font-weight:700;font-size:13px;margin-bottom:3px}
+.tl-meta{font-size:12px;color:#666}
+.tl-note{font-size:12px;color:#888;margin-top:8px;padding-top:8px;border-top:1px solid #1a1a2e;font-style:italic}
 
-/* ── SETUP ── */
-.setup-box{background:#0c0c18;border:1px solid #C9A84C22;border-radius:16px;padding:24px;max-width:480px;margin:0 auto}
-.setup-title{font-weight:800;font-size:20px;margin-bottom:6px}
-.setup-sub{color:#555;font-size:13px;margin-bottom:24px;line-height:1.6}
-.setup-step{display:flex;gap:12px;margin-bottom:16px;align-items:flex-start}
-.setup-num{width:24px;height:24px;border-radius:50%;background:#C9A84C18;border:1px solid #C9A84C44;color:#C9A84C;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+/* STATS */
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.stat{background:#0c0c18;border:1px solid #1a1a2e;border-radius:12px;padding:14px;text-align:center}
+.stat-n{font-weight:800;font-size:22px;margin-bottom:2px}
+.stat-l{font-family:monospace;font-size:10px;color:#555}
 
-/* ── ANALYSIS ── */
-.analysis-box{background:#0e0e1c;border:1px solid #2a2a3e;border-radius:12px;padding:16px;margin-bottom:12px;font-size:13px;color:#ddd;line-height:1.8}
-.analysis-box h3{color:#eee;font-size:14px;font-weight:700;margin-bottom:8px}
+/* VOICE */
+.voice-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.toggle-track{width:38px;height:21px;border-radius:99px;position:relative;transition:background .2s}
+.toggle-thumb{position:absolute;top:2.5px;width:16px;height:16px;border-radius:50%;background:#eee;transition:left .2s}
+.mic-status{text-align:center;font-size:12px;color:#888;font-family:monospace;margin-top:8px}
 
-/* ── FILE UPLOAD ── */
-.upload-area{border:1px dashed #2a2a3e;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
-.upload-area:hover{border-color:#C9A84C44;background:#C9A84C06}
-.upload-area input{display:none}
+/* XP POPUP */
+.xp-popup{position:fixed;bottom:30px;right:24px;background:#0c0c18;border:1px solid #C9A84C44;border-radius:12px;padding:12px 20px;font-family:monospace;font-size:13px;color:#C9A84C;z-index:300;display:none;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* PROGRESS RING */
+.ring-wrap{position:relative;width:52px;height:52px;flex-shrink:0}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
 </style>
 </head>
 <body>
 <div class="grid-bg"></div>
 <div id="notif"></div>
-<div id="loading"><span class="spinner"></span>carregando...</div>
-<div id="root" style="display:none"></div>
+<div class="xp-popup" id="xp-popup"></div>
+<div id="app"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// CONTENT BANK
-// ═══════════════════════════════════════════════════════════════
-const STATIC_CONTENT = {
-  tp:{
-    quiz:[
-      {q:"Qual método compara o preço de uma transação controlada com transações entre partes independentes?",opts:["A) PRL","B) PCI (Preço Comparável Independente)","C) CPL","D) PVEx"],ans:"B",exp:"O PCI (CUP na OCDE) é o método preferido quando há comparáveis confiáveis — compara diretamente o preço da transação controlada com o de transações similares entre partes independentes."},
-      {q:"Qual princípio fundamental norteia as regras de Transfer Pricing globalmente?",opts:["A) Princípio da Consolidação Fiscal","B) Arm's Length (Plena Concorrência)","C) Princípio da Proporcionalidade","D) Princípio da Territorialidade"],ans:"B",exp:"O Arm's Length Principle determina que transações entre relacionadas devem ser precificadas como entre partes independentes em condições de mercado. Base do Artigo 9 do modelo OCDE."},
-      {q:"O método CPL é mais adequado para qual tipo de transação?",opts:["A) Distribuição de produtos acabados","B) Serviços de alto valor agregado","C) Fabricação de produtos semi-acabados ou commodities","D) Licenciamento de PI"],ans:"C",exp:"CPL parte do custo de produção e adiciona margem comparável. Ideal para fabricantes que agregam valor no processo produtivo, especialmente semi-acabados e commodities."},
-      {q:"O que é o 'arm's length range'?",opts:["A) Preço médio do setor","B) Conjunto de valores resultantes da aplicação do método a múltiplos comparáveis","C) Intervalo aceito pela Receita sem ajuste","D) Diferença entre preço mínimo e máximo"],ans:"B",exp:"O intervalo de plena concorrência reúne os resultados do método aplicado a vários comparáveis. Se o resultado da transação controlada cair dentro do intervalo, está em conformidade."},
-      {q:"Qual método é mais indicado para distribuidores de baixo risco?",opts:["A) CUP/PCI","B) Cost Plus/CPL","C) Resale Price/PRL","D) Profit Split"],ans:"C",exp:"PRL parte do preço de revenda e subtrai margem bruta comparável. Perfeito para distribuidores que não agregam valor significativo ao produto, apenas o revendem."},
-      {q:"O que é 'delineation' de uma transação controlada?",opts:["A) Documentar preços em formulário fiscal","B) Identificar e delimitar a transação real com base na conduta efetiva das partes","C) Calcular o ajuste de preço","D) Registrar no SPED"],ans:"B",exp:"Delineamento é entender a transação real: o que foi transferido, quais riscos cada parte assumiu, e se a forma contratual reflete a substância econômica."},
-    ],
-    flashcard:[
-      {front:"Método PCI",back:"Compara o preço da transação controlada com transações comparáveis entre partes independentes. Método preferido da OCDE quando há comparáveis confiáveis.",tip:"Equivalente ao CUP (Comparable Uncontrolled Price) na nomenclatura internacional."},
-      {front:"Análise Funcional (FAR)",back:"Mapeamento de Funções exercidas, Ativos utilizados e Riscos assumidos por cada parte. Base para escolher o método de TP e identificar a tested party.",tip:"FAR = Functions, Assets, Risks. É o ponto de partida de qualquer análise de TP."},
-      {front:"DEMPE",back:"Development, Enhancement, Maintenance, Protection, Exploitation — framework OCDE para intangíveis. Define quem deve receber os retornos com base em quem realmente executa cada atividade.",tip:"Essencial para transações de royalties e propriedade intelectual."},
-      {front:"Tested Party",back:"A entidade menos complexa sobre a qual o método é aplicado. Geralmente realiza funções rotineiras e assume menos riscos — mais fácil de encontrar comparáveis.",tip:"Costuma ser a entidade nacional em casos de distribuidora ou fabricante por contrato."},
-      {front:"IQR (Intervalo Interquartil)",back:"Intervalo entre Q1 (25%) e Q3 (75%) dos comparáveis. Usado como arm's length range após eliminar outliers. Resultado fora do IQR → ajuste necessário.",tip:"A mediana (Q2) é o ponto de referência central preferido para ajustes."},
-    ],
-    challenge:[
-      {title:"Seleção de Método",scenario:"Alfa Ltda. importa componentes da controladora americana para montagem simples no Brasil. Sem P&D. Existem comparáveis de preço disponíveis no mercado.",task:"Qual método é mais adequado? Justifique.",hint:"Pense nas funções da Alfa (montagem simples) e disponibilidade de comparáveis.",solution:"PCI é preferido se houver comparáveis de preço confiáveis. Sem eles, CPL — aplica-se margem sobre o custo da controladora fabricante. PRL seria adequado se analisássemos a revenda ao cliente final."},
-      {title:"IQR na prática",scenario:"8 comparáveis com margens: 18%, 22%, 24%, 25%, 27%, 29%, 31%, 45%. Empresa testada pratica 20%.",task:"Calcule o IQR. A margem de 20% está em conformidade?",hint:"Q1 = média do 2º e 3º valor. Q3 = média do 6º e 7º valor.",solution:"Ordenados: 18,22,24,25,27,29,31,45\nQ1=(22+24)/2=23% | Q3=(29+31)/2=30%\nIQR: 23% a 30%\n\n20% está FORA do intervalo (abaixo de Q1) → ajuste necessário."},
-      {title:"Análise FAR",scenario:"Subsidiária brasileira: desenvolve software localmente, detém marcas no Brasil, assume risco de crédito e gerencia operação comercial no país.",task:"Liste as principais Funções, Ativos e Riscos (FAR) da subsidiária.",hint:"Seja específico em cada categoria — evite respostas genéricas.",solution:"Funções: desenvolvimento de software, vendas/marketing, gestão de clientes, suporte técnico.\n\nAtivos: marcas registradas no Brasil, código-fonte local, carteira de clientes, know-how de mercado.\n\nRiscos: crédito (inadimplência), mercado (câmbio, concorrência), operacional."},
-    ],
-  },
-  sql:{
-    quiz:[
-      {q:"Qual cláusula filtra resultados APÓS o GROUP BY?",opts:["A) WHERE","B) FILTER","C) HAVING","D) LIMIT"],ans:"C",exp:"HAVING filtra grupos após a agregação. WHERE filtra linhas antes. Ex: GROUP BY dept HAVING COUNT(*) > 5."},
-      {q:"Qual JOIN retorna apenas linhas com correspondência em ambas as tabelas?",opts:["A) LEFT JOIN","B) FULL OUTER JOIN","C) INNER JOIN","D) CROSS JOIN"],ans:"C",exp:"INNER JOIN exclui linhas sem par na outra tabela. É o JOIN mais restritivo e o padrão quando não especificado em muitos bancos."},
-      {q:"Para que serve PARTITION BY em window functions?",opts:["A) Divide a tabela fisicamente","B) Define grupos para o cálculo sem colapsar linhas","C) Substitui GROUP BY","D) Filtra linhas do cálculo"],ans:"B",exp:"PARTITION BY divide logicamente o resultado para cálculo da window function, mas mantém todas as linhas — diferente do GROUP BY que colapsa."},
-      {q:"O que é um CTE?",opts:["A) Índice especial","B) Tabela temporária persistida","C) Resultado nomeado e temporário definido com WITH","D) Função que retorna tabela"],ans:"C",exp:"CTEs (WITH nome AS (...)) criam resultados temporários nomeados referenciáveis na query principal. Melhoram legibilidade e permitem recursão."},
-      {q:"Qual a diferença entre UNION e UNION ALL?",opts:["A) São sinônimos","B) UNION remove duplicatas; UNION ALL mantém tudo","C) UNION ALL remove duplicatas","D) UNION só funciona com SELECT *"],ans:"B",exp:"UNION faz DISTINCT implícito (mais lento). UNION ALL concatena diretamente sem remover duplicatas (mais rápido). Prefira UNION ALL quando não há duplicatas."},
-    ],
-    flashcard:[
-      {front:"LEFT JOIN vs INNER JOIN",back:"INNER JOIN: só linhas com par em ambas as tabelas.\nLEFT JOIN: todas as linhas da esquerda + pares da direita (NULL onde não há match).",tip:"'Quero tudo da esquerda mesmo sem par' → LEFT JOIN."},
-      {front:"Window Functions",back:"Calculam sobre linhas relacionadas sem colapsar o resultado. Sintaxe: FN() OVER (PARTITION BY col ORDER BY col).\nExemplos: ROW_NUMBER(), RANK(), LAG(), LEAD(), SUM() OVER.",tip:"Diferença chave: GROUP BY colapsa linhas, window functions não."},
-      {front:"NULL em SQL",back:"NULL = ausência de valor. Comparações: IS NULL / IS NOT NULL (nunca = NULL).\nCOALESCE(col, 'padrão') substitui NULL.",tip:"NULL = NULL retorna NULL, não TRUE. Pegadinha clássica em JOINs e WHERE."},
-      {front:"EXPLAIN / EXPLAIN ANALYZE",back:"EXPLAIN: plano estimado de execução.\nEXPLAIN ANALYZE: executa e mostra dados reais.\nIdentifica full scans, sorts caros, nested loops ineficientes.",tip:"Nunca otimize no escuro — sempre EXPLAIN primeiro."},
-    ],
-    challenge:[
-      {title:"Relatório por Região",scenario:"Tabela 'vendas' (id, data, regiao, valor, status). Quer total vendido por região, só status='aprovado', maior para menor.",task:"Escreva a query completa.",hint:"SELECT, FROM, WHERE, GROUP BY, ORDER BY, SUM().",solution:"SELECT regiao, SUM(valor) AS total_vendas\nFROM vendas\nWHERE status = 'aprovado'\nGROUP BY regiao\nORDER BY total_vendas DESC;"},
-      {title:"Clientes sem Compra Recente",scenario:"Tabelas 'clientes' (id, nome, email) e 'pedidos' (id, cliente_id, data_pedido). Quer clientes sem pedido nos últimos 90 dias ou nunca compraram.",task:"Query com LEFT JOIN.",hint:"Filtre a data no ON do JOIN, não no WHERE. WHERE p.id IS NULL.",solution:"SELECT c.id, c.nome, c.email\nFROM clientes c\nLEFT JOIN pedidos p\n  ON c.id = p.cliente_id\n  AND p.data_pedido >= CURRENT_DATE - INTERVAL '90 days'\nWHERE p.id IS NULL;"},
-    ],
-  },
-  es:{
-    quiz:[
-      {q:"¿Conjugación de 'hablar' en primera persona del pretérito indefinido?",opts:["A) hablaba","B) hablaré","C) hablé","D) hablo"],ans:"C",exp:"'Hablé' é o pretérito indefinido (passado perfeito simples). 'Hablaba' é imperfecto, 'hablaré' é futuro, 'hablo' é presente."},
-      {q:"¿Apertura más adecuada para email formal en español?",opts:["A) ¡Hola! ¿Qué tal?","B) Estimado/a Sr./Sra. [apellido]:","C) Buenas, te escribo...","D) Oye, necesito algo."],ans:"B",exp:"'Estimado/a' = 'Prezado/a'. É o tratamento padrão em comunicações formais de negócios em espanhol."},
-      {q:"¿Cómo se dice 'transfer pricing' en español técnico?",opts:["A) Transferencia de precios","B) Precios de transferencia","C) Precio de traslado","D) Valuación de transferencia"],ans:"B",exp:"'Precios de transferencia' é o termo técnico oficial em toda documentação fiscal e tributária em espanhol."},
-      {q:"¿Cuál es el plural correcto de 'el análisis'?",opts:["A) los análisises","B) los análisis","C) los análisas","D) los analisas"],ans:"B",exp:"Palavras terminadas em '-s' não mudam no plural: el análisis → los análisis. Mesmo padrão: la crisis → las crisis."},
-    ],
-    flashcard:[
-      {front:"Ser vs Estar",back:"SER: identidade, origem, características permanentes, profissão.\nESTAR: estados temporários, localização, condições.\n\nEx: soy analista (ser) / estoy cansado (estar).",tip:"'Estar' para estados/emoções; 'ser' para identidade. Há exceções."},
-      {front:"Vocabulário de Reuniões",back:"la reunión · el orden del día (pauta) · el acta (ata) · el informe (relatório) · el plazo (prazo) · el presupuesto (orçamento) · pendiente (pendente)",tip:"Muitas palavras são cognatas — confie na similaridade com o português."},
-      {front:"Discordar com Educação",back:"Entiendo tu punto, sin embargo...\nCon todo respeto, creo que...\nQuizás podríamos considerar...\nNo estoy del todo de acuerdo...",tip:"No mundo de negócios, a forma importa tanto quanto o conteúdo."},
-    ],
-    challenge:[
-      {title:"Email Profissional",scenario:"Avise o cliente Sr. García que o relatório de precios de transferencia ficará pronto na próxima semana por causa do volume de dados. Peça confirmação do prazo.",task:"Escreva o email completo (assunto + corpo) com tom formal.",hint:"Use: Estimado Sr. García / lamentamos informarle / debido a / la semana próxima / ¿le sería posible confirmar?",solution:"Asunto: Actualización – Informe de Precios de Transferencia\n\nEstimado Sr. García:\n\nEspero que se encuentre bien. Le informo que el informe solicitado estará listo la semana próxima, no esta semana como se había estimado.\n\nLamentamos el retraso. Debido al volumen de datos del análisis, necesitamos algunos días adicionales para garantizar la calidad.\n\n¿Le sería posible confirmar si este plazo es conveniente?\n\nQuedamos a su disposición.\n\nAtentamente,\n[Su nombre]"},
-    ],
-  },
-};
-
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
 const TRACKS = [
-  {id:"tp", name:"Transfer Pricing",icon:"⚖️",color:"#C9A84C",active:true, desc:"Métodos, comparabilidade e regulação"},
-  {id:"sql",name:"SQL & BI",        icon:"🗄️",color:"#5B8CFF",active:true, desc:"Consultas, agregações e análise"},
-  {id:"es", name:"Espanhol",        icon:"🌎",color:"#E05C5C",active:true, desc:"Fluência profissional"},
-  {id:"art",name:"História da Arte",icon:"🎨",color:"#555",   active:false,desc:"Em breve"},
-  {id:"fr", name:"Francês",         icon:"🗼",color:"#555",   active:false,desc:"Em breve"},
-  {id:"py", name:"Programação",     icon:"🐍",color:"#555",   active:false,desc:"Em breve"},
+  {id:"tp", name:"Transfer Pricing", icon:"⚖️", color:"#C9A84C", active:true,  desc:"Métodos, comparabilidade e regulação OCDE"},
+  {id:"sql",name:"SQL & BI",         icon:"🗄️", color:"#5B8CFF", active:true,  desc:"Consultas, análise e visualização de dados"},
+  {id:"es", name:"Espanhol",         icon:"🌎", color:"#E05C5C", active:true,  desc:"Fluência profissional em espanhol"},
+  {id:"fr", name:"Francês",          icon:"🗼", color:"#7B8CDE", active:false, desc:"Em breve"},
+  {id:"py", name:"Programação",      icon:"🐍", color:"#3DB454", active:false, desc:"Em breve"},
+  {id:"art",name:"História da Arte", icon:"🎨", color:"#C47DB4", active:false, desc:"Em breve"},
 ];
 
-const LEARN_MODES = [
-  {id:"guide",   icon:"📖",label:"Leitura Guiada",    desc:"IA explica um tópico em blocos progressivos",    xp:25},
-  {id:"map",     icon:"🗺️",label:"Mapa Conceitual",   desc:"Trilha de conceitos do básico ao avançado",      xp:20},
-  {id:"socratic",icon:"🤔",label:"Modo Socrático",    desc:"IA faz perguntas para você construir o conceito", xp:30},
-  {id:"doc",     icon:"📄",label:"Chat com Documento",desc:"Sobe um PDF e discute com a IA",                 xp:35},
-  {id:"brief",   icon:"⚡",label:"Daily Brief",        desc:"Conceito rápido do dia com exemplo prático",     xp:10},
+const MODES = [
+  {id:"quiz",      icon:"❓", label:"Quiz",           desc:"Pergunta gerada por IA no seu nível",          xpBase:30, practice:true},
+  {id:"flashcard", icon:"🃏", label:"Flashcard",       desc:"Conceito + autoavaliação honesta",             xpBase:20, practice:true},
+  {id:"challenge", icon:"⚡", label:"Desafio",         desc:"Cenário prático avaliado pela IA",             xpBase:40, practice:true},
+  {id:"guide",     icon:"📖", label:"Leitura Guiada",  desc:"Microaula progressiva sobre tópico novo",      xpBase:25, practice:false},
+  {id:"socratic",  icon:"🤔", label:"Socrático",       desc:"Diálogo que constrói o entendimento",          xpBase:35, practice:false},
+  {id:"doc",       icon:"📄", label:"Chat c/ Documento",desc:"Sobe um texto e discute com a IA",            xpBase:35, practice:false},
+  {id:"brief",     icon:"⚡", label:"Daily Brief",     desc:"Conceito novo do dia baseado no seu histórico", xpBase:15, practice:false},
 ];
 
 const VOICE_MODES = [
-  {id:"voice_conv",    icon:"🎙️",label:"Conversação",  desc:"Fale em espanhol — a IA responde e corrige", xp:40},
-  {id:"voice_shadow",  icon:"🔊",label:"Shadowing",    desc:"Ouça e repita — treine pronúncia",           xp:25},
-  {id:"voice_dictado", icon:"✍️",label:"Ditado",       desc:"Ouça e escreva — treine escuta e escrita",   xp:30},
+  {id:"conv",    icon:"🎙️", label:"Conversação",   desc:"Fale livremente — IA responde e corrige",  xpBase:40},
+  {id:"shadow",  icon:"🔊", label:"Shadowing",     desc:"Ouça e repita — treine pronúncia",          xpBase:25},
+  {id:"dictado", icon:"✍️", label:"Ditado",        desc:"Ouça e escreva — treine compreensão",       xpBase:30},
 ];
 
-const PRACTICE_MODES = [
-  {id:"quiz",      icon:"❓",label:"Quiz",     desc:"Pergunta de múltipla escolha",xp:20},
-  {id:"flashcard", icon:"🃏",label:"Flashcard",desc:"Conceito + explicação",       xp:15},
-  {id:"challenge", icon:"⚡",label:"Desafio",  desc:"Problema prático",            xp:30},
-];
-
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════════════
-const DEFAULT_STATS = {
-  tp: {xp:0,level:1,xpNext:100,streak:0},
-  sql:{xp:0,level:1,xpNext:100,streak:0},
-  es: {xp:0,level:1,xpNext:100,streak:0},
-};
-
+// ══════════════════════════════════════════════
+const DEF_STATS = () => ({xp:0,level:1,xpNext:100,streak:0});
 let S = {
-  page:"home",          // home | track | roadmap | analysis | settings
-  stats: JSON.parse(JSON.stringify(DEFAULT_STATS)),
-  totalXP:0,
-  history:[],           // [{date,trackId,mode,type,xp,note}]
-  activeTrack:null,
-  modal:null,           // current modal id
-  // session state
-  sessionMode:null,     // practice | learn
-  sessionType:null,     // quiz|flashcard|challenge|guide|map|socratic|doc|brief
-  currentItem:null,
-  selectedOpt:null,
-  revealed:false,
-  answer:"",
-  flipped:false,
-  chatHistory:[],       // for doc chat & socratic
-  learnChunks:[],       // for guide mode
-  learnChunkIdx:0,
-  docContent:"",
-  voiceMode:null,
-  voiceTranscript:"",
-  voiceShadowText:"",
-  voiceDictadoText:"",
-  voiceConvHistory:[],
-  shadowListening:false,
-  convListening:false,
-  voiceManualMode:false,
-  analysisText:"",
-  analysisLoading:false,
-  dailyBrief:null,
+  page: "home",
+  stats: {tp:DEF_STATS(),sql:DEF_STATS(),es:DEF_STATS()},
+  totalXP: 0,
+  history: [],        // {date,trackId,mode,topic,xp,score,note}
+  seen: {},           // {trackId: [{topic,date}]} — spaced repetition memory
+  // session
+  track: null,
+  mode: null,
+  item: null,
+  // quiz state
+  qSel: null, qRevealed: false,
+  // flashcard state
+  fcFlipped: false,
+  // challenge state
+  chAnswer: "", chRevealed: false, chScore: null, chFeedback: "",
+  // chat state
+  chatHist: [],
+  // guide state
+  chunks: [], chunkIdx: 0,
+  // doc state
+  docText: "",
+  // voice state
+  voiceMode: null, vManual: false, vListening: false,
+  vTranscript: "", vShadowPhrase: "", vDictadoPhrase: "",
+  vConvHist: [],
+  // misc
+  analysisText: "", analysisLoading: false,
+  loaded: false,
 };
 
-// ═══════════════════════════════════════════════════════════════
-// STORAGE — GitHub + localStorage
-// ═══════════════════════════════════════════════════════════════
-function getLocal(k){try{return localStorage.getItem(k)}catch{return null}}
-function setLocal(k,v){try{localStorage.setItem(k,v)}catch{}}
+// ══════════════════════════════════════════════
+// STORAGE — GitHub + localStorage fallback
+// ══════════════════════════════════════════════
+const gl = k => { try{return localStorage.getItem(k)}catch{return null} };
+const sl = (k,v) => { try{localStorage.setItem(k,v)}catch{} };
 
 function getKeys(){
   return {
-    gemini:  getLocal("sh_gemini_key")||"",
-    groq:    getLocal("sh_groq_key")||"",
-    github:  getLocal("sh_github_token")||"",
-    repo:    getLocal("sh_github_repo")||"felipeperucci/studyhub",
+    gemini: gl("sh_gemini")||"",
+    groq:   gl("sh_groq")||"",
+    github: gl("sh_github")||"",
+    repo:   gl("sh_repo")||"felipeperucci/studyhub",
   };
 }
 
-async function githubRead(){
+let _ghSha = null;
+async function ghRead(){
   const {github,repo} = getKeys();
   if(!github) return null;
   try{
@@ -313,15 +247,16 @@ async function githubRead(){
     });
     if(!r.ok) return null;
     const j = await r.json();
-    return {data:JSON.parse(atob(j.content)), sha:j.sha};
+    return {data:JSON.parse(decodeURIComponent(escape(atob(j.content)))), sha:j.sha};
   }catch{return null}
 }
-
-async function githubWrite(data, sha){
+async function ghWrite(data,sha){
   const {github,repo} = getKeys();
   if(!github) return false;
   try{
-    const body = {message:"StudyHub sync",content:btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))),sha};
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+    const body = {message:"StudyHub sync",content:encoded};
+    if(sha) body.sha = sha;
     const r = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`,{
       method:"PUT",
       headers:{Authorization:`token ${github}`,Accept:"application/vnd.github.v3+json","Content-Type":"application/json"},
@@ -330,1338 +265,1200 @@ async function githubWrite(data, sha){
     return r.ok;
   }catch{return false}
 }
-
-let _ghSha = null;
-
 async function loadData(){
-  // Try GitHub first
-  const gh = await githubRead();
+  const gh = await ghRead();
   if(gh){
     _ghSha = gh.sha;
-    const d = gh.data;
-    if(d.stats) S.stats = d.stats;
-    if(typeof d.totalXP==="number") S.totalXP = d.totalXP;
-    if(d.history) S.history = d.history;
+    applyData(gh.data);
     return;
   }
-  // Fallback: localStorage
-  try{
-    const saved = getLocal("sh_data");
-    if(saved){
-      const d = JSON.parse(saved);
-      if(d.stats) S.stats = d.stats;
-      if(typeof d.totalXP==="number") S.totalXP = d.totalXP;
-      if(d.history) S.history = d.history;
-    }
-  }catch{}
+  const local = gl("sh_data");
+  if(local) try{ applyData(JSON.parse(local)); }catch{}
 }
-
+function applyData(d){
+  if(d.stats) S.stats = d.stats;
+  if(typeof d.totalXP==="number") S.totalXP = d.totalXP;
+  if(d.history) S.history = d.history;
+  if(d.seen) S.seen = d.seen;
+}
 async function saveData(){
-  const data = {stats:S.stats, totalXP:S.totalXP, history:S.history};
-  // Always save locally as fallback
-  setLocal("sh_data", JSON.stringify(data));
-  // Try GitHub
-  const ok = await githubWrite(data, _ghSha);
-  if(ok){
-    // refresh sha
-    const gh = await githubRead();
-    if(gh) _ghSha = gh.sha;
-  }
+  const data = {stats:S.stats,totalXP:S.totalXP,history:S.history,seen:S.seen};
+  sl("sh_data",JSON.stringify(data));
+  const ok = await ghWrite(data,_ghSha);
+  if(ok){ const gh=await ghRead(); if(gh) _ghSha=gh.sha; }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// AI — Multi-provider (Gemini primeiro, Groq como fallback)
-// ═══════════════════════════════════════════════════════════════
-async function callGemini(messages, system, maxTokens){
-  const {gemini} = getKeys();
+// ══════════════════════════════════════════════
+// AI — Gemini + Groq fallback
+// ══════════════════════════════════════════════
+async function callGemini(messages,system,maxTokens){
+  const {gemini}=getKeys();
   if(!gemini) throw new Error("Gemini não configurado");
-  const raw = messages.map(m=>({role:m.role==="assistant"?"model":"user", text:m.content}));
-  const merged = [];
-  for(const msg of raw){
-    if(merged.length>0 && merged[merged.length-1].role===msg.role) merged[merged.length-1].text+="\n"+msg.text;
-    else merged.push({role:msg.role, text:msg.text});
+  const raw=messages.map(m=>({role:m.role==="assistant"?"model":"user",text:m.content}));
+  const merged=[];
+  for(const m of raw){
+    if(merged.length&&merged[merged.length-1].role===m.role) merged[merged.length-1].text+="\n"+m.text;
+    else merged.push({role:m.role,text:m.text});
   }
-  if(!merged.length || merged[0].role!=="user") merged.unshift({role:"user",text:"Olá"});
-  const body = {
-    contents: merged.map(m=>({role:m.role,parts:[{text:m.text}]})),
-    generationConfig: {maxOutputTokens:maxTokens, temperature:0.7},
-  };
-  if(system) body.systemInstruction = {parts:[{text:system}]};
-  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-goog-api-key":gemini},
-    body:JSON.stringify(body)
+  if(!merged.length||merged[0].role!=="user") merged.unshift({role:"user",text:"Olá"});
+  const body={contents:merged.map(m=>({role:m.role,parts:[{text:m.text}]})),generationConfig:{maxOutputTokens:maxTokens,temperature:0.7}};
+  if(system) body.systemInstruction={parts:[{text:system}]};
+  const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{
+    method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":gemini},body:JSON.stringify(body)
   });
-  const j = await r.json();
-  if(j.error){ addLog("Gemini ERRO: "+j.error.message); throw new Error("Gemini: "+j.error.message); }
-  addLog("Gemini OK — "+((j.candidates?.[0]?.content?.parts?.[0]?.text||"").slice(0,60)));
+  const j=await r.json();
+  if(j.error) throw new Error("Gemini: "+j.error.message);
   return j.candidates?.[0]?.content?.parts?.[0]?.text||"";
 }
-
-async function callGroq(messages, system, maxTokens){
-  const {groq} = getKeys();
+async function callGroq(messages,system,maxTokens){
+  const {groq}=getKeys();
   if(!groq) throw new Error("Groq não configurado");
-  const msgs = [];
+  const msgs=[];
   if(system) msgs.push({role:"system",content:system});
   messages.forEach(m=>msgs.push({role:m.role==="assistant"?"assistant":"user",content:m.content}));
-  const r = await fetch("https://api.groq.com/openai/v1/chat/completions",{
+  const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{
     method:"POST",
     headers:{"Content-Type":"application/json","Authorization":"Bearer "+groq},
     body:JSON.stringify({model:"llama-3.3-70b-versatile",messages:msgs,max_tokens:maxTokens,temperature:0.7})
   });
-  const j = await r.json();
-  if(j.error){ addLog("Groq ERRO: "+(j.error.message||JSON.stringify(j.error))); throw new Error("Groq: "+(j.error.message||JSON.stringify(j.error))); }
-  addLog("Groq OK — "+((j.choices?.[0]?.message?.content||"").slice(0,60)));
+  const j=await r.json();
+  if(j.error) throw new Error("Groq: "+(j.error.message||JSON.stringify(j.error)));
   return j.choices?.[0]?.message?.content||"";
 }
-
-async function callAI(messages, system="", maxTokens=4000){
-  const {gemini, groq} = getKeys();
-  if(!gemini && !groq) throw new Error("Nenhuma API key configurada. Vá em Configurações.");
+async function ai(messages,system="",maxTokens=4000){
+  const {gemini,groq}=getKeys();
+  if(!gemini&&!groq) throw new Error("Nenhuma API key configurada. Vá em Configurações.");
   if(gemini){
-    try{ return await callGemini(messages, system, maxTokens); }
+    try{ return await callGemini(messages,system,maxTokens); }
     catch(e){
-      const msg = e.message||"";
-      if(groq && (msg.includes("quota") || msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("rate") || msg.includes("limit"))){
-        addLog("Gemini esgotado, tentando Groq...");
-        notif("Gemini esgotado — usando Groq 🔄","#C9A84C");
-        return await callGroq(messages, system, maxTokens);
+      const msg=e.message||"";
+      if(groq&&(msg.includes("quota")||msg.includes("429")||msg.includes("RESOURCE_EXHAUSTED")||msg.includes("demand")||msg.includes("rate")||msg.includes("limit"))){
+        notif("Gemini indisponível — usando Groq 🔄","#C9A84C");
+        return await callGroq(messages,system,maxTokens);
       }
       throw e;
     }
   }
-  return await callGroq(messages, system, maxTokens);
+  return await callGroq(messages,system,maxTokens);
+}
+function hasAI(){ return !!(gl("sh_gemini")||gl("sh_groq")); }
+
+// ══════════════════════════════════════════════
+// SPACED REPETITION
+// ══════════════════════════════════════════════
+function getSeenTopics(trackId){
+  const seen = S.seen[trackId]||[];
+  const now = Date.now();
+  // Topics seen in last 7 days
+  return seen.filter(t=>now-new Date(t.date).getTime()<7*24*60*60*1000).map(t=>t.topic);
+}
+function recordTopic(trackId,topic){
+  if(!S.seen[trackId]) S.seen[trackId]=[];
+  // Remove if already there, re-add with new date
+  S.seen[trackId]=S.seen[trackId].filter(t=>t.topic!==topic);
+  S.seen[trackId].push({topic,date:new Date().toISOString()});
+  // Keep last 100
+  if(S.seen[trackId].length>100) S.seen[trackId]=S.seen[trackId].slice(-100);
+}
+function buildMemoryContext(trackId){
+  const seen = getSeenTopics(trackId);
+  const recentNotes = (S.history||[]).filter(h=>h.trackId===trackId&&h.note).slice(0,5).map(h=>h.note);
+  const weakTopics = (S.history||[]).filter(h=>h.trackId===trackId&&h.score!==undefined&&h.score<60).slice(0,5).map(h=>h.topic).filter(Boolean);
+  const level = S.stats[trackId]?.level||1;
+  const parts = [`Nível do aluno: ${level}/10`];
+  if(seen.length) parts.push(`Tópicos vistos recentemente (NÃO repita): ${seen.join(", ")}`);
+  if(weakTopics.length) parts.push(`Tópicos com dificuldade (pode reforçar): ${weakTopics.join(", ")}`);
+  if(recentNotes.length) parts.push(`Anotações recentes: ${recentNotes.join(" | ")}`);
+  return parts.join("\n");
 }
 
-async function callAIJson(messages, system="", maxTokens=1500){
-  const raw = await callAI(messages, system, maxTokens);
-  // Strip markdown code fences
-  const cleaned = raw.replace(/```(?:json)?\s*/gi, "").replace(/```/g, "").trim();
-  // Find the outermost JSON object or array
-  const objMatch = cleaned.match(/\{[\s\S]*\}/);
-  const arrMatch = cleaned.match(/\[[\s\S]*\]/);
-  const match = objMatch && arrMatch
-    ? (cleaned.indexOf("{") < cleaned.indexOf("[") ? objMatch : arrMatch)
-    : (objMatch || arrMatch);
-  if(!match) throw new Error("IA não retornou JSON válido. Tente novamente.");
-  try {
-    return JSON.parse(match[0]);
-  } catch(e) {
-    addLog("JSON parse ERRO: "+e.message+" | raw: "+cleaned.slice(0,100));
-    throw new Error("Erro ao processar resposta da IA. Tente novamente.");
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // HELPERS
-// ═══════════════════════════════════════════════════════════════
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
-function h(color,a){return color+Math.round(a*255).toString(16).padStart(2,"0")}
-function trackById(id){return TRACKS.find(t=>t.id===id)}
-function fmt(n){return n.toLocaleString("pt-BR")}
+// ══════════════════════════════════════════════
+function trackById(id){ return TRACKS.find(t=>t.id===id); }
+function modeById(id){ return [...MODES,...VOICE_MODES].find(m=>m.id===id); }
+function fmt(n){ return n.toLocaleString("pt-BR"); }
 function fmtDate(iso){
   const d=new Date(iso);
   return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
 }
-function totalLevel(){return Object.values(S.stats).reduce((s,t)=>s+t.level,0)}
+function totalLevel(){ return Object.values(S.stats).reduce((s,t)=>s+t.level,0); }
+function h(color,a){ return color+Math.round(a*255).toString(16).padStart(2,"0"); }
 
-// ── DEBUG LOG ──
-let _logs = [];
-function addLog(msg){
-  _logs.unshift("[" + new Date().toLocaleTimeString("pt-BR") + "] " + msg);
-  if(_logs.length > 20) _logs.pop();
-  const el = document.getElementById("debug-log");
-  if(el) el.textContent = _logs.join("\n");
+function mdToHtml(text){
+  return (text||"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/\*\*([^*\n]+)\*\*/g,"<strong>$1</strong>")
+    .replace(/\*([^*\n]+)\*/g,"<em>$1</em>")
+    .replace(/^### (.+)$/gm,"<h3>$1</h3>")
+    .replace(/^## (.+)$/gm,"<h2>$1</h2>")
+    .replace(/^- (.+)$/gm,"<li>$1</li>")
+    .replace(/(<li>[\s\S]*?<\/li>)/g,"<ul>$1</ul>")
+    .replace(/\n{2,}/g,"</p><p>")
+    .replace(/\n/g,"<br>");
 }
 
-let notifT;
+let _notifT, _xpT;
 function notif(msg,color="#5dba7d"){
   const el=document.getElementById("notif");
-  el.textContent=msg;el.style.display="block";
-  el.style.color=color;el.style.borderColor=h(color,.25);el.style.boxShadow=`0 0 20px ${h(color,.13)}`;
-  clearTimeout(notifT);notifT=setTimeout(()=>el.style.display="none",3000);
+  el.textContent=msg; el.style.color=color; el.style.borderColor=h(color,.25);
+  el.style.boxShadow=`0 0 20px ${h(color,.15)}`;
+  el.className="show"; clearTimeout(_notifT);
+  _notifT=setTimeout(()=>el.className="",3000);
+}
+function showXP(xp,label=""){
+  const el=document.getElementById("xp-popup");
+  el.innerHTML=`+${xp} XP${label?" · "+label:""}`;
+  el.style.display="block"; clearTimeout(_xpT);
+  _xpT=setTimeout(()=>el.style.display="none",2500);
 }
 
-function hasAIKey(){return !!(getLocal("sh_gemini_key")||getLocal("sh_groq_key"))}
-function hasGHKey(){return !!getLocal("sh_github_token")}
-
-// ═══════════════════════════════════════════════════════════════
-// RENDER ENGINE
-// ═══════════════════════════════════════════════════════════════
-function render(){
-  const root=document.getElementById("root");
-  root.innerHTML=renderNav()+renderPage();
-  attachHandlers();
-}
-
-function renderNav(){
-  const pages=[
-    {id:"home",label:"Home"},
-    {id:"roadmap",label:"Roadmap"},
-    {id:"analysis",label:"Análise IA"},
-    {id:"settings",label:"Config"},
-  ];
-  return `<div class="container"><div class="nav">
-    <div class="logo" onclick="go('home')">Study<span>Hub</span></div>
-    <div class="nav-links">
-      ${pages.map(p=>`<button class="nav-btn ${S.page===p.id?"active":""}" onclick="go('${p.id}')">${p.label}</button>`).join("")}
-    </div>
-  </div></div>`;
-}
-
-function go(page){S.page=page;S.activeTrack=null;render()}
-
-function renderPage(){
-  if(S.page==="home") return renderHome();
-  if(S.page==="track") return renderTrackPage();
-  if(S.page==="roadmap") return renderRoadmap();
-  if(S.page==="analysis") return renderAnalysis();
-  if(S.page==="settings") return renderSettings();
-  return "";
-}
-
-// ═══════════════════════════════════════════════════════════════
-// HOME
-// ═══════════════════════════════════════════════════════════════
-function renderHome(){
-  const needsSetup = !hasGHKey() && !getLocal("sh_setup_dismissed");
-  const todaySessions = S.history.filter(h=>h.date.startsWith(new Date().toISOString().slice(0,10)));
-
-  return `<div class="container">
-    ${needsSetup?renderSetupBanner():""}
-
-    <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px">
-      <div>
-        <div style="font-weight:800;font-size:24px">Olá, Felipe 👋</div>
-        <div style="color:#444;font-size:12px;font-family:monospace;margin-top:3px">${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-family:monospace;font-size:10px;color:#444;margin-bottom:3px">XP TOTAL</div>
-        <div style="font-weight:800;font-size:24px;color:#C9A84C">${fmt(S.totalXP)}</div>
-        <div style="font-family:monospace;font-size:10px;color:#333">NVL ${totalLevel()} · ${todaySessions.length} sessão(ões) hoje</div>
-      </div>
-    </div>
-
-    <!-- Active tracks -->
-    <div class="sec-label">Trilhas ativas</div>
-    <div class="grid-2" style="margin-bottom:28px">
-      ${TRACKS.filter(t=>t.active).map(t=>renderTrackCard(t)).join("")}
-    </div>
-
-    <!-- Locked -->
-    <div class="sec-label dim">Em breve</div>
-    <div class="grid-2">
-      ${TRACKS.filter(t=>!t.active).map(t=>renderTrackCard(t)).join("")}
-    </div>
-
-    <div style="margin-top:32px;text-align:center;font-family:monospace;font-size:10px;color:#181828">STUDY HUB v2.0 · felipeperucci.github.io/studyhub</div>
-  </div>`;
-}
-
-function renderSetupBanner(){
-  return `<div style="background:#C9A84C0a;border:1px solid #C9A84C33;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
-    <div>
-      <div style="font-weight:700;font-size:13px;color:#C9A84C">⚙️ Configure suas chaves de API</div>
-      <div style="font-size:12px;color:#777;margin-top:3px">Configure o Gemini (grátis) e o sync com GitHub em Configurações</div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn-ghost" style="font-size:11px;padding:6px 12px" onclick="setLocal('sh_setup_dismissed','1');render()">Depois</button>
-      <button class="btn btn-primary" style="background:#C9A84C;font-size:11px;padding:6px 12px" onclick="go('settings')">Configurar</button>
-    </div>
-  </div>`;
-}
-
-function renderTrackCard(track){
-  const s = S.stats[track.id]||{xp:0,level:1,xpNext:100,streak:0};
-  const pct = Math.min((s.xp/s.xpNext)*100,100);
-  return `<div class="card ${track.active?"clickable":""}"
-    style="border-color:${track.active?h(track.color,.22):"#1a1a28"};opacity:${track.active?1:.4}"
-    ${track.active?`onclick="openTrack('${track.id}')"`:""}
-    onmouseenter="this.style.borderColor='${h(track.color,.5)}';this.style.boxShadow='0 4px 24px ${h(track.color,.18)}'"
-    onmouseleave="this.style.borderColor='${track.active?h(track.color,.22):"#1a1a28"}';this.style.boxShadow=''">
-    <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${h(track.color,.35)},transparent)"></div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-      <span style="font-size:26px">${track.icon}</span>
-      ${track.active
-        ?`<span class="badge" style="color:${track.color};background:${h(track.color,.08)};border:1px solid ${h(track.color,.18)}">LVL ${s.level}</span>`
-        :`<span class="badge" style="color:#333;background:#111">BLOQUEADO</span>`}
-    </div>
-    <div style="font-weight:700;font-size:15px;color:${track.active?"#e8e8f0":"#444"};margin-bottom:3px">${track.name}</div>
-    <div style="font-size:11px;color:#888;margin-bottom:${track.active?12:0}px">${track.desc}</div>
-    ${track.active?`
-      <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${pct}%;background:${track.color};box-shadow:0 0 6px ${track.color}"></div></div>
-      <div class="xp-row"><span>${s.xp}/${s.xpNext} XP</span>${s.streak>0?`<span class="streak">🔥 ${s.streak}</span>`:""}</div>
-    `:""}
-  </div>`;
-}
-
-function openTrack(id){
-  S.activeTrack = trackById(id);
-  S.page = "track";
-  S.sessionMode = null;
-  S.sessionType = null;
-  render();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// TRACK PAGE
-// ═══════════════════════════════════════════════════════════════
-function renderTrackPage(){
-  const t = S.activeTrack;
-  if(!t) return "";
-
-  if(S.sessionMode==="practice" && S.sessionType) return renderPracticeSession();
-  if(S.sessionMode==="voice" && S.sessionType) return renderVoiceSession();
-  if(S.sessionMode==="learn" && S.sessionType) return renderLearnSession();
-
-  return `<div class="container">
-    <button class="btn-ghost" style="margin-bottom:20px" onclick="go('home')">← Voltar</button>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
-      <span style="font-size:32px">${t.icon}</span>
-      <div>
-        <div class="page-title">${t.name}</div>
-        <div style="font-size:12px;color:#888">${t.desc}</div>
-      </div>
-    </div>
-
-    <div style="height:1px;background:linear-gradient(90deg,${t.color}44,transparent);margin:20px 0"></div>
-
-    <!-- APRENDER -->
-    <div class="sec-label" style="color:${t.color}88">APRENDER</div>
-    <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:24px">
-      ${LEARN_MODES.map(m=>`
-        <button class="session-type-btn" style="border-color:${h(t.color,.18)}"
-          onmouseenter="this.style.background='${h(t.color,.05)}';this.style.borderColor='${h(t.color,.4)}'"
-          onmouseleave="this.style.background='';this.style.borderColor='${h(t.color,.18)}'"
-          onclick="startLearn('${m.id}')">
-          <div style="display:flex;align-items:center;gap:11px">
-            <span style="font-size:20px">${m.icon}</span>
-            <div style="text-align:left">
-              <div style="font-weight:700;font-size:13px">${m.label}${!hasAIKey()&&m.id!=="brief"?' <span style="font-size:10px;color:#555">(requer IA)</span>':""}</div>
-              <div style="font-size:11px;color:#888">${m.desc}</div>
-            </div>
-          </div>
-          <span style="font-family:monospace;font-size:11px;color:${t.color}">+${m.xp} XP</span>
-        </button>
-      `).join("")}
-    </div>
-
-    <!-- VOZ (só para idiomas) -->
-    ${t.id==="es"||t.id==="fr"?`
-    <div class="sec-label" style="color:${t.color}88">FALAR & OUVIR <span style="font-size:9px;color:#555">· requer Chrome</span></div>
-    <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:24px">
-      ${VOICE_MODES.map(m=>`
-        <button class="session-type-btn" style="border-color:${h(t.color,.18)}"
-          onmouseenter="this.style.background='${h(t.color,.05)}';this.style.borderColor='${h(t.color,.4)}'"
-          onmouseleave="this.style.background='';this.style.borderColor='${h(t.color,.18)}'"
-          onclick="startVoice('${m.id}')">
-          <div style="display:flex;align-items:center;gap:11px">
-            <span style="font-size:20px">${m.icon}</span>
-            <div style="text-align:left">
-              <div style="font-weight:700;font-size:13px">${m.label}</div>
-              <div style="font-size:11px;color:#888">${m.desc}</div>
-            </div>
-          </div>
-          <span style="font-family:monospace;font-size:11px;color:${t.color}">+${m.xp} XP</span>
-        </button>
-      `).join("")}
-    </div>`:""}
-
-    <!-- PRATICAR -->
-    <div class="sec-label" style="color:${t.color}88">PRATICAR</div>
-    <div style="display:flex;flex-direction:column;gap:9px">
-      ${PRACTICE_MODES.map(m=>`
-        <button class="session-type-btn" style="border-color:${h(t.color,.18)}"
-          onmouseenter="this.style.background='${h(t.color,.05)}';this.style.borderColor='${h(t.color,.4)}'"
-          onmouseleave="this.style.background='';this.style.borderColor='${h(t.color,.18)}'"
-          onclick="startPractice('${m.id}')">
-          <div style="display:flex;align-items:center;gap:11px">
-            <span style="font-size:20px">${m.icon}</span>
-            <div style="text-align:left">
-              <div style="font-weight:700;font-size:13px">${m.label}</div>
-              <div style="font-size:11px;color:#888">${m.desc}${hasAIKey()?" · gerado por IA":""}</div>
-            </div>
-          </div>
-          <span style="font-family:monospace;font-size:11px;color:${t.color}">+${m.xp} XP</span>
-        </button>
-      `).join("")}
-    </div>
-  </div>`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// PRACTICE SESSION
-// ═══════════════════════════════════════════════════════════════
-function parseTextFormat(text, type){
-  // Parse line-by-line: only lines that START with ALL-CAPS word(s) + colon are treated as section headers.
-  // This avoids false matches on normal sentence text that happens to contain "word: value".
-  const sections = {};
-  let currentKey = null;
-  let currentLines = [];
-  const HEADER_RE = /^([A-ZÁÉÍÓÚÃÕÂÊÎÔÛÀÇÑÜ][A-ZÁÉÍÓÚÃÕÂÊÎÔÛÀÇÑÜ _]{1,}[A-ZÁÉÍÓÚÃÕÂÊÎÔÛÀÇÑÜ]|[A-ZÁÉÍÓÚÃÕÂÊÎÔÛÀÇÑÜ]{2,})\s*:\s*(.*)/;
-  for(const line of text.split('\n')){
-    const hm = line.match(HEADER_RE);
-    if(hm){
-      if(currentKey) sections[currentKey] = currentLines.join('\n').trim();
-      currentKey = hm[1].trim().toUpperCase();
-      currentLines = hm[2] ? [hm[2]] : [];
-    } else if(currentKey){
-      currentLines.push(line);
-    }
-  }
-  if(currentKey) sections[currentKey] = currentLines.join('\n').trim();
-
-  const norm = s => s.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-  const get = (...keys) => {
+function parseAIText(text,type){
+  const get=(...keys)=>{
     for(const key of keys){
-      const kn = norm(key);
-      if(sections[key.toUpperCase()]) return sections[key.toUpperCase()];
-      for(const sk of Object.keys(sections)){
-        if(norm(sk) === kn && sections[sk]) return sections[sk];
-      }
+      const re=new RegExp(key+"\\s*:([\\s\\S]*?)(?=\\n[A-Z\\u00C0-\\u00DC_]+\\s*:|$)","i");
+      const m=text.match(re);
+      if(m&&m[1].trim()) return m[1].trim();
     }
-    return '';
+    return "";
   };
-
-  if(type === "quiz"){
-    const opts = [];
-    ["A","B","C","D"].forEach(l => {
-      const re = new RegExp("^" + l + "\\)(.+)$","m");
-      const m = text.match(re);
-      if(m) opts.push(l + ") " + m[1].trim());
+  if(type==="quiz"){
+    const opts=[];
+    ["A","B","C","D"].forEach(l=>{
+      const m=text.match(new RegExp("^"+l+"\\)(.+)$","m"));
+      if(m) opts.push(l+") "+m[1].trim());
     });
-    return {q: get("PERGUNTA"), opts, ans: get("RESPOSTA","RESPOSTA CORRETA").trim().toUpperCase().charAt(0), exp: get("EXPLICACAO","EXPLICAÇÃO")};
+    return {q:get("PERGUNTA","QUESTÃO"),opts,ans:get("RESPOSTA","GABARITO").trim().toUpperCase().charAt(0),exp:get("EXPLICAÇÃO","EXPLICACAO")};
   }
-  if(type === "flashcard"){
-    return {front: get("CONCEITO"), back: get("EXPLICACAO","EXPLICAÇÃO"), tip: get("DICA")};
-  }
-  if(type === "challenge"){
-    return {title: get("TITULO","TÍTULO"), scenario: get("CENARIO","CENÁRIO"), task: get("TAREFA"), hint: get("DICA"), solution: get("SOLUCAO","SOLUÇÃO")};
-  }
+  if(type==="flashcard") return {front:get("CONCEITO","FRENTE"),back:get("EXPLICAÇÃO","EXPLICACAO","VERSO"),tip:get("DICA")};
+  if(type==="challenge") return {title:get("TÍTULO","TITULO"),scenario:get("CENÁRIO","CENARIO"),task:get("TAREFA"),hint:get("DICA"),solution:get("SOLUÇÃO","SOLUCAO")};
   return {};
 }
 
-async function startPractice(typeId){
-  S.sessionMode="practice";
-  S.sessionType=typeId;
-  S.selectedOpt=null;S.revealed=false;S.answer="";S.flipped=false;
-  const t=S.activeTrack;
-
-  if(hasAIKey()){
-    render(); // show loading state
-    try{
-      // Use plain text format to avoid JSON parsing issues with Gemini
-      const prompts={
-        quiz:`Você é tutor de ${t.name}. Crie uma pergunta de múltipla escolha avançada. Responda EXATAMENTE neste formato (sem nada antes ou depois):
-PERGUNTA: [escreva a pergunta aqui]
-A) [opção A]
-B) [opção B]
-C) [opção C]
-D) [opção D]
-RESPOSTA: [letra correta, ex: B]
-EXPLICACAO: [explicação detalhada de 2-3 frases]`,
-        flashcard:`Você é tutor de ${t.name}. Crie um flashcard de estudo. Responda EXATAMENTE neste formato (sem nada antes ou depois):
-CONCEITO: [nome do conceito]
-EXPLICACAO: [explicação completa em 3-5 frases]
-DICA: [dica prática de 1 frase]`,
-        challenge:`Você é tutor de ${t.name}. Crie um desafio prático. Responda EXATAMENTE neste formato (sem nada antes ou depois):
-TITULO: [título curto]
-CENARIO: [descrição do cenário em 2-4 frases]
-TAREFA: [o que o aluno deve fazer]
-DICA: [uma dica]
-SOLUCAO: [solução detalhada]`,
-      };
-      const raw = await callAI([{role:"user",content:prompts[typeId]}], "", 1500);
-      S.currentItem = parseTextFormat(raw, typeId);
-    }catch(e){
-      // fallback to static
-      S.currentItem = pick(STATIC_CONTENT[t.id][typeId]);
-      notif("IA falhou: " + e.message.slice(0,60),"#E05C5C");
-    }
-  } else {
-    S.currentItem = pick(STATIC_CONTENT[t.id][typeId]);
-  }
-  render();
+// ══════════════════════════════════════════════
+// XP SYSTEM — quality-based
+// ══════════════════════════════════════════════
+function calcXP(mode,score){
+  const base = modeById(mode)?.xpBase||20;
+  if(score===undefined||score===null) return base; // learn modes: flat XP
+  // Practice modes: scale by score
+  return Math.round(base*(score/100));
 }
+async function completeSession(score,note=""){
+  const t=S.track; const m=S.mode;
+  const xp=calcXP(m,score);
+  const topic=S.item?.title||S.item?.front||S.item?.q?.slice(0,50)||m;
 
-function renderPracticeSession(){
-  const t=S.activeTrack;
-  const type=S.sessionType;
-  return `<div class="container">
-    <button class="btn-ghost" style="margin-bottom:20px" onclick="S.sessionMode=null;S.sessionType=null;render()">← Voltar</button>
-    <div style="margin-bottom:20px">
-      <div style="font-size:12px;color:${t.color};font-family:monospace;margin-bottom:4px">${t.icon} ${t.name} · ${PRACTICE_MODES.find(m=>m.id===type)?.label}</div>
-    </div>
-    ${!S.currentItem?`<div style="text-align:center;padding:40px;color:#444"><span class="spinner"></span> Gerando com IA...</div>`
-      :type==="quiz"?renderQuiz()
-      :type==="flashcard"?renderFlashcard()
-      :renderChallenge()}
-  </div>`;
-}
+  // Record topic for spaced repetition
+  if(topic&&t) recordTopic(t.id,topic);
 
-function renderQuiz(){
-  const t=S.activeTrack; const item=S.currentItem;
-  return `
-    <div class="question-text">${item.q||item.question}</div>
-    <div class="options">
-      ${(item.opts||item.options).map(opt=>{
-        const letter=opt[0];
-        const ans=item.ans||item.correct;
-        let cls="option-btn",style="";
-        if(S.revealed){if(letter===ans)cls+=" correct";else if(letter===S.selectedOpt)cls+=" wrong";}
-        else if(letter===S.selectedOpt){cls+=" selected";style=`background:${h(t.color,.09)};border-color:${t.color};color:#fff`;}
-        return `<button class="${cls}" style="${style}" onclick="selectOpt('${letter}')" ${S.revealed?"disabled":""}>${opt}</button>`;
-      }).join("")}
-    </div>
-    ${!S.revealed&&S.selectedOpt?`<button class="btn btn-primary btn-full" style="background:${t.color}" onclick="revealQuiz()">Confirmar</button>`:""}
-    ${S.revealed?`<div class="feedback-box ${S.selectedOpt===(item.ans||item.correct)?"ok":"fail"}">
-      <div style="font-weight:700;color:${S.selectedOpt===(item.ans||item.correct)?"#7dd87d":"#d87d7d"};margin-bottom:8px">
-        ${S.selectedOpt===(item.ans||item.correct)?"✓ Correto!":"✗ Incorreto — resp.: "+(item.ans||item.correct)}
-      </div>
-      <div style="color:#bbb;font-size:13px;line-height:1.7;margin-bottom:14px">${item.exp||item.explanation}</div>
-      ${renderNoteInput(20, S.selectedOpt===(item.ans||item.correct))}
-    </div>`:""}`;
-}
-
-function renderFlashcard(){
-  const t=S.activeTrack; const item=S.currentItem;
-  return `
-    <div class="flashcard-wrap" onclick="S.flipped=!S.flipped;render()">
-      <div class="flashcard-inner ${S.flipped?"flipped":""}">
-        <div class="flashcard-face" style="background:#0e0e1c;border:1px solid ${h(t.color,.18)}">
-          <div class="f-label" style="color:${t.color}">CONCEITO</div>
-          <div class="f-content">${item.front}</div>
-          <div class="f-hint">toque para revelar →</div>
-        </div>
-        <div class="flashcard-face flashcard-back" style="background:${h(t.color,.05)};border:1px solid ${h(t.color,.38)}">
-          <div class="f-label" style="color:${t.color}">RESPOSTA</div>
-          <div class="f-back-text">${item.back}</div>
-        </div>
-      </div>
-    </div>
-    ${item.tip?`<div class="tip-box">💡 ${item.tip}</div>`:""}
-    ${S.flipped?renderNoteInput(15,true):""}`;
-}
-
-function renderChallenge(){
-  const t=S.activeTrack; const item=S.currentItem;
-  return `
-    <div class="challenge-box" style="background:${h(t.color,.05)};border:1px solid ${h(t.color,.18)}">
-      <div style="font-weight:800;color:${t.color};font-size:14px;margin-bottom:7px">⚡ ${item.title}</div>
-      <div style="color:#ccc;font-size:13px;line-height:1.7;margin-bottom:9px">${(item.scenario||"").replace(/\n/g,"<br>")}</div>
-      <div style="color:#e8e8f0;font-size:13px;font-weight:600">Tarefa: ${item.task}</div>
-    </div>
-    ${item.hint?`<div class="tip-box">💡 ${item.hint}</div>`:""}
-    ${!S.revealed?`
-      <textarea class="form-textarea" id="ch-answer" placeholder="Sua resposta aqui...">${S.answer}</textarea>
-      <button class="btn btn-primary btn-full" style="background:${S.answer.trim()?t.color:"#1a1a28"};margin-top:4px" ${!S.answer.trim()?"disabled":""} onclick="S.revealed=true;render()">Ver solução</button>
-    `:`
-      <div class="solution-box">
-        <div style="font-weight:700;color:#7d9dd8;margin-bottom:10px;font-size:14px">📖 Solução de referência</div>
-        <div class="solution-text">${mdToHtml(item.solution||"")}</div>
-        ${renderNoteInput(30,true)}
-      </div>
-    `}`;
-}
-
-function renderNoteInput(xp, correct){
-  const t=S.activeTrack;
-  return `
-    <div class="form-group" style="margin-top:12px">
-      <label class="form-label">Anotação (opcional)</label>
-      <textarea class="form-textarea" id="session-note" placeholder="O que aprendeu? Dúvidas? Observações..." style="min-height:60px"></textarea>
-    </div>
-    <button class="btn btn-primary btn-full" style="background:${t.color}" onclick="completeSession(${xp},${correct})">
-      +${xp} XP — Concluir sessão
-    </button>`;
-}
-
-function selectOpt(letter){S.selectedOpt=letter;render()}
-function revealQuiz(){S.revealed=true;render()}
-
-function attachChallengeHandler(){
-  const ta=document.getElementById("ch-answer");
-  if(ta) ta.addEventListener("input",()=>{S.answer=ta.value;
-    const btn=ta.nextElementSibling;
-    if(btn){btn.disabled=!S.answer.trim();btn.style.background=S.answer.trim()?S.activeTrack.color:"#1a1a28";}
-  });
-}
-
-async function completeSession(xp, correct){
-  const note = document.getElementById("session-note")?.value||"";
-  const t=S.activeTrack;
   // Update stats
   const s=S.stats[t.id];
   const newXP=s.xp+xp;
   const leveled=newXP>=s.xpNext;
   S.stats[t.id]={xp:leveled?newXP-s.xpNext:newXP,level:leveled?s.level+1:s.level,xpNext:leveled?Math.round(s.xpNext*1.5):s.xpNext,streak:s.streak+1};
   S.totalXP+=xp;
-  // Log history
-  S.history.unshift({
-    date:new Date().toISOString(),
-    trackId:t.id,
-    trackName:t.name,
-    mode:S.sessionMode,
-    type:S.sessionType,
-    xp,correct,
-    note,
-    title:S.currentItem?.title||S.currentItem?.front||S.currentItem?.q?.slice(0,40)||S.sessionType,
-  });
-  // Reset session
-  S.sessionMode=null;S.sessionType=null;S.currentItem=null;S.selectedOpt=null;S.revealed=false;S.answer="";S.flipped=false;
+
+  // Log
+  S.history.unshift({date:new Date().toISOString(),trackId:t.id,trackName:t.name,mode:m,topic,xp,score,note});
+  if(S.history.length>200) S.history=S.history.slice(0,200);
+
   await saveData();
-  if(leveled) notif(`🎉 Level up! ${t.name} chegou ao nível ${S.stats[t.id].level}!`,"#C9A84C");
-  else notif(`+${xp} XP ${correct?"— Ótimo! 🎯":"— Continue! 💪"}`,correct?"#5dba7d":"#5b8cff");
-  render();
+  showXP(xp, score!==undefined?`${score}/100`:undefined);
+  if(leveled) setTimeout(()=>notif(`🎉 Level up! ${t.name} → Nível ${S.stats[t.id].level}`,"#C9A84C"),600);
+
+  // Reset session
+  resetSession();
+  go("track");
+}
+function resetSession(){
+  S.mode=null; S.item=null; S.qSel=null; S.qRevealed=false;
+  S.fcFlipped=false; S.chAnswer=""; S.chRevealed=false; S.chScore=null; S.chFeedback="";
+  S.chatHist=[]; S.chunks=[]; S.chunkIdx=0; S.docText="";
+  S.voiceMode=null; S.vListening=false; S.vTranscript=""; S.vShadowPhrase=""; S.vDictadoPhrase=""; S.vConvHist=[];
 }
 
-// ═══════════════════════════════════════════════════════════════
-// LEARN SESSION
-// ═══════════════════════════════════════════════════════════════
-async function startLearn(modeId){
-  const t=S.activeTrack;
-  if(!hasAIKey()&&modeId!=="brief"){
-    notif("Configure a API key do Gemini em Configurações","#E05C5C");
-    return;
-  }
-  S.sessionMode="learn";
-  S.sessionType=modeId;
-  S.chatHistory=[];S.learnChunks=[];S.learnChunkIdx=0;S.docContent="";S.revealed=false;
-  render();
-
-  if(modeId==="brief"){
-    if(hasAIKey()){
-      try{
-        // Build context from history to avoid repetition and personalize
-        const trackHistory = S.history.filter(h=>h.trackId===t.id).slice(0,30);
-        const seenTitles = trackHistory.map(h=>h.title).filter(Boolean).join(", ");
-        const recentNotes = trackHistory.filter(h=>h.note).map(h=>h.note).slice(0,5).join(" | ");
-        const errorTopics = trackHistory.filter(h=>h.correct===false).map(h=>h.title).join(", ");
-        const level = S.stats[t.id]?.level || 1;
-
-        const contextParts = [];
-        if(seenTitles) contextParts.push("Tópicos já estudados: " + seenTitles);
-        if(errorTopics) contextParts.push("Tópicos com dificuldade: " + errorTopics);
-        if(recentNotes) contextParts.push("Anotações recentes do aluno: " + recentNotes);
-        contextParts.push("Nível atual do aluno: " + level + " (1=iniciante, 5=avançado)");
-
-        const context = contextParts.length ? "\n\nContexto do aluno:\n" + contextParts.join("\n") : "";
-
-        const text=await callAI([{role:"user",content:`Você é um tutor especialista em ${t.name}. Gere um "daily brief" personalizado — um conceito específico que este aluno ainda não viu ou que vale revisar dado seu histórico.${context}
-
-Escolha um tópico diferente dos já estudados. Se o aluno for iniciante, escolha algo fundamental mas não óbvio. Se for avançado, vá fundo em nuances ou casos práticos reais.
-
-Estruture o brief assim:
-1) O conceito escolhido e por que é relevante agora
-2) Explicação clara com exemplo prático do ambiente profissional
-3) Uma dica de aplicação ou armadilha comum a evitar
-
-Seja direto, específico e útil. Não comece com "Bom dia" nem introduções genéricas.`}], "", 4000);
-        S.learnChunks=[text];
-      }catch{S.learnChunks=["Erro ao gerar brief. Verifique sua API key."];}
-    } else {
-      S.learnChunks=[`**Daily Brief — ${t.name}**\n\nConfigure a API key do Gemini (grátis) para receber briefs personalizados gerados por IA todo dia.`];
-    }
-    render();return;
-  }
-
-  if(modeId==="guide"){
-    try{
-      const text=await callAI([{role:"user",content:`Crie uma microaula sobre um tópico relevante de "${t.name}" para um analista júnior. Estruture em exatamente 4 seções separadas pelo marcador ---BLOCO--- entre elas. Cada seção começa com ## seguido do título. Use **negrito** para termos importantes. Seja específico e didático. Formato obrigatório:\n\n## 1. Contexto\n[conteúdo]\n\n---BLOCO---\n\n## 2. O Conceito\n[conteúdo]\n\n---BLOCO---\n\n## 3. Exemplo Prático\n[conteúdo]\n\n---BLOCO---\n\n## 4. Pontos-Chave\n[conteúdo]`}], "", 4000);
-      S.learnChunks=text.split("---BLOCO---").map(s=>s.trim()).filter(Boolean);
-    }catch(e){notif(e.message,"#E05C5C");}
-    render();return;
-  }
-
-  if(modeId==="map"){
-    try{
-      const mapRaw = await callAI([{role:"user",content:`Você é tutor de ${t.name}. Liste 5 conceitos fundamentais do mais básico ao mais avançado. Para cada um use EXATAMENTE este formato separado por ---:
-TITULO: [nome do conceito]
-DESCRICAO: [explicação em 2-3 frases]
-IMPORTANCIA: [por que é importante aprender isso]
----`}], "", 2000);
-      S.learnChunks = mapRaw.split("---").map(block => {
-        const get = (...keys) => { for(const key of keys){ const re = new RegExp(key + "\\s*:([\\s\\S]*?)(?=\\n[A-ZÀ-Ú_]+\\s*:|$)","i"); const m = block.match(re); if(m&&m[1].trim()) return m[1].trim(); } return ""; };
-        return {title: get("TITULO","TÍTULO"), description: get("DESCRICAO","DESCRIÇÃO"), why: get("IMPORTANCIA","IMPORTÂNCIA")};
-      }).filter(c => c.title);
-    }catch(e){notif(e.message,"#E05C5C");}
-    render();return;
-  }
-
-  if(modeId==="socratic"){
-    try{
-      const first=await callAI([{role:"user",content:`Você vai conduzir um diálogo socrático sobre "${t.name}" com um analista em aprendizado. Faça a primeira pergunta aberta para explorar o que ele já sabe sobre o tema. Seja conciso e estimulante.`}], "", 2000);
-      S.chatHistory=[{role:"ai",text:first}];
-    }catch(e){notif(e.message,"#E05C5C");}
-    render();return;
-  }
-
-  // doc mode — just render the upload UI
-  render();
+// ══════════════════════════════════════════════
+// RENDER ENGINE
+// ══════════════════════════════════════════════
+function go(page){ S.page=page; render(); }
+function render(){
+  document.getElementById("app").innerHTML=`
+    <div class="wrap">
+      ${renderNav()}
+      ${S.page==="home"?renderHome()
+       :S.page==="track"?renderTrack()
+       :S.page==="session"?renderSession()
+       :S.page==="roadmap"?renderRoadmap()
+       :S.page==="analysis"?renderAnalysis()
+       :S.page==="settings"?renderSettings():""}
+    </div>`;
+  attachAll();
 }
 
-function renderLearnSession(){
-  const t=S.activeTrack;
-  const m=LEARN_MODES.find(x=>x.id===S.sessionType);
-  return `<div class="container">
-    <button class="btn-ghost" style="margin-bottom:20px" onclick="S.sessionMode=null;S.sessionType=null;render()">← Voltar</button>
-    <div style="font-size:12px;color:${t.color};font-family:monospace;margin-bottom:16px">${t.icon} ${t.name} · ${m?.label}</div>
-    ${S.sessionType==="guide"?renderGuide()
-     :S.sessionType==="map"?renderMap()
-     :S.sessionType==="socratic"?renderSocratic()
-     :S.sessionType==="doc"?renderDocChat()
-     :renderBrief()}
+// ══════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════
+function renderNav(){
+  const pages=[["home","Home"],["roadmap","Roadmap"],["analysis","Análise IA"],["settings","Config"]];
+  return `<nav class="nav">
+    <div class="logo" onclick="go('home')">Study<em>Hub</em></div>
+    <div class="nav-links">
+      ${pages.map(([id,l])=>`<button class="nav-btn ${S.page===id?"on":""}" onclick="go('${id}')">${l}</button>`).join("")}
+    </div>
+  </nav>`;
+}
+
+// ══════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════
+function renderHome(){
+  const todayCount=(S.history||[]).filter(h=>h.date.startsWith(new Date().toISOString().slice(0,10))).length;
+  const needSetup=!hasAI()&&!gl("sh_dismissed");
+
+  return `
+    ${needSetup?`<div style="background:#C9A84C0a;border:1px solid #C9A84C33;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div><div style="font-weight:700;font-size:13px;color:#C9A84C">⚙️ Configure a API para ativar a IA</div><div style="font-size:12px;color:#777;margin-top:2px">Gemini (grátis) ou Groq (grátis) em Configurações</div></div>
+      <div style="display:flex;gap:8px;flex-shrink:0"><button class="btn-ghost" style="font-size:11px;padding:5px 10px" onclick="sl('sh_dismissed','1');render()">Depois</button><button class="btn btn-primary" style="background:#C9A84C;font-size:11px;padding:5px 12px" onclick="go('settings')">Configurar</button></div>
+    </div>`:""}
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
+      <div>
+        <div style="font-weight:800;font-size:26px">Olá, Felipe 👋</div>
+        <div style="color:#555;font-size:12px;font-family:monospace;margin-top:3px">${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})} · ${todayCount} sessão(ões) hoje</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:monospace;font-size:10px;color:#555;margin-bottom:2px">XP TOTAL</div>
+        <div style="font-weight:800;font-size:26px;color:#C9A84C">${fmt(S.totalXP)}</div>
+        <div style="font-family:monospace;font-size:10px;color:#333">NVL ${totalLevel()}</div>
+      </div>
+    </div>
+
+    <div class="sec-label" style="font-family:monospace;font-size:10px;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">TRILHAS ATIVAS</div>
+    <div class="grid2" style="margin-bottom:28px">
+      ${TRACKS.filter(t=>t.active).map(t=>renderTrackCard(t)).join("")}
+    </div>
+
+    <div style="font-family:monospace;font-size:10px;color:#2a2a3a;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">EM BREVE</div>
+    <div class="grid2">
+      ${TRACKS.filter(t=>!t.active).map(t=>renderTrackCard(t)).join("")}
+    </div>
+
+    <div style="margin-top:36px;text-align:center;font-family:monospace;font-size:10px;color:#181828">STUDY HUB v3.0 · felipeperucci.github.io/studyhub</div>`;
+}
+
+function renderTrackCard(t){
+  const s=S.stats[t.id]||DEF_STATS();
+  const pct=Math.min((s.xp/s.xpNext)*100,100);
+  const recentSessions=(S.history||[]).filter(h=>h.trackId===t.id).length;
+  return `<div class="card ${t.active?"click":""}"
+    style="border-color:${t.active?h(t.color,.2):"#1a1a2e"};opacity:${t.active?1:.4};position:relative;overflow:hidden"
+    ${t.active?`onclick="openTrack('${t.id}')"`:""}
+    onmouseenter="${t.active?`this.style.borderColor='${h(t.color,.45)}';this.style.boxShadow='0 4px 28px ${h(t.color,.18)}'`:""}"
+    onmouseleave="${t.active?`this.style.borderColor='${h(t.color,.2)}';this.style.boxShadow=''`:""}"
+  >
+    <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${h(t.color,.3)},transparent)"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <span style="font-size:26px">${t.icon}</span>
+      ${t.active
+        ?`<span style="font-size:10px;font-family:monospace;color:${t.color};background:${h(t.color,.1)};border:1px solid ${h(t.color,.2)};padding:2px 8px;border-radius:99px">LVL ${s.level}</span>`
+        :`<span style="font-size:10px;font-family:monospace;color:#333;background:#111;padding:2px 8px;border-radius:99px">BLOQUEADO</span>`}
+    </div>
+    <div style="font-weight:700;font-size:15px;color:${t.active?"#eee":"#444"};margin-bottom:3px">${t.name}</div>
+    <div style="font-size:11px;color:#666;margin-bottom:${t.active?12:0}px">${t.desc}</div>
+    ${t.active?`
+      <div class="xpbar"><div class="xpfill" style="width:${pct}%;background:${t.color};box-shadow:0 0 8px ${h(t.color,.4)}"></div></div>
+      <div class="xprow"><span>${s.xp}/${s.xpNext} XP</span><span>${recentSessions} sessões${s.streak>0?" · 🔥"+s.streak:""}</span></div>
+    `:""}
   </div>`;
 }
 
-function mdToHtml(text){
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:#eee">$1</strong>')
-    .replace(/\*([^*]+)\*/g,'<em>$1</em>')
-    .replace(/^## (.+)$/gm,'<h3 style="color:#eee;font-size:15px;margin:14px 0 8px">$1</h3>')
-    .replace(/^# (.+)$/gm,'<h2 style="color:#eee;font-size:17px;margin:16px 0 8px">$1</h2>')
-    .replace(/^- (.+)$/gm,'<li style="margin:4px 0;color:#ccc">$1</li>')
-    .replace(/(<li[^>]*>[^<]*<\/li>)/g,'<ul style="padding-left:18px;margin:8px 0">$1</ul>')
-    .replace(/\n/g,'<br>');
+function openTrack(id){
+  S.track=trackById(id);
+  resetSession();
+  go("track");
 }
 
-function renderBrief(){
-  const t=S.activeTrack;
-  if(!S.learnChunks.length) return `<div style="text-align:center;padding:40px;color:#444"><span class="spinner"></span> Gerando brief...</div>`;
-  return `
-    <div class="learn-chunk">${mdToHtml(S.learnChunks[0])}</div>
-    ${renderNoteInput(10,true)}`;
-}
+// ══════════════════════════════════════════════
+// TRACK PAGE — mode picker
+// ══════════════════════════════════════════════
+function renderTrack(){
+  const t=S.track;
+  if(!t) return "";
+  const s=S.stats[t.id]||DEF_STATS();
+  const isES=(t.id==="es"||t.id==="fr");
 
-function renderGuide(){
-  const t=S.activeTrack;
-  if(!S.learnChunks.length) return `<div style="text-align:center;padding:40px;color:#444"><span class="spinner"></span> Gerando conteúdo...</div>`;
-  const chunk=S.learnChunks[S.learnChunkIdx]||"";
-  const isLast=S.learnChunkIdx>=S.learnChunks.length-1;
   return `
-    <div style="font-family:monospace;font-size:10px;color:#444;margin-bottom:12px">${S.learnChunkIdx+1} / ${S.learnChunks.length}</div>
-    <div class="learn-chunk">${mdToHtml(chunk)}</div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      ${S.learnChunkIdx>0?`<button class="btn-ghost" onclick="S.learnChunkIdx--;render()">← Anterior</button>`:""}
-      ${!isLast?`<button class="btn btn-primary" style="background:${t.color};flex:1" onclick="S.learnChunkIdx++;render()">Próximo →</button>`:""}
+    <button class="btn-ghost" style="margin-bottom:20px" onclick="go('home')">← Voltar</button>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
+      <span style="font-size:36px">${t.icon}</span>
+      <div>
+        <div style="font-weight:800;font-size:22px">${t.name}</div>
+        <div style="font-size:12px;color:#666">${t.desc}</div>
+      </div>
     </div>
-    ${isLast?renderNoteInput(25,true):""}`;
-}
+    <div style="height:1px;background:linear-gradient(90deg,${h(t.color,.4)},transparent);margin:20px 0"></div>
 
-function renderMap(){
-  const t=S.activeTrack;
-  if(!S.learnChunks.length) return `<div style="text-align:center;padding:40px;color:#444"><span class="spinner"></span> Gerando mapa...</div>`;
-  const unlocked=S.learnChunkIdx;
-  return `
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-      ${S.learnChunks.map((c,i)=>`
-        <div class="card" style="border-color:${S.learnChunkIdx===i?h(t.color,.5):i<=unlocked?h(t.color,.25):"#1a1a28"};opacity:${i<=unlocked?1:.4};cursor:${i<=unlocked?"pointer":"default"}"
-          onclick="${i<=unlocked?`S.learnChunkIdx=${i};render()`:""}"
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:28px;height:28px;border-radius:50%;background:${i<=unlocked?h(t.color,.15):"#111"};border:1px solid ${i<=unlocked?h(t.color,.3):"#1a1a28"};display:flex;align-items:center;justify-content:center;font-size:11px;color:${i<=unlocked?t.color:"#333"};font-weight:700;flex-shrink:0">${i+1}</div>
+    <div style="font-family:monospace;font-size:10px;color:${h(t.color,.7)};letter-spacing:1px;margin-bottom:12px">APRENDER</div>
+    ${MODES.filter(m=>!m.practice).map(m=>modeBtn(m,t)).join("")}
+
+    <div style="height:1px;background:#1a1a2e;margin:20px 0"></div>
+    <div style="font-family:monospace;font-size:10px;color:${h(t.color,.7)};letter-spacing:1px;margin-bottom:12px">PRATICAR</div>
+    ${MODES.filter(m=>m.practice).map(m=>modeBtn(m,t)).join("")}
+
+    ${isES?`
+      <div style="height:1px;background:#1a1a2e;margin:20px 0"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="font-family:monospace;font-size:10px;color:${h(t.color,.7)};letter-spacing:1px">FALAR & OUVIR</div>
+        <span style="font-size:10px;color:#444;font-family:monospace">· requer Chrome</span>
+      </div>
+      ${VOICE_MODES.map(m=>`
+        <div style="background:#0e0e1c;border:1px solid ${h(t.color,.15)};border-radius:12px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;transition:all .2s"
+          onmouseenter="this.style.background='${h(t.color,.05)}';this.style.borderColor='${h(t.color,.35)}'"
+          onmouseleave="this.style.background='#0e0e1c';this.style.borderColor='${h(t.color,.15)}'"
+          onclick="startVoice('${m.id}')">
+          <div style="display:flex;align-items:center;gap:11px">
+            <span style="font-size:20px">${m.icon}</span>
             <div>
-              <div style="font-weight:700;font-size:13px;color:${i<=unlocked?"#eee":"#444"}">${c.title}</div>
-              ${i===S.learnChunkIdx?`<div style="font-size:12px;color:#999;margin-top:4px;line-height:1.6">${c.description}<br><span style="color:#888;font-style:italic">${c.why}</span></div>`:""}
+              <div style="font-weight:700;font-size:13px">${m.label}</div>
+              <div style="font-size:11px;color:#666">${m.desc}</div>
             </div>
           </div>
+          <span style="font-family:monospace;font-size:11px;color:${t.color}">+${m.xpBase} XP</span>
         </div>
       `).join("")}
-    </div>
-    ${S.learnChunkIdx<S.learnChunks.length-1
-      ?`<button class="btn btn-primary btn-full" style="background:${t.color}" onclick="S.learnChunkIdx++;render()">Avançar para o próximo conceito →</button>`
-      :renderNoteInput(20,true)}`;
+    `:""}`;
 }
 
-function renderSocratic(){
-  const t=S.activeTrack;
-  if(!S.chatHistory.length) return `<div style="text-align:center;padding:40px;color:#444"><span class="spinner"></span> Iniciando diálogo...</div>`;
-  return `
-    <div class="chat-messages" id="chat-msgs">
-      ${S.chatHistory.map(m=>`<div class="chat-msg ${m.role}">${m.text}</div>`).join("")}
+function modeBtn(m,t){
+  const needsAI=true;
+  return `<div style="background:#0e0e1c;border:1px solid ${h(t.color,.15)};border-radius:12px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;transition:all .2s"
+    onmouseenter="this.style.background='${h(t.color,.05)}';this.style.borderColor='${h(t.color,.35)}'"
+    onmouseleave="this.style.background='#0e0e1c';this.style.borderColor='${h(t.color,.15)}'"
+    onclick="startMode('${m.id}')">
+    <div style="display:flex;align-items:center;gap:11px">
+      <span style="font-size:20px">${m.icon}</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">${m.label}</div>
+        <div style="font-size:11px;color:#666">${m.desc}${!hasAI()?" <span style='color:#444'>(requer API)</span>":""}</div>
+      </div>
     </div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chat-in" placeholder="Sua resposta..." onkeydown="if(event.key==='Enter')sendSocratic()"/>
+    <span style="font-family:monospace;font-size:11px;color:${t.color}">+${m.xpBase} XP</span>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// SESSION — start
+// ══════════════════════════════════════════════
+async function startMode(modeId){
+  if(!hasAI()){ notif("Configure uma API key em Configurações","#E05C5C"); return; }
+  S.mode=modeId; S.item=null; S.qSel=null; S.qRevealed=false; S.fcFlipped=false;
+  S.chAnswer=""; S.chRevealed=false; S.chScore=null; S.chFeedback="";
+  S.chatHist=[]; S.chunks=[]; S.chunkIdx=0;
+  S.page="session";
+  render(); // show loading
+
+  const t=S.track;
+  const ctx=buildMemoryContext(t.id);
+
+  try{
+    if(modeId==="quiz"){
+      const temas=["A","B","C","D"].join("|");
+      const raw=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie uma pergunta de múltipla escolha NOVA e ESPECÍFICA — nunca um conceito básico óbvio.
+
+${ctx}
+
+Formato OBRIGATÓRIO (siga exatamente):
+PERGUNTA: [texto da pergunta]
+A) [opção]
+B) [opção]
+C) [opção]
+D) [opção]
+RESPOSTA: [letra]
+EXPLICAÇÃO: [explicação de 2-3 frases]`}]);
+      S.item=parseAIText(raw,"quiz");
+      if(!S.item.q||!S.item.opts?.length) throw new Error("Formato inválido");
+
+    } else if(modeId==="flashcard"){
+      const raw=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie um flashcard sobre um conceito ESPECÍFICO e útil.
+
+${ctx}
+
+Formato OBRIGATÓRIO:
+CONCEITO: [nome do conceito]
+EXPLICAÇÃO: [explicação completa em 3-5 frases]
+DICA: [dica prática de 1 frase]`}]);
+      S.item=parseAIText(raw,"flashcard");
+      if(!S.item.front) throw new Error("Formato inválido");
+
+    } else if(modeId==="challenge"){
+      const raw=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie um desafio prático REALISTA e ESPECÍFICO.
+
+${ctx}
+
+Formato OBRIGATÓRIO:
+TÍTULO: [título curto]
+CENÁRIO: [descrição do cenário em 3-5 frases]
+TAREFA: [o que o aluno deve fazer]
+DICA: [uma dica útil]
+SOLUÇÃO: [solução detalhada e didática]`}]);
+      S.item=parseAIText(raw,"challenge");
+      if(!S.item.title) throw new Error("Formato inválido");
+
+    } else if(modeId==="guide"){
+      const text=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie uma microaula sobre um tópico NOVO e ESPECÍFICO.
+
+${ctx}
+
+Estruture em 4 blocos separados por ---BLOCO---:
+## 1. Contexto
+[por que isso importa, onde aparece na prática]
+
+---BLOCO---
+
+## 2. O Conceito
+[explicação clara com definição precisa]
+
+---BLOCO---
+
+## 3. Exemplo Prático
+[exemplo real do ambiente profissional]
+
+---BLOCO---
+
+## 4. Para Fixar
+[3 pontos-chave para lembrar]`}]);
+      S.chunks=text.split("---BLOCO---").map(s=>s.trim()).filter(Boolean);
+      S.chunkIdx=0;
+
+    } else if(modeId==="brief"){
+      const text=await ai([{role:"user",content:`Você é tutor de ${t.name}. Escreva um daily brief sobre um conceito NOVO — algo que o aluno ainda não viu ou que vale reforçar.
+
+${ctx}
+
+Estrutura:
+1. **O conceito de hoje** — nome e contexto
+2. **Como funciona** — explicação direta
+3. **Exemplo prático** — situação real
+4. **Por que importa** — relevância profissional
+
+Seja específico, direto e útil. Não use introduções genéricas.`}],""  ,5000);
+      S.chunks=[text]; S.chunkIdx=0;
+
+    } else if(modeId==="socratic"){
+      const first=await ai([{role:"user",content:`Você vai conduzir um diálogo socrático sobre ${t.name}.
+
+${ctx}
+
+Faça a primeira pergunta aberta — explore o que o aluno sabe sobre um tópico que ele ainda não viu recentemente. Seja direto e estimulante.`}],"",2000);
+      S.chatHist=[{role:"ai",text:first}];
+
+    } else if(modeId==="doc"){
+      // Doc mode starts with upload UI — no AI call needed
+    }
+
+    render();
+  } catch(e){
+    notif(e.message,"#E05C5C");
+    S.page="track"; render();
+  }
+}
+
+// ══════════════════════════════════════════════
+// SESSION — render
+// ══════════════════════════════════════════════
+function renderSession(){
+  const t=S.track; const m=S.mode;
+  if(!t||!m) return "";
+  const modeInfo=modeById(m);
+
+  return `
+    <button class="btn-ghost" style="margin-bottom:20px" onclick="if(confirm('Sair da sessão?')){resetSession();go('track')}">← Voltar</button>
+    <div style="font-size:12px;color:${t.color};font-family:monospace;margin-bottom:20px">${t.icon} ${t.name} · ${modeInfo?.label}</div>
+    ${m==="quiz"?renderQuiz()
+     :m==="flashcard"?renderFlashcard()
+     :m==="challenge"?renderChallenge()
+     :(m==="guide"||m==="brief")?renderGuide()
+     :m==="socratic"?renderSocratic()
+     :m==="doc"?renderDoc()
+     :`<div class="loading"><div class="spin"></div>Carregando...</div>`}`;
+}
+
+// ── QUIZ ──
+function renderQuiz(){
+  const t=S.track; const item=S.item;
+  if(!item) return `<div class="loading"><div class="spin"></div>Gerando questão com IA...</div>`;
+  return `
+    <div class="question">${item.q}</div>
+    <div class="opts">
+      ${(item.opts||[]).map(opt=>{
+        const l=opt[0]; const isAns=l===item.ans; const isSel=l===S.qSel;
+        let cls="opt",style="";
+        if(S.qRevealed){ if(isAns)cls+=" ok"; else if(isSel)cls+=" fail"; }
+        else if(isSel){ cls+=" sel"; style=`background:${h(t.color,.1)};border-color:${t.color};color:#fff`; }
+        return `<button class="${cls}" style="${style}" onclick="selectOpt('${l}')" ${S.qRevealed?"disabled":""}>${opt}</button>`;
+      }).join("")}
+    </div>
+    ${!S.qRevealed&&S.qSel?`<button class="btn btn-primary btn-full" style="background:${t.color}" onclick="revealQuiz()">Confirmar</button>`:""}
+    ${S.qRevealed?`
+      <div class="feedback ${S.qSel===item.ans?"ok":"fail"}">
+        <div style="font-weight:700;color:${S.qSel===item.ans?"#7dd87d":"#d87d7d"};margin-bottom:8px">
+          ${S.qSel===item.ans?"✓ Correto!":"✗ Incorreto — resp.: "+item.ans}
+        </div>
+        <div style="color:#bbb;font-size:13px;line-height:1.7;margin-bottom:16px">${item.exp||""}</div>
+        ${renderNoteAndComplete(S.qSel===item.ans?100:20,t)}
+      </div>`:""}`;
+}
+function selectOpt(l){ if(!S.qRevealed){S.qSel=l;render();} }
+function revealQuiz(){ S.qRevealed=true; render(); }
+
+// ── FLASHCARD ──
+function renderFlashcard(){
+  const t=S.track; const item=S.item;
+  if(!item) return `<div class="loading"><div class="spin"></div>Gerando flashcard com IA...</div>`;
+  return `
+    <div class="fc-wrap" onclick="S.fcFlipped=!S.fcFlipped;render()">
+      <div class="fc-inner ${S.fcFlipped?"flip":""}">
+        <div class="fc-face" style="background:#0e0e1c;border:1px solid ${h(t.color,.2)}">
+          <div class="fc-tag" style="color:${t.color}">CONCEITO</div>
+          <div class="fc-title">${item.front||""}</div>
+          <div class="fc-hint">toque para revelar →</div>
+        </div>
+        <div class="fc-face fc-back" style="background:${h(t.color,.06)};border:1px solid ${h(t.color,.35)}">
+          <div class="fc-tag" style="color:${t.color}">EXPLICAÇÃO</div>
+          <div class="fc-text">${item.back||""}</div>
+        </div>
+      </div>
+    </div>
+    ${item.tip?`<div class="tip">💡 ${item.tip}</div>`:""}
+    ${S.fcFlipped?`
+      <div style="font-size:12px;color:#666;margin-bottom:10px;text-align:center">Como foi?</div>
+      <div class="self-eval">
+        <button class="eval-btn" style="background:#0f2010;color:#7dd87d;border:1px solid #3a8a3a44" onclick="evalFlashcard(100)">✓ Sabia bem</button>
+        <button class="eval-btn" style="background:#1a1a0a;color:#C9A84C;border:1px solid #C9A84C33" onclick="evalFlashcard(60)">± Mais ou menos</button>
+        <button class="eval-btn" style="background:#20100e;color:#d87d7d;border:1px solid #8a3a3a44" onclick="evalFlashcard(10)">✗ Não sabia</button>
+      </div>
+      ${renderNoteField()}
+    `:""}`;
+}
+function evalFlashcard(score){
+  const note=document.getElementById("sess-note")?.value||"";
+  completeSession(score,note);
+}
+
+// ── CHALLENGE ──
+function renderChallenge(){
+  const t=S.track; const item=S.item;
+  if(!item) return `<div class="loading"><div class="spin"></div>Gerando desafio com IA...</div>`;
+  return `
+    <div class="scenario" style="background:${h(t.color,.05)};border:1px solid ${h(t.color,.2)}">
+      <div style="font-weight:800;color:${t.color};font-size:14px;margin-bottom:8px">⚡ ${item.title}</div>
+      <div style="color:#ccc;font-size:13px;line-height:1.7;margin-bottom:10px">${(item.scenario||"").replace(/\n/g,"<br>")}</div>
+      <div style="font-weight:600;font-size:13px;color:#eee">Tarefa: ${item.task}</div>
+    </div>
+    ${item.hint?`<div class="tip">💡 ${item.hint}</div>`:""}
+    ${!S.chRevealed?`
+      <textarea class="textarea btn-full" id="ch-ans" placeholder="Sua resposta..." style="margin-bottom:10px">${S.chAnswer}</textarea>
+      <button class="btn btn-primary btn-full" style="background:${S.chAnswer.trim()?t.color:"#1a1a2e"}" ${!S.chAnswer.trim()?"disabled":""} onclick="submitChallenge()">
+        ${S.chScore===null?"Avaliar com IA":"Avaliando..."}
+      </button>
+    `:`
+      ${S.chScore!==null?`
+        <div style="display:flex;align-items:center;gap:12px;background:#0e0e1c;border:1px solid #2a2a3e;border-radius:12px;padding:14px;margin-bottom:12px">
+          ${renderRing(S.chScore,t.color)}
+          <div style="font-size:13px;color:#bbb;line-height:1.6">${S.chFeedback}</div>
+        </div>
+      `:""}
+      <div class="solution">
+        <div style="font-weight:700;color:#7d9dd8;margin-bottom:10px;font-size:14px">📖 Solução de referência</div>
+        <div style="color:#bbb;font-size:13px;line-height:1.8;white-space:pre-wrap;margin-bottom:14px">${item.solution}</div>
+        ${renderNoteAndComplete(S.chScore,t)}
+      </div>
+    `}`;
+}
+function renderRing(score,color){
+  const r=22; const circ=2*Math.PI*r; const dash=circ*(score/100);
+  return `<div class="ring-wrap">
+    <svg width="52" height="52" viewBox="0 0 52 52">
+      <circle cx="26" cy="26" r="${r}" fill="none" stroke="#1e1e2e" stroke-width="4"/>
+      <circle cx="26" cy="26" r="${r}" fill="none" stroke="${color}" stroke-width="4" stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/>
+    </svg>
+    <div class="ring-label" style="color:${color}">${score}</div>
+  </div>`;
+}
+async function submitChallenge(){
+  const ans=document.getElementById("ch-ans")?.value?.trim();
+  if(!ans) return;
+  S.chAnswer=ans; S.chRevealed=true; S.chScore=null; render();
+  try{
+    const raw=await ai([{role:"user",content:`Avalie a resposta do aluno para este desafio de ${S.track.name}.
+
+Desafio: ${S.item.scenario} — ${S.item.task}
+Solução de referência: ${S.item.solution}
+Resposta do aluno: ${ans}
+
+Dê uma nota de 0 a 100 e um feedback de 2-3 frases. Formato:
+NOTA: [número]
+FEEDBACK: [texto encorajador e construtivo]`}],"",1000);
+    const nota=parseInt(raw.match(/NOTA:\s*(\d+)/i)?.[1]||"50");
+    const fb=raw.match(/FEEDBACK:\s*([\s\S]+)/i)?.[1]?.trim()||"Boa tentativa!";
+    S.chScore=Math.min(100,Math.max(0,nota));
+    S.chFeedback=fb;
+  }catch{
+    S.chScore=50; S.chFeedback="Não foi possível avaliar automaticamente. Compare com a solução de referência.";
+  }
+  render();
+}
+
+// ── GUIDE / BRIEF ──
+function renderGuide(){
+  const t=S.track;
+  if(!S.chunks.length) return `<div class="loading"><div class="spin"></div>Gerando conteúdo...</div>`;
+  const isLast=S.chunkIdx>=S.chunks.length-1;
+  const chunk=S.chunks[S.chunkIdx];
+  return `
+    ${S.chunks.length>1?`<div style="font-family:monospace;font-size:10px;color:#555;margin-bottom:12px">${S.chunkIdx+1} / ${S.chunks.length}</div>`:""}
+    <div class="chunk">${mdToHtml(chunk)}</div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      ${S.chunkIdx>0?`<button class="btn-ghost" onclick="S.chunkIdx--;render()">← Anterior</button>`:""}
+      ${!isLast
+        ?`<button class="btn btn-primary" style="background:${t.color};flex:1" onclick="S.chunkIdx++;render()">Próximo →</button>`
+        :renderNoteAndComplete(undefined,t)}
+    </div>`;
+}
+
+// ── SOCRATIC ──
+function renderSocratic(){
+  const t=S.track;
+  if(!S.chatHist.length) return `<div class="loading"><div class="spin"></div>Iniciando diálogo...</div>`;
+  return `
+    <div class="chat-msgs" id="chat-msgs">
+      ${S.chatHist.map(m=>`<div class="msg ${m.role}">${m.text}</div>`).join("")}
+    </div>
+    <div class="chat-row">
+      <input class="chat-in" id="chat-in" placeholder="Sua resposta..." onkeydown="if(event.key==='Enter')sendSocratic()"/>
       <button class="chat-send" style="background:${t.color}" onclick="sendSocratic()">→</button>
     </div>
-    <div style="margin-top:12px">${S.chatHistory.length>4?renderNoteInput(30,true):""}</div>`;
+    ${S.chatHist.length>=6?`<div style="margin-top:12px">${renderNoteAndComplete(undefined,t)}</div>`:""}`;
 }
-
 async function sendSocratic(){
   const inp=document.getElementById("chat-in");
   const text=inp?.value?.trim();
   if(!text) return;
-  S.chatHistory.push({role:"user",text});
-  inp.value="";
-  render();
+  S.chatHist.push({role:"user",text}); inp.value=""; render();
   try{
-    const msgs=S.chatHistory.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
-    const reply=await callAI(msgs,`Você conduz um diálogo socrático sobre "${S.activeTrack.name}". Responda à fala do aluno com outra pergunta ou reflexão que aprofunde o entendimento. Seja conciso.`, 2000);
-    S.chatHistory.push({role:"ai",text:reply});
-  }catch(e){S.chatHistory.push({role:"ai",text:"Erro: "+e.message});}
+    const msgs=S.chatHist.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
+    const reply=await ai(msgs,`Você conduz um diálogo socrático sobre ${S.track.name}. Aprofunde o entendimento com perguntas e reflexões. Máximo 4 frases completas.`,2000);
+    S.chatHist.push({role:"ai",text:reply});
+  }catch(e){ S.chatHist.push({role:"ai",text:"Erro: "+e.message}); }
   render();
   setTimeout(()=>{const el=document.getElementById("chat-msgs");if(el)el.scrollTop=el.scrollHeight;},50);
 }
 
-function renderDocChat(){
-  const t=S.activeTrack;
-  if(!S.docContent){
-    return `
-      <div style="color:#777;font-size:13px;margin-bottom:16px;line-height:1.6">Suba um PDF ou cole um texto para discutir com a IA sobre ele no contexto de ${t.name}.</div>
-      <label class="upload-area">
-        <input type="file" accept=".pdf,.txt" onchange="handleDocUpload(event)"/>
-        <div style="font-size:24px;margin-bottom:8px">📄</div>
-        <div style="font-size:13px;color:#555">Clique para selecionar um arquivo</div>
-        <div style="font-size:11px;color:#333;margin-top:4px">.txt recomendado (PDF: apenas texto extraível)</div>
-      </label>
-      <div style="color:#555;font-size:12px;margin-bottom:8px;text-align:center">— ou —</div>
-      <textarea class="form-textarea" id="doc-paste" placeholder="Cole o texto aqui..." style="min-height:100px"></textarea>
-      <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:8px" onclick="loadDocText()">Carregar texto</button>`;
-  }
+// ── DOC CHAT ──
+function renderDoc(){
+  const t=S.track;
+  if(!S.docText) return `
+    <div style="color:#777;font-size:13px;margin-bottom:16px;line-height:1.6">Suba um arquivo de texto (.txt) ou cole o conteúdo abaixo para discutir com a IA.</div>
+    <label style="border:1px dashed #2a2a3e;border-radius:12px;padding:24px;text-align:center;cursor:pointer;display:block;margin-bottom:14px;transition:all .2s" onmouseenter="this.style.borderColor='${h(t.color,.4)}'" onmouseleave="this.style.borderColor='#2a2a3e'">
+      <input type="file" accept=".txt,.md" style="display:none" onchange="loadDocFile(event)"/>
+      <div style="font-size:24px;margin-bottom:8px">📄</div>
+      <div style="font-size:13px;color:#666">Clique para selecionar arquivo (.txt)</div>
+    </label>
+    <div style="color:#555;font-size:12px;text-align:center;margin-bottom:10px">— ou —</div>
+    <textarea class="textarea" id="doc-paste" placeholder="Cole o texto aqui..." style="min-height:100px;margin-bottom:10px"></textarea>
+    <button class="btn btn-primary btn-full" style="background:${t.color}" onclick="loadDocText()">Carregar texto</button>`;
+
   return `
-    <div style="background:#0e0e1c;border:1px solid #1e1e2e;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:#555;display:flex;justify-content:space-between;align-items:center">
-      <span>📄 Documento carregado (${S.docContent.length} chars)</span>
-      <button class="btn-ghost" style="font-size:10px;padding:4px 8px" onclick="S.docContent='';S.chatHistory=[];render()">Trocar</button>
+    <div style="background:#0e0e1c;border:1px solid #2a2a3e;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;color:#666;font-family:monospace">📄 ${S.docText.length} caracteres carregados</span>
+      <button class="btn-ghost" style="font-size:10px;padding:4px 8px" onclick="S.docText='';S.chatHist=[];render()">Trocar</button>
     </div>
-    <div class="chat-messages" id="chat-msgs">
-      ${S.chatHistory.length===0?`<div class="chat-msg ai">Documento carregado! Pode me perguntar qualquer coisa sobre ele. O que gostaria de explorar?</div>`:""}
-      ${S.chatHistory.map(m=>`<div class="chat-msg ${m.role}">${m.text}</div>`).join("")}
+    <div class="chat-msgs" id="chat-msgs">
+      ${S.chatHist.length===0?`<div class="msg ai">Documento carregado! O que você quer explorar?</div>`:""}
+      ${S.chatHist.map(m=>`<div class="msg ${m.role}">${m.text}</div>`).join("")}
     </div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chat-in" placeholder="Pergunta sobre o documento..." onkeydown="if(event.key==='Enter')sendDocChat()"/>
-      <button class="chat-send" style="background:${t.color}" onclick="sendDocChat()">→</button>
+    <div class="chat-row">
+      <input class="chat-in" id="chat-in" placeholder="Pergunta sobre o documento..." onkeydown="if(event.key==='Enter')sendDoc()"/>
+      <button class="chat-send" style="background:${t.color}" onclick="sendDoc()">→</button>
     </div>
-    <div style="margin-top:12px">${S.chatHistory.length>2?renderNoteInput(35,true):""}</div>`;
+    ${S.chatHist.length>=4?`<div style="margin-top:12px">${renderNoteAndComplete(undefined,t)}</div>`:""}`;
 }
-
-async function handleDocUpload(e){
-  const file=e.target.files[0];
-  if(!file)return;
-  const text=await file.text();
-  S.docContent=text.slice(0,15000);
-  S.chatHistory=[];
-  render();
+async function loadDocFile(e){
+  const file=e.target.files[0]; if(!file) return;
+  S.docText=(await file.text()).slice(0,20000); S.chatHist=[]; render();
 }
-
 function loadDocText(){
-  const ta=document.getElementById("doc-paste");
-  if(ta&&ta.value.trim()){S.docContent=ta.value.trim().slice(0,15000);S.chatHistory=[];render();}
+  const v=document.getElementById("doc-paste")?.value?.trim();
+  if(v){ S.docText=v.slice(0,20000); S.chatHist=[]; render(); }
 }
-
-async function sendDocChat(){
+async function sendDoc(){
   const inp=document.getElementById("chat-in");
-  const text=inp?.value?.trim();
-  if(!text)return;
-  S.chatHistory.push({role:"user",text});
-  inp.value="";render();
+  const text=inp?.value?.trim(); if(!text) return;
+  S.chatHist.push({role:"user",text}); inp.value=""; render();
   try{
-    const reply=await callAI([{role:"user",content:`Documento de referência:\n\n${S.docContent}\n\n---\nHistórico:\n${S.chatHistory.slice(0,-1).map(m=>`${m.role==="ai"?"IA":"Aluno"}: ${m.text}`).join("\n")}\n\nAluno: ${text}`},],`Você é um tutor especialista em ${S.activeTrack.name}. Responda com base no documento fornecido, citando partes relevantes quando útil. Seja preciso e didático.`, 4000);
-    S.chatHistory.push({role:"ai",text:reply});
-  }catch(e){S.chatHistory.push({role:"ai",text:"Erro: "+e.message});}
+    const hist=S.chatHist.slice(0,-1).map(m=>`${m.role==="ai"?"IA":"Aluno"}: ${m.text}`).join("\n");
+    const reply=await ai([{role:"user",content:`Documento:\n\n${S.docText}\n\n---\nHistórico:\n${hist}\n\nAluno: ${text}`}],
+      `Você é tutor especialista em ${S.track.name}. Responda com base no documento. Seja preciso e didático.`,4000);
+    S.chatHist.push({role:"ai",text:reply});
+  }catch(e){ S.chatHist.push({role:"ai",text:"Erro: "+e.message}); }
   render();
   setTimeout(()=>{const el=document.getElementById("chat-msgs");if(el)el.scrollTop=el.scrollHeight;},50);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ROADMAP
-// ═══════════════════════════════════════════════════════════════
-function renderRoadmap(){
-  const totalSessions=S.history.length;
-  const totalXPEarned=S.history.reduce((s,h)=>s+h.xp,0);
-  const streaks=Object.entries(S.stats).filter(([,s])=>s.streak>0);
+// ── NOTE + COMPLETE ──
+function renderNoteField(){
+  return `<div style="margin-top:14px">
+    <label class="label">Anotação (opcional)</label>
+    <textarea class="textarea" id="sess-note" placeholder="O que aprendeu? Dúvidas? Algo pra lembrar..." style="min-height:60px"></textarea>
+  </div>`;
+}
+function renderNoteAndComplete(score,t){
+  const scoreStr=score!==undefined&&score!==null?`, ${score}`:"";
+  return `${renderNoteField()}
+    <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:10px" onclick="finishSession(${scoreStr})">
+      +${calcXP(S.mode,score)} XP — Concluir sessão
+    </button>`;
+}
+function finishSession(score){
+  const note=document.getElementById("sess-note")?.value||"";
+  completeSession(score,note);
+}
 
-  return `<div class="container">
-    <div class="page-title">Roadmap</div>
-    <div class="page-sub">Seu histórico de aprendizado</div>
+// ══════════════════════════════════════════════
+// VOICE MODES
+// ══════════════════════════════════════════════
+function startVoice(modeId){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ notif("Voz não suportada — use o Chrome","#E05C5C"); return; }
+  S.voiceMode=modeId; S.vListening=false; S.vTranscript=""; S.vShadowPhrase=""; S.vDictadoPhrase=""; S.vConvHist=[];
+  S.page="session"; S.mode="voice_"+modeId;
+  render();
+  if(modeId==="shadow") loadShadowPhrase();
+  if(modeId==="dictado") loadDictadoPhrase();
+  if(modeId==="conv") initConv();
+}
 
-    <div class="stat-grid">
-      <div class="stat-box">
-        <div class="stat-val" style="color:#C9A84C">${totalSessions}</div>
-        <div class="stat-lbl">SESSÕES</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-val" style="color:#5B8CFF">${fmt(S.totalXP)}</div>
-        <div class="stat-lbl">XP TOTAL</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-val" style="color:#E05C5C">${totalLevel()}</div>
-        <div class="stat-lbl">NVL COMBINADO</div>
+function speak(text,onEnd){
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="es-ES"; u.rate=0.88; u.pitch=1;
+  if(onEnd) u.onend=onEnd;
+  window.speechSynthesis.speak(u);
+}
+function speakPhrase(type){ speak(type==="shadow"?S.vShadowPhrase:S.vDictadoPhrase); }
+
+let _rec=null;
+function startListen(onResult,onEnd){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  _rec=new SR(); _rec.lang="es-ES"; _rec.interimResults=false;
+  if(S.vManual){
+    _rec.continuous=true; let acc="";
+    _rec.onresult=e=>{ for(let i=e.resultIndex;i<e.results.length;i++) if(e.results[i].isFinal) acc+=e.results[i][0].transcript+" "; };
+    _rec.onend=()=>{ S.vListening=false; if(onEnd) onEnd(); if(acc.trim()) onResult(acc.trim()); };
+  } else {
+    _rec.continuous=false;
+    _rec.onresult=e=>{ onResult(e.results[0][0].transcript); };
+    _rec.onend=()=>{ S.vListening=false; if(onEnd) onEnd(); };
+  }
+  _rec.onerror=e=>{ if(e.error!=="no-speech") notif("Microfone: "+e.error,"#E05C5C"); S.vListening=false; if(onEnd) onEnd(); render(); };
+  _rec.start(); S.vListening=true;
+}
+function stopListen(){ try{_rec?.stop();}catch{} }
+
+// Shadow
+const TOPICS_ES=["uma reunião de negócios","uma apresentação profissional","o mercado financeiro","uma viagem","um restaurante","tecnologia","esportes","a natureza","um fim de semana","a cidade"];
+async function loadShadowPhrase(){
+  const tema=TOPICS_ES[Math.floor(Math.random()*TOPICS_ES.length)];
+  try{
+    const raw=await ai([{role:"user",content:`Crie UMA frase COMPLETA em espanhol sobre: ${tema}. Máximo 12 palavras, sujeito e verbo obrigatórios, sem aspas, sem explicações, apenas a frase.`}],"",80);
+    S.vShadowPhrase=raw.trim().replace(/["'`]|Initialized|undefined/gi,"").trim();
+  }catch{ S.vShadowPhrase="El mercado financiero tiene grandes oportunidades para los inversores."; }
+  render();
+  setTimeout(()=>speak(S.vShadowPhrase),300);
+}
+async function loadDictadoPhrase(){
+  const tema=TOPICS_ES[Math.floor(Math.random()*TOPICS_ES.length)];
+  try{
+    const raw=await ai([{role:"user",content:`Crie UMA frase COMPLETA em espanhol sobre: ${tema}. Máximo 12 palavras, sujeito e verbo obrigatórios, sem aspas, sem explicações, apenas a frase.`}],"",80);
+    S.vDictadoPhrase=raw.trim().replace(/["'`]|Initialized|undefined/gi,"").trim();
+  }catch{ S.vDictadoPhrase="La empresa tiene una reunión importante con sus clientes internacionales."; }
+  S.vTranscript=""; render();
+  setTimeout(()=>speak(S.vDictadoPhrase),300);
+}
+async function initConv(){
+  try{
+    const first=await ai([{role:"user",content:"Você é professor de espanhol. Abra uma conversa natural com o aluno em espanhol — uma frase simples e convidativa para começar."}],"",200);
+    S.vConvHist=[{role:"ai",text:first.trim()}];
+    speak(first.trim());
+  }catch{ S.vConvHist=[{role:"ai",text:"¡Hola! ¿De qué quieres hablar hoy?"}]; speak("¡Hola! ¿De qué quieres hablar hoy?"); }
+  render();
+}
+
+function renderSession(){
+  const t=S.track; const m=S.mode;
+  if(!t||!m) return "";
+  const modeInfo=modeById(m);
+
+  if(m&&m.startsWith("voice_")){
+    return renderVoiceSession();
+  }
+
+  return `
+    <button class="btn-ghost" style="margin-bottom:20px" onclick="if(confirm('Sair da sessão?')){resetSession();go('track')}">← Voltar</button>
+    <div style="font-size:12px;color:${t.color};font-family:monospace;margin-bottom:20px">${t.icon} ${t.name} · ${modeInfo?.label}</div>
+    ${m==="quiz"?renderQuiz()
+     :m==="flashcard"?renderFlashcard()
+     :m==="challenge"?renderChallenge()
+     :(m==="guide"||m==="brief")?renderGuide()
+     :m==="socratic"?renderSocratic()
+     :m==="doc"?renderDoc()
+     :`<div class="loading"><div class="spin"></div>Carregando...</div>`}`;
+}
+
+function renderVoiceSession(){
+  const t=S.track;
+  const vm=S.voiceMode;
+  const vmInfo=VOICE_MODES.find(v=>v.id===vm);
+
+  return `
+    <button class="btn-ghost" style="margin-bottom:20px" onclick="window.speechSynthesis.cancel();stopListen();resetSession();go('track')">← Voltar</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:12px;color:${t.color};font-family:monospace">${t.icon} ${t.name} · ${vmInfo?.label}</div>
+      <div class="voice-toggle" onclick="S.vManual=!S.vManual;render()">
+        <span style="font-size:10px;color:#555;font-family:monospace">AUTO</span>
+        <div class="toggle-track" style="background:${S.vManual?t.color:"#1e1e2e"}">
+          <div class="toggle-thumb" style="left:${S.vManual?19:2}px"></div>
+        </div>
+        <span style="font-size:10px;color:#555;font-family:monospace">MANUAL</span>
       </div>
     </div>
+    <div style="font-size:11px;color:#444;font-family:monospace;margin-bottom:18px">
+      ${S.vManual?"Modo manual: pressione Falar, fale no seu ritmo, pressione Parar":"Modo auto: para ao detectar silêncio"}
+    </div>
+    ${vm==="shadow"?renderShadow():vm==="dictado"?renderDictado():renderConv()}`;
+}
 
-    <!-- Per-track progress -->
-    <div class="sec-label" style="margin-bottom:14px">Progresso por trilha</div>
+function renderShadow(){
+  const t=S.track;
+  if(!S.vShadowPhrase) return `<div class="loading"><div class="spin"></div>Gerando frase...</div>`;
+  return `
+    <div class="chunk" style="font-size:19px;text-align:center;padding:28px;letter-spacing:.3px">${S.vShadowPhrase}</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn-ghost" style="flex:1" onclick="speakPhrase('shadow')">🔊 Ouvir</button>
+      <button class="btn btn-primary" style="background:${S.vListening?"#E05C5C":t.color};flex:1" onclick="toggleShadow()">
+        ${S.vListening?"⏹ Parar":"🎙️ Repetir"}
+      </button>
+    </div>
+    ${S.vListening?`<div class="mic-status">⏺ ouvindo...</div>`:""}
+    ${S.vTranscript&&!S.vListening?`
+      <div style="margin-bottom:14px">
+        <div class="label">VOCÊ DISSE</div>
+        <div class="chunk" style="font-size:16px">${S.vTranscript}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" style="flex:1" onclick="S.vTranscript='';loadShadowPhrase()">Nova frase</button>
+        ${renderNoteAndComplete(undefined,t)}
+      </div>
+    `:""}`;
+}
+function toggleShadow(){
+  if(S.vListening){ stopListen(); return; }
+  S.vTranscript=""; render();
+  startListen(t=>{S.vTranscript=t;render();},()=>render());
+}
+
+function renderDictado(){
+  const t=S.track;
+  if(!S.vDictadoPhrase) return `<div class="loading"><div class="spin"></div>Gerando frase...</div>`;
+  return `
+    <button class="btn-ghost btn-full" style="margin-bottom:16px" onclick="speakPhrase('dictado')">🔊 Ouvir a frase</button>
+    ${!S.vTranscript?`
+      <textarea class="textarea" id="dictado-in" placeholder="Escreva o que ouviu em espanhol..." style="margin-bottom:10px"></textarea>
+      <button class="btn btn-primary btn-full" style="background:${t.color}" onclick="checkDictado()">Verificar</button>
+    `:`
+      <div class="chunk" style="margin-bottom:12px;font-size:14px">${S.vTranscript}</div>
+      <div style="background:#0e0e1c;border:1px solid #2a2a3e;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div class="label" style="margin-bottom:6px">FRASE ORIGINAL</div>
+        <div style="font-size:15px;color:#eee">${S.vDictadoPhrase}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" style="flex:1" onclick="S.vTranscript='';loadDictadoPhrase()">Nova frase</button>
+        ${renderNoteAndComplete(undefined,t)}
+      </div>
+    `}`;
+}
+async function checkDictado(){
+  const input=document.getElementById("dictado-in")?.value?.trim();
+  if(!input) return;
+  try{
+    const fb=await ai([{role:"user",content:`Frase original: "${S.vDictadoPhrase}"\nAluno escreveu: "${input}"\n\nFeedback encorajador de 2-3 frases: acertos, erros e frase correta.`}],"",400);
+    S.vTranscript=`${input}\n\n💬 ${fb}`;
+  }catch{ S.vTranscript=input; }
+  render();
+}
+
+function renderConv(){
+  const t=S.track;
+  if(!S.vConvHist.length) return `<div class="loading"><div class="spin"></div>Iniciando conversa...</div>`;
+  return `
+    <div class="chat-msgs" id="chat-msgs">
+      ${S.vConvHist.map(m=>`<div class="msg ${m.role}">${m.text}</div>`).join("")}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-primary" style="background:${S.vListening?"#E05C5C":t.color};flex:1" onclick="toggleConv()">
+        ${S.vListening?"⏹ Parar":"🎙️ Falar"}
+      </button>
+      <button class="btn-ghost" onclick="speak(S.vConvHist.filter(m=>m.role==='ai').slice(-1)[0]?.text||'')">🔊</button>
+    </div>
+    ${S.vListening?`<div class="mic-status">⏺ ouvindo...</div>`:""}
+    ${S.vConvHist.length>=6?`<div style="margin-top:12px">${renderNoteAndComplete(undefined,t)}</div>`:""}`;
+}
+async function toggleConv(){
+  if(S.vListening){ stopListen(); return; }
+  render();
+  startListen(async transcript=>{
+    S.vConvHist.push({role:"user",text:transcript}); render();
+    try{
+      const msgs=S.vConvHist.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
+      const reply=await ai(msgs,"Você é professor de espanhol conversacional. Responda em espanhol de forma natural. Corrija erros sutilmente dentro da resposta. Máximo 3 frases completas.",400);
+      S.vConvHist.push({role:"ai",text:reply}); render();
+      speak(reply);
+    }catch(e){ notif(e.message,"#E05C5C"); }
+    setTimeout(()=>{const el=document.getElementById("chat-msgs");if(el)el.scrollTop=el.scrollHeight;},50);
+  },()=>render());
+}
+
+// ══════════════════════════════════════════════
+// ROADMAP
+// ══════════════════════════════════════════════
+function renderRoadmap(){
+  const total=S.history.length;
+  const xpTotal=S.totalXP;
+  const avgScore=S.history.filter(h=>h.score!=null).reduce((s,h,_,a)=>s+h.score/a.length,0)||0;
+
+  return `
+    <div style="font-weight:800;font-size:22px;margin-bottom:4px">Roadmap</div>
+    <div style="color:#666;font-size:13px;margin-bottom:24px">Seu histórico de aprendizado</div>
+
+    <div class="stats3">
+      <div class="stat"><div class="stat-n" style="color:#C9A84C">${total}</div><div class="stat-l">SESSÕES</div></div>
+      <div class="stat"><div class="stat-n" style="color:#5B8CFF">${fmt(xpTotal)}</div><div class="stat-l">XP TOTAL</div></div>
+      <div class="stat"><div class="stat-n" style="color:#5dba7d">${Math.round(avgScore)}</div><div class="stat-l">SCORE MÉDIO</div></div>
+    </div>
+
+    <div style="font-family:monospace;font-size:10px;color:#555;letter-spacing:1px;margin-bottom:14px">PROGRESSO POR TRILHA</div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px">
       ${TRACKS.filter(t=>t.active).map(t=>{
-        const s=S.stats[t.id];
-        const sessions=S.history.filter(h=>h.trackId===t.id).length;
+        const s=S.stats[t.id]||DEF_STATS();
+        const sessions=(S.history||[]).filter(h=>h.trackId===t.id).length;
         const pct=Math.min((s.xp/s.xpNext)*100,100);
-        return `<div class="card" style="border-color:${h(t.color,.2)}">
+        return `<div class="card" style="border-color:${h(t.color,.18)}">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:20px">${t.icon}</span>
               <div>
                 <div style="font-weight:700;font-size:14px">${t.name}</div>
-                <div style="font-size:11px;color:#888">${sessions} sessões · streak ${s.streak}</div>
+                <div style="font-size:11px;color:#666">${sessions} sessões${s.streak>0?" · 🔥"+s.streak+" streak":""}</div>
               </div>
             </div>
-            <span class="badge" style="color:${t.color};background:${h(t.color,.08)};border:1px solid ${h(t.color,.18)}">LVL ${s.level}</span>
+            <span style="font-size:10px;font-family:monospace;color:${t.color};background:${h(t.color,.1)};border:1px solid ${h(t.color,.2)};padding:2px 8px;border-radius:99px">LVL ${s.level}</span>
           </div>
-          <div class="xp-bar-wrap"><div class="xp-bar-fill" style="width:${pct}%;background:${t.color}"></div></div>
-          <div class="xp-row"><span>${s.xp}/${s.xpNext} XP</span><span style="color:#777">${Math.round(pct)}%</span></div>
+          <div class="xpbar"><div class="xpfill" style="width:${pct}%;background:${t.color}"></div></div>
+          <div class="xprow"><span>${s.xp}/${s.xpNext} XP</span><span>${Math.round(pct)}%</span></div>
         </div>`;
       }).join("")}
     </div>
 
-    <!-- Timeline -->
-    <div class="sec-label" style="margin-bottom:16px">Histórico de sessões</div>
-    ${S.history.length===0
-      ?`<div style="color:#444;font-size:13px;text-align:center;padding:40px">Nenhuma sessão ainda. Comece a estudar!</div>`
-      :`<div class="timeline">
-        ${S.history.slice(0,30).map(item=>{
+    <div style="font-family:monospace;font-size:10px;color:#555;letter-spacing:1px;margin-bottom:16px">HISTÓRICO</div>
+    ${!S.history.length
+      ?`<div style="text-align:center;color:#333;font-size:13px;padding:40px">Nenhuma sessão ainda. Comece a estudar!</div>`
+      :`<div class="tl">
+        ${S.history.slice(0,40).map(item=>{
           const t=trackById(item.trackId);
-          const modeLabel=[...PRACTICE_MODES,...LEARN_MODES].find(m=>m.id===item.type)?.label||item.type;
-          return `<div class="timeline-item">
-            <div class="timeline-dot" style="border-color:${t?.color||"#555"};background:${h(t?.color||"#555",.15)}"></div>
-            <div class="timeline-date">${fmtDate(item.date)}</div>
-            <div class="timeline-content" style="border-color:${h(t?.color||"#555",.15)}">
-              <div class="timeline-title">${t?.icon||""} ${item.trackName} · ${modeLabel}</div>
-              <div class="timeline-meta">+${item.xp} XP ${item.correct===true?"✓":item.correct===false?"✗":""}</div>
-              ${item.note?`<div class="timeline-note">"${item.note}"</div>`:""}
+          const mInfo=modeById(item.mode)||{label:item.mode};
+          return `<div class="tl-item">
+            <div class="tl-dot" style="border-color:${t?.color||"#555"};background:${h(t?.color||"#555",.15)}"></div>
+            <div class="tl-date">${fmtDate(item.date)}</div>
+            <div class="tl-card" style="border-color:${h(t?.color||"#555",.12)}">
+              <div class="tl-title">${t?.icon||""} ${item.trackName} · ${mInfo.label}</div>
+              <div class="tl-meta">+${item.xp} XP${item.score!=null?" · score "+item.score+"/100":""} ${item.topic?"· "+item.topic:""}</div>
+              ${item.note?`<div class="tl-note">"${item.note}"</div>`:""}
             </div>
           </div>`;
         }).join("")}
-      </div>`}
-  </div>`;
+      </div>`}`;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // ANALYSIS
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function renderAnalysis(){
-  return `<div class="container">
-    <div class="page-title">Análise de Aprendizado</div>
-    <div class="page-sub">A IA analisa seu histórico e recomenda os próximos passos</div>
+  return `
+    <div style="font-weight:800;font-size:22px;margin-bottom:4px">Análise de Aprendizado</div>
+    <div style="color:#666;font-size:13px;margin-bottom:24px">A IA analisa seu histórico e recomenda os próximos passos</div>
 
-    ${!hasAIKey()?`<div style="background:#E05C5C0a;border:1px solid #E05C5C33;border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px;color:#888">
-      Configure a API key do Gemini em <button class="btn-ghost" style="font-size:12px;padding:3px 8px" onclick="go('settings')">Configurações</button> para usar esta função.
+    ${!hasAI()?`<div style="background:#E05C5C0a;border:1px solid #E05C5C33;border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px;color:#888">
+      Configure a API em <button class="btn-ghost" style="font-size:12px;padding:3px 8px;display:inline" onclick="go('settings')">Configurações</button> para usar esta função.
     </div>`:""}
 
     ${S.analysisText?`
-      <div class="analysis-box">${mdToHtml(S.analysisText)}</div>
-      <button class="btn-ghost btn-full" style="margin-top:8px" onclick="S.analysisText='';render()">Nova análise</button>
+      <div class="chunk">${mdToHtml(S.analysisText)}</div>
+      <button class="btn-ghost btn-full" style="margin-top:12px" onclick="S.analysisText='';render()">Nova análise</button>
     `:`
-      <div style="color:#555;font-size:13px;line-height:1.7;margin-bottom:20px">
+      <div style="color:#666;font-size:13px;line-height:1.7;margin-bottom:20px">
         Com base nas suas ${S.history.length} sessões registradas, a IA vai identificar padrões, pontos fortes, lacunas e recomendar o que estudar a seguir.
       </div>
-      <button class="btn btn-primary btn-full" style="background:#C9A84C;${S.analysisLoading||!hasAIKey()||S.history.length===0?"opacity:.5":""}"
-        ${S.analysisLoading||!hasAIKey()||S.history.length===0?"disabled":""}
+      <button class="btn btn-primary btn-full" style="background:#C9A84C;${S.analysisLoading||!hasAI()||!S.history.length?"opacity:.4":""}"
+        ${S.analysisLoading||!hasAI()||!S.history.length?"disabled":""}
         onclick="runAnalysis()">
-        ${S.analysisLoading?`<span class="spinner"></span> Analisando...`:"🔍 Analisar meu aprendizado"}
+        ${S.analysisLoading?`<span class="spin" style="border-top-color:#08080f"></span> Analisando...`:"🔍 Analisar meu aprendizado"}
       </button>
-      ${S.history.length===0?`<div style="color:#444;font-size:12px;text-align:center;margin-top:10px">Complete algumas sessões primeiro</div>`:""}
-    `}
-  </div>`;
+      ${!S.history.length?`<div style="color:#444;font-size:12px;text-align:center;margin-top:10px">Complete algumas sessões primeiro</div>`:""}
+    `}`;
 }
-
 async function runAnalysis(){
-  S.analysisLoading=true;render();
+  S.analysisLoading=true; render();
   try{
-    const summary=S.history.slice(0,50).map(h=>`${h.date.slice(0,10)}: ${h.trackName} (${h.type}) +${h.xp}XP${h.correct===false?" ERROU":""}${h.note?" nota: "+h.note:""}`).join("\n");
-    const statsStr=TRACKS.filter(t=>t.active).map(t=>`${t.name}: LVL ${S.stats[t.id].level}, ${S.stats[t.id].xp}/${S.stats[t.id].xpNext} XP, streak ${S.stats[t.id].streak}`).join("\n");
-    const text=await callAI([{role:"user",content:`Analise o histórico de aprendizado abaixo e forneça:
-1. **Resumo do progresso** — o que já foi feito e pontos fortes
-2. **Lacunas identificadas** — onde há menos prática ou mais erros
-3. **Recomendações concretas** — o que estudar nas próximas sessões e em qual ordem
-4. **Dica motivacional** — algo personalizado com base no padrão observado
+    const stats=TRACKS.filter(t=>t.active).map(t=>`${t.name}: LVL ${S.stats[t.id]?.level||1}, streak ${S.stats[t.id]?.streak||0}`).join("\n");
+    const hist=S.history.slice(0,60).map(h=>{
+      const score=h.score!=null?` score:${h.score}/100`:"";
+      const note=h.note?` nota:"${h.note}"` :"";
+      return `${h.date.slice(0,10)}: ${h.trackName} (${h.mode})${score}${note}${h.topic?" tópico:"+h.topic:""}`;
+    }).join("\n");
+    const weakTopics=S.history.filter(h=>h.score!=null&&h.score<60).map(h=>h.topic).filter(Boolean).join(", ");
 
-Estatísticas:
-${statsStr}
+    S.analysisText=await ai([{role:"user",content:`Analise o histórico de aprendizado e forneça um relatório personalizado:
 
-Histórico recente (mais recente primeiro):
-${summary}`}], "", 8000);
-    S.analysisText=text;
-  }catch(e){S.analysisText="Erro: "+e.message;}
-  S.analysisLoading=false;
-  render();
+**Estatísticas:**
+${stats}
+${weakTopics?"\n**Tópicos com baixo score:** "+weakTopics:""}
+
+**Histórico recente:**
+${hist}
+
+Estruture assim:
+## Resumo do progresso
+[o que está indo bem]
+
+## Lacunas identificadas
+[onde há fraquezas, repetições, falta de prática]
+
+## Recomendações para as próximas sessões
+[lista específica de 3-5 ações concretas]
+
+## Dica personalizada
+[algo específico baseado no padrão observado]
+
+Seja específico, honesto e útil.`}],"",8000);
+  }catch(e){ S.analysisText="Erro: "+e.message; }
+  S.analysisLoading=false; render();
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // SETTINGS
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function renderSettings(){
-  const keys=getKeys();
-  return `<div class="container">
-    <div class="page-title">Configurações</div>
-    <div class="page-sub">Chaves de API e preferências</div>
+  const k=getKeys();
+  return `
+    <div style="font-weight:800;font-size:22px;margin-bottom:4px">Configurações</div>
+    <div style="color:#666;font-size:13px;margin-bottom:24px">Chaves de API e sincronização</div>
 
     <!-- Gemini -->
     <div class="card" style="margin-bottom:14px">
       <div style="font-weight:700;font-size:14px;margin-bottom:4px">🤖 Google Gemini API Key</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px">Gratuita — 1500 requests/dia. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#C9A84C">Obter key grátis →</a></div>
-      <div class="form-group">
-        <input class="form-input" type="password" id="gemini-key" placeholder="AIza..." value="${keys.gemini}"/>
-      </div>
+      <div style="font-size:12px;color:#777;margin-bottom:14px">Gratuita — 1500 req/dia. <a href="https://aistudio.google.com/app/apikey" target="_blank">Obter key grátis →</a></div>
+      <label class="label">API KEY</label>
+      <input class="input" type="password" id="in-gemini" placeholder="AIza..." value="${k.gemini}" style="margin-bottom:10px"/>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" style="background:#C9A84C" onclick="saveGeminiKey()">Salvar</button>
-        ${keys.gemini?`<button class="btn-ghost" onclick="clearKey('sh_gemini_key')">Remover</button>`:""}
+        <button class="btn btn-primary" style="background:#C9A84C" onclick="saveKey('sh_gemini','in-gemini','Gemini')">Salvar</button>
+        ${k.gemini?`<button class="btn-ghost" onclick="clearKey('sh_gemini')">Remover</button>`:""}
       </div>
-      ${keys.gemini?`<div style="color:#5dba7d;font-size:12px;margin-top:8px;font-family:monospace">✓ Configurada</div>`:`<div style="color:#E05C5C;font-size:12px;margin-top:8px;font-family:monospace">✗ Não configurada</div>`}
+      <div style="font-size:11px;margin-top:8px;font-family:monospace;color:${k.gemini?"#5dba7d":"#E05C5C"}">${k.gemini?"✓ Configurada":"✗ Não configurada"}</div>
     </div>
 
     <!-- Groq -->
     <div class="card" style="margin-bottom:14px">
       <div style="font-weight:700;font-size:14px;margin-bottom:4px">⚡ Groq API Key</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px">Gratuita — sem limite diário, só por minuto. Fallback automático quando Gemini esgotar. <a href="https://console.groq.com/keys" target="_blank" style="color:#C9A84C">Obter key grátis →</a></div>
-      <div class="form-group">
-        <input class="form-input" type="password" id="groq-key" placeholder="gsk_..." value="${keys.groq}"/>
-      </div>
+      <div style="font-size:12px;color:#777;margin-bottom:14px">Gratuita — sem limite diário. Fallback automático quando Gemini esgotar. <a href="https://console.groq.com/keys" target="_blank">Obter key grátis →</a></div>
+      <label class="label">API KEY</label>
+      <input class="input" type="password" id="in-groq" placeholder="gsk_..." value="${k.groq}" style="margin-bottom:10px"/>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" style="background:#C9A84C" onclick="saveGroqKey()">Salvar</button>
-        ${keys.groq?`<button class="btn-ghost" onclick="clearKey('sh_groq_key')">Remover</button>`:""}
+        <button class="btn btn-primary" style="background:#C9A84C" onclick="saveKey('sh_groq','in-groq','Groq')">Salvar</button>
+        ${k.groq?`<button class="btn-ghost" onclick="clearKey('sh_groq')">Remover</button>`:""}
       </div>
-      ${keys.groq?`<div style="color:#5dba7d;font-size:12px;margin-top:8px;font-family:monospace">✓ Configurada</div>`:`<div style="color:#E05C5C;font-size:12px;margin-top:8px;font-family:monospace">✗ Não configurada</div>`}
+      <div style="font-size:11px;margin-top:8px;font-family:monospace;color:${k.groq?"#5dba7d":"#E05C5C"}">${k.groq?"✓ Configurada":"✗ Não configurada"}</div>
     </div>
 
     <!-- GitHub -->
     <div class="card" style="margin-bottom:14px">
       <div style="font-weight:700;font-size:14px;margin-bottom:4px">🐙 GitHub Token</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px">Permite salvar seu progresso no repositório GitHub — sincroniza entre todos os dispositivos. <a href="https://github.com/settings/tokens/new?scopes=repo&description=StudyHub" target="_blank" style="color:#C9A84C">Gerar token →</a> (escopo: repo)</div>
-      <div class="form-group">
-        <input class="form-input" type="password" id="gh-token" placeholder="ghp_..." value="${keys.github}"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Repositório</label>
-        <input class="form-input" id="gh-repo" placeholder="usuario/repositorio" value="${keys.repo}"/>
-      </div>
+      <div style="font-size:12px;color:#777;margin-bottom:14px">Sincroniza progresso entre dispositivos. <a href="https://github.com/settings/tokens/new?scopes=repo&description=StudyHub" target="_blank">Gerar token (escopo: repo) →</a></div>
+      <label class="label">TOKEN</label>
+      <input class="input" type="password" id="in-github" placeholder="ghp_..." value="${k.github}" style="margin-bottom:10px"/>
+      <label class="label">REPOSITÓRIO</label>
+      <input class="input" id="in-repo" placeholder="usuario/repositorio" value="${k.repo}" style="margin-bottom:10px"/>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" style="background:#C9A84C" onclick="saveGHKey()">Salvar</button>
-        ${keys.github?`<button class="btn-ghost" onclick="clearKey('sh_github_token')">Remover</button>`:""}
+        <button class="btn btn-primary" style="background:#C9A84C" onclick="saveGH()">Salvar</button>
+        ${k.github?`<button class="btn-ghost" onclick="clearKey('sh_github')">Remover</button>`:""}
       </div>
-      ${keys.github?`<div style="color:#5dba7d;font-size:12px;margin-top:8px;font-family:monospace">✓ Configurado — sync ativo</div>`:`<div style="color:#E05C5C;font-size:12px;margin-top:8px;font-family:monospace">✗ Não configurado — dados salvos apenas localmente</div>`}
+      <div style="font-size:11px;margin-top:8px;font-family:monospace;color:${k.github?"#5dba7d":"#E05C5C"}">${k.github?"✓ Sync ativo":"✗ Salvando só localmente"}</div>
     </div>
 
-    <!-- Debug log -->
-    <div class="card" style="margin-bottom:14px">
-      <div style="font-weight:700;font-size:14px;margin-bottom:8px">🔍 Log de IA</div>
-      <pre id="debug-log" style="font-family:monospace;font-size:11px;color:#888;background:#0a0a14;border:1px solid #1e1e2e;border-radius:8px;padding:10px;min-height:60px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto">${_logs.length?_logs.join("\n"):"Nenhuma chamada ainda."}</pre>
-      <button class="btn-ghost" style="margin-top:8px;font-size:11px" onclick="_logs=[];document.getElementById('debug-log').textContent='Limpo.'">Limpar log</button>
-    </div>
-
-    <!-- Danger zone -->
+    <!-- Danger -->
     <div class="card" style="border-color:#E05C5C22">
-      <div style="font-weight:700;font-size:14px;margin-bottom:4px;color:#E05C5C">⚠️ Zona de perigo</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px">Ações irreversíveis</div>
-      <button class="btn-ghost" style="border-color:#E05C5C33;color:#E05C5C88" onclick="resetData()">Resetar todo o progresso</button>
-    </div>
-  </div>`;
+      <div style="font-weight:700;font-size:14px;color:#E05C5C;margin-bottom:4px">⚠️ Zona de perigo</div>
+      <div style="font-size:12px;color:#666;margin-bottom:14px">Irreversível — perde todo o progresso</div>
+      <button class="btn-danger" onclick="resetAll()">Resetar todo o progresso</button>
+    </div>`;
 }
-
-function saveGroqKey(){
-  const v=document.getElementById("groq-key")?.value?.trim();
-  if(v){setLocal("sh_groq_key",v);notif("API key do Groq salva ✓");render();}
+function saveKey(storageKey,inputId,name){
+  const v=document.getElementById(inputId)?.value?.trim();
+  if(v){ sl(storageKey,v); notif(`${name} salva ✓`); render(); }
 }
-function saveGeminiKey(){
-  const v=document.getElementById("gemini-key")?.value?.trim();
-  if(v){setLocal("sh_gemini_key",v);notif("API key do Gemini salva ✓");render();}
+function clearKey(k){ sl(k,""); notif("Chave removida","#5b8cff"); render(); }
+function saveGH(){
+  const t=document.getElementById("in-github")?.value?.trim();
+  const r=document.getElementById("in-repo")?.value?.trim();
+  if(t) sl("sh_github",t);
+  if(r) sl("sh_repo",r);
+  notif("GitHub configurado ✓"); render();
 }
-function saveGHKey(){
-  const t=document.getElementById("gh-token")?.value?.trim();
-  const r=document.getElementById("gh-repo")?.value?.trim();
-  if(t) setLocal("sh_github_token",t);
-  if(r) setLocal("sh_github_repo",r);
-  notif("GitHub configurado ✓");render();
-}
-function clearKey(k){setLocal(k,"");notif("Chave removida","#5b8cff");render()}
-async function resetData(){
+async function resetAll(){
   if(!confirm("Tem certeza? Todo o progresso será apagado.")) return;
-  S.stats=JSON.parse(JSON.stringify(DEFAULT_STATS));
-  S.totalXP=0;S.history=[];
-  await saveData();notif("Progresso resetado","#E05C5C");render();
+  S.stats={tp:DEF_STATS(),sql:DEF_STATS(),es:DEF_STATS()};
+  S.totalXP=0; S.history=[]; S.seen={};
+  await saveData(); notif("Progresso resetado","#E05C5C"); render();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// VOICE MODES
-// ═══════════════════════════════════════════════════════════════
-function speakLast(type){
-  if(type==='shadow') speak(S.voiceShadowText,'es-ES');
-  else if(type==='dictado') speak(S.voiceDictadoText,'es-ES');
-}
-function checkSpeechSupport(){
-  if(!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)){
-    notif("Voz não suportada — use o Chrome","#E05C5C");
-    return false;
-  }
-  return true;
-}
-
-function speak(text, lang="es-ES", onEnd){
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang; u.rate = 0.9; u.pitch = 1;
-  if(onEnd) u.onend = onEnd;
-  window.speechSynthesis.speak(u);
-}
-
-function startVoice(modeId){
-  if(!checkSpeechSupport()) return;
-  S.sessionMode="voice"; S.sessionType=modeId;
-  S.voiceTranscript=""; S.voiceConvHistory=[];
-  S.voiceShadowText=""; S.voiceDictadoText="";
-  render();
-  if(modeId==="voice_shadow") loadShadowPhrase();
-  if(modeId==="voice_dictado") loadDictadoPhrase();
-}
-
-async function loadShadowPhrase(){
-  const t=S.activeTrack;
-  try{
-    const temas = ["uma reunião de trabalho","uma negociação comercial","um email profissional","o mercado financeiro","uma viagem de negócios","um restaurante","o transporte público","fazer compras","o tempo livre","um fim de semana"];
-    const tema = temas[Math.floor(Math.random()*temas.length)];
-    const rawText = await callAI([{role:"user",content:`Crie UMA frase em espanhol sobre: ${tema}. Regras: frase completa com sujeito e verbo, máximo 12 palavras, sem aspas, sem explicações, sem palavras em inglês ou português, apenas a frase em espanhol.`}],"",100);
-    const text = rawText.trim().replace(/["'`]/g,"").replace(/\b(Initialized|undefined|null|error)\b/gi,"").trim();
-    S.voiceShadowText = text.trim();
-  }catch(e){
-    S.voiceShadowText = "Los precios de transferencia son fundamentales para garantizar el cumplimiento fiscal en empresas multinacionales.";
-  }
-  render();
-  setTimeout(()=>speak(S.voiceShadowText,"es-ES"),300);
-}
-
-async function loadDictadoPhrase(){
-  try{
-    const temasDictado = ["uma notícia do dia","a natureza","tecnologia","saúde","educação","arte e cultura","esportes","culinária","viagens","amizade"];
-    const temaDictado = temasDictado[Math.floor(Math.random()*temasDictado.length)];
-    const rawDictado = await callAI([{role:"user",content:`Crie UMA frase em espanhol sobre: ${temaDictado}. Regras: frase completa com sujeito e verbo, máximo 12 palavras, sem aspas, sem explicações, sem palavras em inglês ou português, apenas a frase em espanhol.`}],"",100);
-    const text = rawDictado.trim().replace(/["'`]/g,"").replace(/\b(Initialized|undefined|null|error)\b/gi,"").trim();
-    S.voiceDictadoText = text.trim();
-    S.voiceTranscript = "";
-  }catch(e){
-    S.voiceDictadoText = "El análisis de precios de transferencia requiere identificar transacciones comparables entre partes independientes.";
-  }
-  render();
-  setTimeout(()=>speak(S.voiceDictadoText,"es-ES"),300);
-}
-
-let _recognition = null;
-
-function startListening(onResult, onEnd){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  _recognition = new SR();
-  _recognition.lang = "es-ES";
-  _recognition.interimResults = false;
-
-  if(S.voiceManualMode){
-    // Manual mode: continuous, accumulates transcript until stopListening() is called
-    _recognition.continuous = true;
-    let accumulated = "";
-    _recognition.onresult = e => {
-      for(let i = e.resultIndex; i < e.results.length; i++){
-        if(e.results[i].isFinal) accumulated += e.results[i][0].transcript + " ";
-      }
-    };
-    _recognition.onend = () => {
-      if(onEnd) onEnd();
-      if(accumulated.trim()) onResult(accumulated.trim());
-    };
-  } else {
-    // Auto mode: stops after silence
-    _recognition.continuous = false;
-    _recognition.onresult = e => { const t = e.results[0][0].transcript; onResult(t); };
-    _recognition.onend = () => { if(onEnd) onEnd(); };
-  }
-
-  _recognition.onerror = e => {
-    if(e.error !== "no-speech") notif("Erro no microfone: "+e.error,"#E05C5C");
-    if(onEnd) onEnd();
-  };
-  _recognition.start();
-}
-function stopListening(){ try{ _recognition?.stop(); }catch{} }
-
-function renderVoiceSession(){
-  const t=S.activeTrack;
-  const m=VOICE_MODES.find(x=>x.id===S.sessionType);
-  return `<div class="container">
-    <button class="btn-ghost" style="margin-bottom:20px" onclick="window.speechSynthesis.cancel();stopListening();S.sessionMode=null;S.sessionType=null;S.shadowListening=false;S.convListening=false;render()">← Voltar</button>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div style="font-size:12px;color:${t.color};font-family:monospace">${t.icon} ${t.name} · ${m?.label}</div>
-      <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="S.voiceManualMode=!S.voiceManualMode;render()">
-        <span style="font-size:11px;color:#555;font-family:monospace">AUTO</span>
-        <div style="width:36px;height:20px;border-radius:99px;background:${S.voiceManualMode?t.color:'#1e1e2e'};position:relative;transition:all .2s">
-          <div style="position:absolute;top:2px;left:${S.voiceManualMode?'18':'2'}px;width:16px;height:16px;border-radius:50%;background:#eee;transition:left .2s"></div>
-        </div>
-        <span style="font-size:11px;color:#555;font-family:monospace">MANUAL</span>
-      </div>
-    </div>
-    <div style="font-size:11px;color:#444;margin-bottom:16px;font-family:monospace">
-      ${S.voiceManualMode?"Modo manual: pressione Falar, fale no seu ritmo, pressione Parar quando terminar":"Modo auto: para automaticamente após detectar silêncio"}
-    </div>
-    ${S.sessionType==="voice_conv"?renderVoiceConv()
-     :S.sessionType==="voice_shadow"?renderVoiceShadow()
-     :renderVoiceDictado()}
-  </div>`;
-}
-
-function renderVoiceConv(){
-  const t=S.activeTrack;
-  return `
-    <div style="color:#888;font-size:13px;margin-bottom:16px;line-height:1.6">Converse em espanhol. A IA vai te responder e corrigir erros naturalmente.</div>
-    <div class="chat-messages" id="chat-msgs" style="max-height:340px">
-      ${S.voiceConvHistory.length===0?`<div class="chat-msg ai">¡Hola! Estoy aquí para practicar español contigo. ¿De qué quieres hablar hoy?</div>`:""}
-      ${S.voiceConvHistory.map(m=>`<div class="chat-msg ${m.role}">${m.text}</div>`).join("")}
-    </div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn btn-primary" style="background:${S.convListening?'#E05C5C':t.color};flex:1" onclick="toggleVoiceConv()">
-        ${S.convListening?'⏹ Parar':'🎙️ Falar'}
-      </button>
-      <button class="btn-ghost" onclick="speak(S.voiceConvHistory.filter(m=>m.role==='ai').slice(-1)[0]?.text||'','es-ES')">🔊</button>
-    </div>
-    ${S.convListening?`<div style="text-align:center;font-size:12px;color:#888;font-family:monospace;margin-top:8px">⏺ ouvindo... fale e pressione Parar</div>`:""}
-    ${S.voiceConvHistory.length>=4?renderNoteInput(40,true):""}`;
-}
-
-async function toggleVoiceConv(){
-  if(S.convListening){
-    stopListening();
-    S.convListening = false;
-    render();
-    return;
-  }
-  S.convListening = true;
-  render();
-  startListening(
-    async (transcript) => {
-      S.convListening = false;
-      S.voiceConvHistory.push({role:"user", text:transcript});
-      render();
-      try{
-        const history = S.voiceConvHistory.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
-        const reply = await callAI(history,
-          "Você é um professor de espanhol conversacional. Responda em espanhol de forma natural. Se o aluno cometer erros, corrija sutilmente. Seja amigável. IMPORTANTE: sempre escreva frases completas, nunca corte no meio. Máximo 3 frases completas.",
-          400);
-        S.voiceConvHistory.push({role:"ai", text:reply});
-        render();
-        speak(reply,"es-ES");
-      }catch(e){ S.convListening=false; notif(e.message,"#E05C5C"); render(); }
-    },
-    () => { S.convListening=false; render(); }
-  );
-}
-
-function renderVoiceShadow(){
-  const t=S.activeTrack;
-  return `
-    <div style="color:#888;font-size:13px;margin-bottom:16px">Ouça a frase, repita em voz alta e veja como ficou.</div>
-    ${!S.voiceShadowText?`<div style="text-align:center;padding:30px;color:#444"><span class="spinner"></span> Gerando frase...</div>`:`
-      <div class="learn-chunk" style="font-size:18px;text-align:center;padding:24px;letter-spacing:.3px">${S.voiceShadowText}</div>
-      <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button class="btn-ghost" style="flex:1" onclick="speakLast('shadow')">🔊 Ouvir</button>
-        <button class="btn btn-primary" style="background:${S.shadowListening?'#E05C5C':t.color};flex:1" onclick="doShadow()">
-          ${S.shadowListening?'⏹ Parar':'🎙️ Repetir'}
-        </button>
-      </div>
-      ${S.shadowListening?`<div style="text-align:center;font-size:12px;color:#888;font-family:monospace;margin-bottom:8px">⏺ ouvindo... fale e pressione Parar</div>`:""}
-      ${S.voiceTranscript?`
-        <div style="margin-bottom:12px">
-          <div style="font-size:11px;color:#555;font-family:monospace;margin-bottom:6px">VOCÊ DISSE:</div>
-          <div class="learn-chunk" style="font-size:15px">${S.voiceTranscript}</div>
-        </div>
-        <button class="btn-ghost btn-full" style="margin-bottom:12px" onclick="S.voiceTranscript='';loadShadowPhrase()">Nova frase</button>
-        ${renderNoteInput(25,true)}
-      `:`<div style="color:#444;font-size:12px;text-align:center">Pressione Repetir e fale a frase acima em espanhol</div>`}
-    `}`;
-}
-
-function doShadow(){
-  if(S.shadowListening){
-    // Stop listening manually
-    stopListening();
-    S.shadowListening = false;
-    render();
-    return;
-  }
-  S.shadowListening = true;
-  S.voiceTranscript = "";
-  render();
-  startListening(
-    t => { S.voiceTranscript = t; S.shadowListening = false; render(); },
-    ()  => { S.shadowListening = false; render(); }
-  );
-}
-
-function renderVoiceDictado(){
-  const t=S.activeTrack;
-  return `
-    <div style="color:#888;font-size:13px;margin-bottom:16px">Ouça a frase e escreva o que entendeu em espanhol.</div>
-    ${!S.voiceDictadoText?`<div style="text-align:center;padding:30px;color:#444"><span class="spinner"></span> Gerando frase...</div>`:`
-      <button class="btn-ghost btn-full" style="margin-bottom:16px" onclick="speakLast('dictado')">🔊 Ouvir a frase</button>
-      ${S.voiceTranscript==="checking"
-        ?`<div style="text-align:center;padding:20px;color:#444"><span class="spinner"></span> Verificando...</div>`
-        :!S.voiceTranscript
-          ?`<textarea class="form-textarea" id="dictado-input" placeholder="Escreva aqui o que ouviu..." style="min-height:80px"></textarea>
-            <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:8px" onclick="checkDictado()">Verificar</button>`
-          :`<div style="margin-top:12px">
-              <div style="font-size:11px;color:#555;font-family:monospace;margin-bottom:6px">SUA RESPOSTA E FEEDBACK:</div>
-              <div class="learn-chunk" style="white-space:pre-wrap;font-size:13px">${S.voiceTranscript}</div>
-            </div>
-            <div style="margin-top:12px">
-              <div style="font-size:11px;color:#555;font-family:monospace;margin-bottom:6px">FRASE ORIGINAL:</div>
-              <div class="learn-chunk">${S.voiceDictadoText}</div>
-            </div>
-            <button class="btn-ghost btn-full" style="margin-top:12px;margin-bottom:8px" onclick="S.voiceTranscript='';loadDictadoPhrase()">Nova frase</button>
-            ${renderNoteInput(30,true)}`
-      }
-    `}`;
-}
-
-async function checkDictado(){
-  const input = document.getElementById("dictado-input")?.value?.trim();
-  if(!input) return;
-  S.voiceTranscript = "checking";
-  render();
-  try{
-    const feedback = await callAI([{role:"user",content:`Frase original em espanhol: "${S.voiceDictadoText}"\nO que o aluno escreveu: "${input}"\n\nEscreva um feedback COMPLETO e encorajador: diga o que acertou, o que errou (se houver) e mostre a frase correta. Seja direto e positivo. Máximo 4 frases completas.`}],"",500);
-    S.voiceTranscript = input + "\n\n\ud83d\udcac " + feedback;
-  }catch(e){
-    S.voiceTranscript = input;
-    notif(e.message,"#E05C5C");
-  }
-  render();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// HANDLERS
-// ═══════════════════════════════════════════════════════════════
-function attachHandlers(){
-  // Challenge textarea
-  const ta=document.getElementById("ch-answer");
-  if(ta) ta.addEventListener("input",()=>{
-    S.answer=ta.value;
-    const btn=ta.nextElementSibling;
-    if(btn){btn.disabled=!S.answer.trim();btn.style.background=S.answer.trim()?S.activeTrack.color:"#1a1a28";}
+// ══════════════════════════════════════════════
+// ATTACH HANDLERS
+// ══════════════════════════════════════════════
+function attachAll(){
+  // Challenge textarea live update
+  const chTa=document.getElementById("ch-ans");
+  if(chTa) chTa.addEventListener("input",()=>{
+    S.chAnswer=chTa.value;
+    const btn=chTa.nextElementSibling;
+    if(btn){ btn.disabled=!S.chAnswer.trim(); btn.style.background=S.chAnswer.trim()?S.track?.color:"#1a1a2e"; }
   });
-  // Chat enter
-  const ci=document.getElementById("chat-in");
-  if(ci) ci.addEventListener("keydown",e=>{
-    if(e.key==="Enter"&&!e.shiftKey){
-      e.preventDefault();
-      if(S.sessionType==="socratic") sendSocratic();
-      else if(S.sessionType==="doc") sendDocChat();
-    }
+  // Dictado textarea
+  const dtTa=document.getElementById("dictado-in");
+  if(dtTa) dtTa.addEventListener("input",()=>{
+    const btn=dtTa.nextElementSibling;
+    if(btn){ btn.disabled=!dtTa.value.trim(); }
   });
-  // Scroll chat to bottom
-  setTimeout(()=>{const el=document.getElementById("chat-msgs");if(el)el.scrollTop=el.scrollHeight;},50);
+  // Scroll chat
+  setTimeout(()=>{ const el=document.getElementById("chat-msgs"); if(el) el.scrollTop=el.scrollHeight; },50);
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 (async()=>{
+  document.getElementById("app").innerHTML=`<div class="loading"><div class="spin"></div>Carregando...</div>`;
   await loadData();
-  document.getElementById("loading").style.display="none";
-  document.getElementById("root").style.display="block";
+  S.loaded=true;
   render();
 })();
 </script>
