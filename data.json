@@ -1,10 +1,10 @@
 {
   "stats": {
     "tp": {
-      "xp": 55,
+      "xp": 85,
       "level": 2,
       "xpNext": 150,
-      "streak": 8
+      "streak": 9
     },
     "sql": {
       "xp": 0,
@@ -19,8 +19,18 @@
       "streak": 3
     }
   },
-  "totalXP": 245,
+  "totalXP": 275,
   "history": [
+    {
+      "date": "2026-06-14T15:04:14.040Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "quiz",
+      "topic": "Ao aplicar o método TNMM para analisar a remuneraç",
+      "xp": 30,
+      "score": 100,
+      "note": "Ajustes de capital são realizados para neutralizar o impacto no indicador de rentalibilidade de fatores que influenciam o capital de giro. Ex.: prazos de pagamento a clientes."
+    },
     {
       "date": "2026-06-14T14:36:06.891Z",
       "trackId": "tp",
@@ -147,6 +157,14 @@
       {
         "topic": "Uma subsidiária (D) localizada no País X paga roya",
         "date": "2026-06-14T14:36:06.891Z"
+      },
+      {
+        "topic": "Ao aplicar o método TNMM para analisar a remuneração de uma ",
+        "date": "2026-06-14T14:59:22.338Z"
+      },
+      {
+        "topic": "Ao aplicar o método TNMM para analisar a remuneraç",
+        "date": "2026-06-14T15:04:14.040Z"
       }
     ]
   }
