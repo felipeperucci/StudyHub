@@ -678,6 +678,7 @@ RESPOSTA: [letra]
 EXPLICAÇÃO: [explicação de 2-3 frases]`}]);
       S.item=parseAIText(raw,"quiz");
       if(!S.item.q||!S.item.opts?.length) throw new Error("Formato inválido");
+      if(S.item.q) recordTopic(t.id, S.item.q.slice(0,60));
 
     } else if(modeId==="flashcard"){
       const raw=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie um flashcard sobre um conceito ESPECÍFICO e útil.
@@ -690,6 +691,7 @@ EXPLICAÇÃO: [explicação completa em 3-5 frases]
 DICA: [dica prática de 1 frase]`}]);
       S.item=parseAIText(raw,"flashcard");
       if(!S.item.front) throw new Error("Formato inválido");
+      if(S.item.front) recordTopic(t.id, S.item.front);
 
     } else if(modeId==="challenge"){
       const raw=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie um desafio prático REALISTA e ESPECÍFICO.
@@ -704,6 +706,7 @@ DICA: [uma dica útil]
 SOLUÇÃO: [solução detalhada e didática]`}]);
       S.item=parseAIText(raw,"challenge");
       if(!S.item.title) throw new Error("Formato inválido");
+      if(S.item.title) recordTopic(t.id, S.item.title);
 
     } else if(modeId==="guide"){
       const text=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie uma microaula sobre um tópico NOVO e ESPECÍFICO.
@@ -730,6 +733,8 @@ Estruture em 4 blocos separados por ---BLOCO---:
 [3 pontos-chave para lembrar]`}]);
       S.chunks=text.split("---BLOCO---").map(s=>s.trim()).filter(Boolean);
       S.chunkIdx=0;
+      const guideTitle=S.chunks[0]?.match(/##[^\n]+/)?.[0]?.replace(/##\s*/,"")?.trim();
+      if(guideTitle) recordTopic(t.id, guideTitle);
 
     } else if(modeId==="brief"){
       const text=await ai([{role:"user",content:`Você é tutor de ${t.name}. Escreva um daily brief sobre um conceito NOVO — algo que o aluno ainda não viu ou que vale reforçar.
