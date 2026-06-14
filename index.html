@@ -416,9 +416,19 @@ function showXP(xp,label=""){
 function parseAIText(text,type){
   const get=(...keys)=>{
     for(const key of keys){
-      const re=new RegExp(key+"\\s*:([\\s\\S]*?)(?=\\n[A-Z\\u00C0-\\u00DC_]+\\s*:|$)","i");
-      const m=text.match(re);
-      if(m&&m[1].trim()) return m[1].trim();
+      // Try line-by-line first (more robust)
+      const lines=text.split("\n");
+      let result=""; let capturing=false;
+      for(const line of lines){
+        const headerMatch=line.match(new RegExp("^"+key+"\\s*:(.*)","i"));
+        if(headerMatch){ result=headerMatch[1].trim(); capturing=true; continue; }
+        if(capturing){
+          if(/^[A-ZÁÉÍÓÚÀÂÊÔÃÕÜ_]{3,}\s*:/.test(line)) break; // next key
+          if(/^[A-D]\)/.test(line)) break; // option line
+          result+=" "+line.trim();
+        }
+      }
+      if(result.trim()) return result.trim();
     }
     return "";
   };
@@ -428,10 +438,22 @@ function parseAIText(text,type){
       const m=text.match(new RegExp("^"+l+"\\)(.+)$","m"));
       if(m) opts.push(l+") "+m[1].trim());
     });
-    return {q:get("PERGUNTA","QUESTÃO"),opts,ans:get("RESPOSTA","GABARITO").trim().toUpperCase().charAt(0),exp:get("EXPLICAÇÃO","EXPLICACAO")};
+    let q=get("PERGUNTA","QUESTÃO","QUESTAO").replace(/\*\*/g,"").trim();
+    // Strip any options that leaked into the question
+    q=q.replace(/\n?[A-D]\).*$/gm,"").trim();
+    const exp=get("EXPLICAÇÃO","EXPLICACAO").replace(/\*\*/g,"").trim();
+    return {q,opts,ans:get("RESPOSTA","GABARITO").trim().toUpperCase().charAt(0),exp};
   }
-  if(type==="flashcard") return {front:get("CONCEITO","FRENTE"),back:get("EXPLICAÇÃO","EXPLICACAO","VERSO"),tip:get("DICA")};
-  if(type==="challenge") return {title:get("TÍTULO","TITULO"),scenario:get("CENÁRIO","CENARIO"),task:get("TAREFA"),hint:get("DICA"),solution:get("SOLUÇÃO","SOLUCAO")};
+  if(type==="challenge"){
+    const clean=s=>(s||"").replace(/\*\*/g,"").replace(/\*/g,"").trim();
+    return {
+      title:clean(get("TÍTULO","TITULO")),
+      scenario:clean(get("CENÁRIO","CENARIO")),
+      task:clean(get("TAREFA")),
+      hint:clean(get("DICA")),
+      solution:clean(get("SOLUÇÃO","SOLUCAO"))
+    };
+  }
   return {};
 }
 
@@ -668,14 +690,14 @@ async function startMode(modeId){
 
 ${ctx}
 
-Formato OBRIGATÓRIO (siga exatamente):
-PERGUNTA: [texto da pergunta]
-A) [opção]
-B) [opção]
-C) [opção]
-D) [opção]
-RESPOSTA: [letra]
-EXPLICAÇÃO: [explicação de 2-3 frases]`}]);
+Responda EXATAMENTE neste formato, cada item em sua própria linha, sem texto adicional:
+PERGUNTA: [apenas o enunciado da pergunta, SEM incluir as alternativas]
+A) [texto da alternativa A]
+B) [texto da alternativa B]
+C) [texto da alternativa C]
+D) [texto da alternativa D]
+RESPOSTA: [apenas a letra, ex: B]
+EXPLICAÇÃO: [explicação de 2-3 frases sobre por que a resposta está correta]`}]);
       S.item=parseAIText(raw,"quiz");
       if(!S.item.q||!S.item.opts?.length) throw new Error("Formato inválido");
       if(S.item.q) recordTopic(t.id, S.item.q.slice(0,60));
@@ -685,11 +707,23 @@ EXPLICAÇÃO: [explicação de 2-3 frases]`}]);
 
 ${ctx}
 
-Formato OBRIGATÓRIO:
-CONCEITO: [nome do conceito]
-EXPLICAÇÃO: [explicação completa em 3-5 frases]
-DICA: [dica prática de 1 frase]`}]);
-      S.item=parseAIText(raw,"flashcard");
+Responda EXATAMENTE assim, com cada campo em sua própria linha, sem texto adicional antes ou depois:
+CONCEITO: [apenas o nome do conceito aqui, nada mais]
+EXPLICAÇÃO: [apenas a explicação aqui, 3-5 frases]
+DICA: [apenas a dica aqui, 1 frase]`}]);
+      // More robust flashcard parser
+      const lines = raw.split("\n");
+      const fc = {front:"", back:"", tip:""};
+      let cur = null;
+      for(const line of lines){
+        if(/^CONCEITO:/i.test(line)){ cur="front"; fc.front=line.replace(/^CONCEITO:\s*/i,"").trim(); }
+        else if(/^EXPLICAÇ[AÃ]O:/i.test(line)||/^EXPLICACAO:/i.test(line)){ cur="back"; fc.back=line.replace(/^EXPLICAÇ[AÃ]O:\s*/i,"").replace(/^EXPLICACAO:\s*/i,"").trim(); }
+        else if(/^DICA:/i.test(line)){ cur="tip"; fc.tip=line.replace(/^DICA:\s*/i,"").trim(); }
+        else if(cur&&line.trim()){ fc[cur]+=" "+line.trim(); }
+      }
+      // Strip markdown artifacts from front (concept name only)
+      fc.front = fc.front.replace(/\*\*/g,"").replace(/EXPLICAÇ[AÃ]O:.*/i,"").replace(/EXPLICACAO:.*/i,"").trim();
+      S.item = fc;
       if(!S.item.front) throw new Error("Formato inválido");
       if(S.item.front) recordTopic(t.id, S.item.front);
 
@@ -826,16 +860,16 @@ function renderFlashcard(){
       <div class="fc-inner ${S.fcFlipped?"flip":""}">
         <div class="fc-face" style="background:#0e0e1c;border:1px solid ${h(t.color,.2)}">
           <div class="fc-tag" style="color:${t.color}">CONCEITO</div>
-          <div class="fc-title">${item.front||""}</div>
+          <div class="fc-title">${(item.front||"").replace(/\*\*/g,"")}</div>
           <div class="fc-hint">toque para revelar →</div>
         </div>
         <div class="fc-face fc-back" style="background:${h(t.color,.06)};border:1px solid ${h(t.color,.35)}">
           <div class="fc-tag" style="color:${t.color}">EXPLICAÇÃO</div>
-          <div class="fc-text">${item.back||""}</div>
+          <div class="fc-text">${mdToHtml(item.back||"")}</div>
         </div>
       </div>
     </div>
-    ${item.tip?`<div class="tip">💡 ${item.tip}</div>`:""}
+    ${item.tip?`<div class="tip">💡 ${(item.tip||"").replace(/\*\*/g,"")}</div>`:""}
     ${S.fcFlipped?`
       <div style="font-size:12px;color:#666;margin-bottom:10px;text-align:center">Como foi?</div>
       <div class="self-eval">
@@ -858,7 +892,7 @@ function renderChallenge(){
   return `
     <div class="scenario" style="background:${h(t.color,.05)};border:1px solid ${h(t.color,.2)}">
       <div style="font-weight:800;color:${t.color};font-size:14px;margin-bottom:8px">⚡ ${item.title}</div>
-      <div style="color:#ccc;font-size:13px;line-height:1.7;margin-bottom:10px">${(item.scenario||"").replace(/\n/g,"<br>")}</div>
+      <div style="color:#ccc;font-size:13px;line-height:1.7;margin-bottom:10px">${mdToHtml(item.scenario||"")}</div>
       <div style="font-weight:600;font-size:13px;color:#eee">Tarefa: ${item.task}</div>
     </div>
     ${item.hint?`<div class="tip">💡 ${item.hint}</div>`:""}
@@ -876,7 +910,7 @@ function renderChallenge(){
       `:""}
       <div class="solution">
         <div style="font-weight:700;color:#7d9dd8;margin-bottom:10px;font-size:14px">📖 Solução de referência</div>
-        <div style="color:#bbb;font-size:13px;line-height:1.8;white-space:pre-wrap;margin-bottom:14px">${item.solution}</div>
+        <div style="color:#bbb;font-size:13px;line-height:1.8;margin-bottom:14px">${mdToHtml(item.solution||"")}</div>
         ${renderNoteAndComplete(S.chScore,t)}
       </div>
     `}`;
@@ -938,7 +972,7 @@ function renderSocratic(){
   if(!S.chatHist.length) return `<div class="loading"><div class="spin"></div>Iniciando diálogo...</div>`;
   return `
     <div class="chat-msgs" id="chat-msgs">
-      ${S.chatHist.map(m=>`<div class="msg ${m.role}">${m.text}</div>`).join("")}
+      ${S.chatHist.map(m=>`<div class="msg ${m.role}">${mdToHtml(m.text)}</div>`).join("")}
     </div>
     <div class="chat-row">
       <input class="chat-in" id="chat-in" placeholder="Sua resposta..." onkeydown="if(event.key==='Enter')sendSocratic()"/>
@@ -981,7 +1015,7 @@ function renderDoc(){
     </div>
     <div class="chat-msgs" id="chat-msgs">
       ${S.chatHist.length===0?`<div class="msg ai">Documento carregado! O que você quer explorar?</div>`:""}
-      ${S.chatHist.map(m=>`<div class="msg ${m.role}">${m.text}</div>`).join("")}
+      ${S.chatHist.map(m=>`<div class="msg ${m.role}">${mdToHtml(m.text)}</div>`).join("")}
     </div>
     <div class="chat-row">
       <input class="chat-in" id="chat-in" placeholder="Pergunta sobre o documento..." onkeydown="if(event.key==='Enter')sendDoc()"/>
@@ -1208,7 +1242,7 @@ function renderConv(){
   if(!S.vConvHist.length) return `<div class="loading"><div class="spin"></div>Iniciando conversa...</div>`;
   return `
     <div class="chat-msgs" id="chat-msgs">
-      ${S.vConvHist.map(m=>`<div class="msg ${m.role}">${m.text}</div>`).join("")}
+      ${S.vConvHist.map(m=>`<div class="msg ${m.role}">${mdToHtml(m.text)}</div>`).join("")}
     </div>
     <div style="display:flex;gap:8px;margin-top:10px">
       <button class="btn btn-primary" style="background:${S.vListening?"#E05C5C":t.color};flex:1" onclick="toggleConv()">
