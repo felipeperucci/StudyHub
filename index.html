@@ -549,8 +549,9 @@ async function completeSession(score,note=""){
 
   // Reset session
   const wasItalia=["historia","cultura","lingua","cidadania"].includes(t.id);
+  const prevSubId=t.id;
   resetSession();
-  if(wasItalia){ S.track=trackById("italia"); S.italiaSub=t.id; go("italia"); }
+  if(wasItalia){ S.track=trackById("italia"); S.italiaSub=prevSubId; go("italia"); }
   else go("track");
 }
 function resetSession(){
@@ -862,11 +863,15 @@ function renderTrack(){
 }
 
 function modeBtn(m,t){
-  const needsAI=true;
+  // If t.id is an italia sub, set S.track to sub before starting
+  const isItaliaSub=["historia","cultura","lingua","cidadania"].includes(t.id);
+  const onclick=isItaliaSub
+    ? `S.track={...trackById('italia'),id:'${t.id}',color:'${t.color}'};startMode('${m.id}')`
+    : `startMode('${m.id}')`;
   return `<div style="background:#0e0e1c;border:1px solid ${h(t.color,.15)};border-radius:12px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;transition:all .2s"
     onmouseenter="this.style.background='${h(t.color,.05)}';this.style.borderColor='${h(t.color,.35)}'"
     onmouseleave="this.style.background='#0e0e1c';this.style.borderColor='${h(t.color,.15)}'"
-    onclick="startMode('${m.id}')">
+    onclick="${onclick}">
     <div style="display:flex;align-items:center;gap:11px">
       <span style="font-size:20px">${m.icon}</span>
       <div>
