@@ -163,12 +163,21 @@ a{color:#C9A84C;text-decoration:none}
 // CONFIG
 // ══════════════════════════════════════════════
 const TRACKS = [
-  {id:"tp", name:"Transfer Pricing", icon:"⚖️", color:"#C9A84C", active:true,  desc:"Métodos, comparabilidade e regulação OCDE"},
-  {id:"sql",name:"SQL & BI",         icon:"🗄️", color:"#5B8CFF", active:true,  desc:"Consultas, análise e visualização de dados"},
-  {id:"es", name:"Espanhol",         icon:"🌎", color:"#E05C5C", active:true,  desc:"Fluência profissional em espanhol"},
-  {id:"fr", name:"Francês",          icon:"🗼", color:"#7B8CDE", active:false, desc:"Em breve"},
-  {id:"py", name:"Programação",      icon:"🐍", color:"#3DB454", active:false, desc:"Em breve"},
-  {id:"art",name:"História da Arte", icon:"🎨", color:"#C47DB4", active:false, desc:"Em breve"},
+  {id:"tp",     name:"Transfer Pricing", icon:"⚖️", color:"#C9A84C", active:true,  desc:"Métodos, comparabilidade e regulação OCDE"},
+  {id:"sql",    name:"SQL & BI",         icon:"🗄️", color:"#5B8CFF", active:true,  desc:"Consultas, análise e visualização de dados"},
+  {id:"es",     name:"Espanhol",         icon:"🌎", color:"#E05C5C", active:true,  desc:"Fluência profissional em espanhol"},
+  {id:"italia", name:"Italia",           icon:"🇮🇹", color:"#6CA868", active:true,  desc:"Cultura, história, língua e cidadania", special:"italia"},
+  {id:"fr",     name:"Francês",          icon:"🗼", color:"#7B8CDE", active:false, desc:"Em breve"},
+  {id:"py",     name:"Programação",      icon:"🐍", color:"#3DB454", active:false, desc:"Em breve"},
+  {id:"art",    name:"História da Arte", icon:"🎨", color:"#C47DB4", active:false, desc:"Em breve"},
+];
+
+// Italia subcategories
+const ITALIA_SUBS = [
+  {id:"historia",    icon:"🏛️", name:"História",          desc:"De Roma Antiga à República — fatos, personagens e momentos cruciais", color:"#C9874C", weight:0.30},
+  {id:"cultura",     icon:"🎭", name:"Cultura",            desc:"Arte, gastronomia, cinema, moda e identidade regional",              color:"#6CA868", weight:0.25},
+  {id:"lingua",      icon:"🗣️", name:"Língua",             desc:"Italiano do zero — vocabulário, gramática e expressões",             color:"#5B8CFF", weight:0.30},
+  {id:"cidadania",   icon:"📜", name:"Cidadania & Sociedade", desc:"Política, direitos, a diáspora brasileira e o país hoje",          color:"#C47DB4", weight:0.15},
 ];
 
 const MODES = [
@@ -193,7 +202,7 @@ const VOICE_MODES = [
 const DEF_STATS = () => ({xp:0,level:1,xpNext:100,streak:0});
 let S = {
   page: "home",
-  stats: {tp:DEF_STATS(),sql:DEF_STATS(),es:DEF_STATS()},
+  stats: {tp:DEF_STATS(),sql:DEF_STATS(),es:DEF_STATS(),historia:DEF_STATS(),cultura:DEF_STATS(),lingua:DEF_STATS(),cidadania:DEF_STATS()},
   totalXP: 0,
   history: [],        // {date,trackId,mode,topic,xp,score,note}
   seen: {},           // {trackId: [{topic,date}]} — spaced repetition memory
@@ -217,6 +226,8 @@ let S = {
   voiceMode: null, vManual: false, vListening: false,
   vTranscript: "", vShadowPhrase: "", vDictadoPhrase: "",
   vConvHist: [],
+  // italia
+  italiaSub: null,
   // misc
   analysisText: "", analysisLoading: false,
   loaded: false,
@@ -383,6 +394,13 @@ function fmtDate(iso){
   return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
 }
 function totalLevel(){ return Object.values(S.stats).reduce((s,t)=>s+t.level,0); }
+function italiaScore(){
+  return ITALIA_SUBS.reduce((sum,sub)=>{
+    const s=S.stats[sub.id]||DEF_STATS();
+    const pct=Math.min((s.xp/s.xpNext)*100,100);
+    return sum + pct*sub.weight;
+  },0);
+}
 function h(color,a){ return color+Math.round(a*255).toString(16).padStart(2,"0"); }
 
 function mdToHtml(text){
@@ -490,8 +508,10 @@ async function completeSession(score,note=""){
   if(leveled) setTimeout(()=>notif(`🎉 Level up! ${t.name} → Nível ${S.stats[t.id].level}`,"#C9A84C"),600);
 
   // Reset session
+  const wasItalia=["historia","cultura","lingua","cidadania"].includes(t.id);
   resetSession();
-  go("track");
+  if(wasItalia){ S.track=trackById("italia"); S.italiaSub=t.id; go("italia"); }
+  else go("track");
 }
 function resetSession(){
   S.mode=null; S.item=null; S.qSel=null; S.qRevealed=false;
@@ -511,6 +531,7 @@ function render(){
       ${S.page==="home"?renderHome()
        :S.page==="track"?renderTrack()
        :S.page==="session"?renderSession()
+       :S.page==="italia"?renderItalia()
        :S.page==="roadmap"?renderRoadmap()
        :S.page==="analysis"?renderAnalysis()
        :S.page==="settings"?renderSettings():""}
@@ -558,7 +579,7 @@ function renderHome(){
 
     <div class="sec-label" style="font-family:monospace;font-size:10px;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">TRILHAS ATIVAS</div>
     <div class="grid2" style="margin-bottom:28px">
-      ${TRACKS.filter(t=>t.active).map(t=>renderTrackCard(t)).join("")}
+      ${TRACKS.filter(t=>t.active).map(t=>t.special==="italia"?renderItaliaCard(t):renderTrackCard(t)).join("")}
     </div>
 
     <div style="font-family:monospace;font-size:10px;color:#2a2a3a;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">EM BREVE</div>
@@ -567,6 +588,44 @@ function renderHome(){
     </div>
 
     <div style="margin-top:36px;text-align:center;font-family:monospace;font-size:10px;color:#181828">STUDY HUB v3.0 · felipeperucci.github.io/studyhub</div>`;
+}
+
+function renderItaliaCard(t){
+  const score=italiaScore();
+  const totalSessions=(S.history||[]).filter(h=>["historia","cultura","lingua","cidadania"].includes(h.trackId)).length;
+  return `<div class="card click"
+    style="border-color:${h(t.color,.2)};position:relative;overflow:hidden;grid-column:1/-1"
+    onclick="openTrack('italia')"
+    onmouseenter="this.style.borderColor='${h(t.color,.45)}';this.style.boxShadow='0 4px 28px ${h(t.color,.18)}'"
+    onmouseleave="this.style.borderColor='${h(t.color,.2)}';this.style.boxShadow=''">
+    <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${h(t.color,.3)},transparent)"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:32px">${t.icon}</span>
+        <div>
+          <div style="font-weight:800;font-size:17px;color:#eee">${t.name}</div>
+          <div style="font-size:11px;color:#666;margin-top:2px">${t.desc}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:monospace;font-size:10px;color:#555;margin-bottom:2px">ITALIANITÀ</div>
+        <div style="font-weight:800;font-size:20px;color:${t.color}">${Math.round(score)}%</div>
+        <div style="font-family:monospace;font-size:10px;color:#444">${totalSessions} sessões</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+      ${ITALIA_SUBS.map(sub=>{
+        const s=S.stats[sub.id]||DEF_STATS();
+        const pct=Math.min((s.xp/s.xpNext)*100,100);
+        return `<div style="background:#0a0a14;border:1px solid ${h(sub.color,.18)};border-radius:10px;padding:10px">
+          <div style="font-size:16px;margin-bottom:4px">${sub.icon}</div>
+          <div style="font-size:11px;font-weight:700;color:#ccc;margin-bottom:6px">${sub.name}</div>
+          <div class="xpbar" style="margin-top:0"><div class="xpfill" style="width:${pct}%;background:${sub.color}"></div></div>
+          <div style="font-family:monospace;font-size:9px;color:#444;margin-top:4px">LVL ${s.level}</div>
+        </div>`;
+      }).join("")}
+    </div>
+  </div>`;
 }
 
 function renderTrackCard(t){
@@ -598,7 +657,117 @@ function renderTrackCard(t){
 function openTrack(id){
   S.track=trackById(id);
   resetSession();
-  go("track");
+  S.italiaSub=null;
+  if(id==="italia") go("italia");
+  else go("track");
+}
+
+// ══════════════════════════════════════════════
+// ITALIA — subcategory picker + track page
+// ══════════════════════════════════════════════
+function renderItalia(){
+  const t=trackById("italia");
+  const score=italiaScore();
+
+  if(S.italiaSub){
+    // Show mode picker for selected subcategory
+    const sub=ITALIA_SUBS.find(s=>s.id===S.italiaSub);
+    const isLingua=(sub.id==="lingua");
+    return `
+      <button class="btn-ghost" style="margin-bottom:20px" onclick="S.italiaSub=null;render()">← Voltar</button>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
+        <span style="font-size:36px">${sub.icon}</span>
+        <div>
+          <div style="font-weight:800;font-size:22px">${sub.name}</div>
+          <div style="font-size:12px;color:#666">${sub.desc}</div>
+        </div>
+      </div>
+      <div style="height:1px;background:linear-gradient(90deg,${h(sub.color,.4)},transparent);margin:20px 0"></div>
+
+      <div style="font-family:monospace;font-size:10px;color:${h(sub.color,.7)};letter-spacing:1px;margin-bottom:12px">APRENDER</div>
+      ${MODES.filter(m=>!m.practice).map(m=>modeBtn(m,{...t,color:sub.color,id:sub.id})).join("")}
+
+      <div style="height:1px;background:#1a1a2e;margin:20px 0"></div>
+      <div style="font-family:monospace;font-size:10px;color:${h(sub.color,.7)};letter-spacing:1px;margin-bottom:12px">PRATICAR</div>
+      ${MODES.filter(m=>m.practice).map(m=>modeBtn(m,{...t,color:sub.color,id:sub.id})).join("")}
+
+      ${isLingua?`
+        <div style="height:1px;background:#1a1a2e;margin:20px 0"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <div style="font-family:monospace;font-size:10px;color:${h(sub.color,.7)};letter-spacing:1px">FALAR & OUVIR</div>
+          <span style="font-size:10px;color:#444;font-family:monospace">· requer Chrome</span>
+        </div>
+        ${VOICE_MODES.map(m=>`
+          <div style="background:#0e0e1c;border:1px solid ${h(sub.color,.15)};border-radius:12px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;transition:all .2s"
+            onmouseenter="this.style.background='${h(sub.color,.05)}';this.style.borderColor='${h(sub.color,.35)}'"
+            onmouseleave="this.style.background='#0e0e1c';this.style.borderColor='${h(sub.color,.15)}'"
+            onclick="startVoiceItalia('${m.id}','${sub.id}')">
+            <div style="display:flex;align-items:center;gap:11px">
+              <span style="font-size:20px">${m.icon}</span>
+              <div>
+                <div style="font-weight:700;font-size:13px">${m.label}</div>
+                <div style="font-size:11px;color:#666">${m.desc}</div>
+              </div>
+            </div>
+            <span style="font-family:monospace;font-size:11px;color:${sub.color}">+${m.xpBase} XP</span>
+          </div>
+        `).join("")}
+      `:""}`;
+  }
+
+  // Subcategory picker
+  return `
+    <button class="btn-ghost" style="margin-bottom:20px" onclick="go('home')">← Voltar</button>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-size:36px">${t.icon}</span>
+        <div>
+          <div style="font-weight:800;font-size:22px">Italia</div>
+          <div style="font-size:12px;color:#666">Escolha uma área para estudar</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:monospace;font-size:10px;color:#555;margin-bottom:2px">ITALIANITÀ</div>
+        <div style="font-weight:800;font-size:24px;color:${t.color}">${Math.round(score)}%</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${ITALIA_SUBS.map(sub=>{
+        const s=S.stats[sub.id]||DEF_STATS();
+        const pct=Math.min((s.xp/s.xpNext)*100,100);
+        const sessions=(S.history||[]).filter(h=>h.trackId===sub.id).length;
+        return `<div class="card click"
+          style="border-color:${h(sub.color,.2)};position:relative;overflow:hidden"
+          onclick="S.italiaSub='${sub.id}';render()"
+          onmouseenter="this.style.borderColor='${h(sub.color,.45)}';this.style.boxShadow='0 4px 24px ${h(sub.color,.18)}'"
+          onmouseleave="this.style.borderColor='${h(sub.color,.2)}';this.style.boxShadow=''">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${h(sub.color,.35)},transparent)"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:28px">${sub.icon}</span>
+              <div>
+                <div style="font-weight:700;font-size:16px;color:#eee">${sub.name}</div>
+                <div style="font-size:11px;color:#666;margin-top:2px">${sub.desc}</div>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <span style="font-size:10px;font-family:monospace;color:${sub.color};background:${h(sub.color,.1)};border:1px solid ${h(sub.color,.2)};padding:2px 8px;border-radius:99px">LVL ${s.level}</span>
+              <div style="font-family:monospace;font-size:10px;color:#444;margin-top:4px">${sessions} sessões</div>
+            </div>
+          </div>
+          <div class="xpbar"><div class="xpfill" style="width:${pct}%;background:${sub.color};box-shadow:0 0 8px ${h(sub.color,.35)}"></div></div>
+          <div class="xprow"><span>${s.xp}/${s.xpNext} XP · ${Math.round(pct)}%</span><span style="color:#444">${Math.round(sub.weight*100)}% da Italianità</span></div>
+        </div>`;
+      }).join("")}
+    </div>`;
+}
+
+// Voice for Italia (Italian language)
+function startVoiceItalia(modeId, subId){
+  // Override track to use the sub's context but voice in Italian
+  S.track = {...trackById("italia"), id:subId, voiceLang:"it-IT"};
+  startVoice(modeId);
 }
 
 // ══════════════════════════════════════════════
@@ -682,11 +851,14 @@ async function startMode(modeId){
 
   const t=S.track;
   const ctx=buildMemoryContext(t.id);
+  const italiaCtx=["historia","cultura","lingua","cidadania"].includes(t.id);
+  const italiaSubName=italiaCtx?ITALIA_SUBS.find(s=>s.id===t.id)?.name:null;
+  const italiaTheme=italiaCtx?`${italiaSubName} italiana (subcategoria de Cultura e História da Itália)`:"";
 
   try{
     if(modeId==="quiz"){
       const temas=["A","B","C","D"].join("|");
-      const raw=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie uma pergunta de múltipla escolha NOVA e ESPECÍFICA — nunca um conceito básico óbvio.
+      const raw=await ai([{role:"user",content:`Você é tutor de ${italiaTheme||t.name}. Crie uma pergunta de múltipla escolha NOVA e ESPECÍFICA — nunca um conceito básico óbvio.
 
 ${ctx}
 
@@ -703,7 +875,7 @@ EXPLICAÇÃO: [explicação de 2-3 frases sobre por que a resposta está correta
       if(S.item.q) recordTopic(t.id, S.item.q.slice(0,60));
 
     } else if(modeId==="flashcard"){
-      const raw=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie um flashcard sobre um conceito ESPECÍFICO e útil.
+      const raw=await ai([{role:"user",content:`Você é tutor de ${italiaTheme||t.name}. Crie um flashcard sobre um conceito ESPECÍFICO e útil.
 
 ${ctx}
 
@@ -728,7 +900,7 @@ DICA: [apenas a dica aqui, 1 frase]`}]);
       if(S.item.front) recordTopic(t.id, S.item.front);
 
     } else if(modeId==="challenge"){
-      const raw=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie um desafio prático REALISTA e ESPECÍFICO.
+      const raw=await ai([{role:"user",content:`Você é tutor de ${italiaTheme||t.name}. Crie um desafio prático REALISTA e ESPECÍFICO.
 
 ${ctx}
 
@@ -743,7 +915,7 @@ SOLUÇÃO: [solução detalhada e didática]`}]);
       if(S.item.title) recordTopic(t.id, S.item.title);
 
     } else if(modeId==="guide"){
-      const text=await ai([{role:"user",content:`Você é tutor de ${t.name}. Crie uma microaula sobre um tópico NOVO e ESPECÍFICO.
+      const text=await ai([{role:"user",content:`Você é tutor de ${italiaTheme||t.name}. Crie uma microaula sobre um tópico NOVO e ESPECÍFICO.
 
 ${ctx}
 
@@ -771,7 +943,7 @@ Estruture em 4 blocos separados por ---BLOCO---:
       if(guideTitle) recordTopic(t.id, guideTitle);
 
     } else if(modeId==="brief"){
-      const text=await ai([{role:"user",content:`Você é tutor de ${t.name}. Escreva um daily brief sobre um conceito NOVO — algo que o aluno ainda não viu ou que vale reforçar.
+      const text=await ai([{role:"user",content:`Você é tutor de ${italiaTheme||t.name}. Escreva um daily brief sobre um conceito NOVO — algo que o aluno ainda não viu ou que vale reforçar.
 
 ${ctx}
 
@@ -785,7 +957,7 @@ Seja específico, direto e útil. Não use introduções genéricas.`}],""  ,500
       S.chunks=[text]; S.chunkIdx=0;
 
     } else if(modeId==="socratic"){
-      const first=await ai([{role:"user",content:`Você vai conduzir um diálogo socrático sobre ${t.name}.
+      const first=await ai([{role:"user",content:`Você vai conduzir um diálogo socrático sobre ${italiaTheme||t.name}.
 
 ${ctx}
 
@@ -1078,10 +1250,10 @@ function startVoice(modeId){
   if(modeId==="conv") initConv();
 }
 
-function speak(text,onEnd){
+function speak(text,onEnd,lang){
   window.speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
-  u.lang="es-ES"; u.rate=0.88; u.pitch=1;
+  u.lang=lang||(S.track?.voiceLang)||"es-ES"; u.rate=0.88; u.pitch=1;
   if(onEnd) u.onend=onEnd;
   window.speechSynthesis.speak(u);
 }
@@ -1090,7 +1262,7 @@ function speakPhrase(type){ speak(type==="shadow"?S.vShadowPhrase:S.vDictadoPhra
 let _rec=null;
 function startListen(onResult,onEnd){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  _rec=new SR(); _rec.lang="es-ES"; _rec.interimResults=false;
+  _rec=new SR(); _rec.lang=(S.track?.voiceLang)||"es-ES"; _rec.interimResults=false;
   if(S.vManual){
     _rec.continuous=true; let acc="";
     _rec.onresult=e=>{ for(let i=e.resultIndex;i<e.results.length;i++) if(e.results[i].isFinal) acc+=e.results[i][0].transcript+" "; };
@@ -1316,11 +1488,12 @@ function renderRoadmap(){
         ${S.history.slice(0,40).map(item=>{
           const t=trackById(item.trackId);
           const mInfo=modeById(item.mode)||{label:item.mode};
+          const italiaSubInfo=ITALIA_SUBS.find(s=>s.id===item.trackId);
           return `<div class="tl-item">
             <div class="tl-dot" style="border-color:${t?.color||"#555"};background:${h(t?.color||"#555",.15)}"></div>
             <div class="tl-date">${fmtDate(item.date)}</div>
             <div class="tl-card" style="border-color:${h(t?.color||"#555",.12)}">
-              <div class="tl-title">${t?.icon||""} ${item.trackName} · ${mInfo.label}</div>
+              <div class="tl-title">${italiaSubInfo?`🇮🇹 Italia › ${italiaSubInfo.name}`:t?.icon||""} ${italiaSubInfo?"":item.trackName+" ·"} ${mInfo.label}</div>
               <div class="tl-meta">+${item.xp} XP${item.score!=null?" · score "+item.score+"/100":""} ${item.topic?"· "+item.topic:""}</div>
               ${item.note?`<div class="tl-note">"${item.note}"</div>`:""}
             </div>
@@ -1359,7 +1532,9 @@ function renderAnalysis(){
 async function runAnalysis(){
   S.analysisLoading=true; render();
   try{
-    const stats=TRACKS.filter(t=>t.active).map(t=>`${t.name}: LVL ${S.stats[t.id]?.level||1}, streak ${S.stats[t.id]?.streak||0}`).join("\n");
+    const activeStats=TRACKS.filter(t=>t.active&&t.id!=="italia").map(t=>`${t.name}: LVL ${S.stats[t.id]?.level||1}, streak ${S.stats[t.id]?.streak||0}`);
+    const italiaStats=ITALIA_SUBS.map(s=>`Italia › ${s.name}: LVL ${S.stats[s.id]?.level||1}, Italianità ${Math.round(italiaScore())}%`);
+    const stats=[...activeStats,...italiaStats].join("\n");
     const hist=S.history.slice(0,60).map(h=>{
       const score=h.score!=null?` score:${h.score}/100`:"";
       const note=h.note?` nota:"${h.note}"` :"";
