@@ -511,10 +511,9 @@ function parseAIText(text,type){
 // XP SYSTEM — quality-based
 // ══════════════════════════════════════════════
 function calcXP(mode,score){
-  const base = modeById(mode)?.xpBase||20;
-  if(score===undefined||score===null) return base; // learn modes: flat XP
-  // Practice modes: scale by score
-  return Math.round(base*(score/100));
+  const base=modeById(mode)?.xpBase||20;
+  if(score===undefined||score===null||isNaN(score)) return base;
+  return Math.max(1,Math.round(base*(score/100)));
 }
 async function completeSession(score,note=""){
   const t=S.track; const m=S.mode;
@@ -895,7 +894,7 @@ async function startMode(modeId){
   const italiaCtx=["historia","cultura","lingua","cidadania"].includes(t.id);
   const italiaSubInfo=italiaCtx?ITALIA_SUBS.find(s=>s.id===t.id):null;
   const italiaTheme=italiaCtx?italiaSubInfo?.name:"";
-  const italiaSys=italiaCtx?`Você é um tutor especializado em ${italiaSubInfo?.name} da Itália. Seu objetivo é ensinar Felipe, um brasileiro com cidadania italiana que quer conhecer melhor suas raízes. TODO o conteúdo deve ser sobre a Itália — história, cultura, língua ou cidadania italianas, conforme a subcategoria. Nunca confunda "Italia" com um nome de pessoa ou empresa. Contexto da subcategoria: ${italiaSubInfo?.desc}`:"";
+  const italiaSys=italiaCtx?`Você é um tutor especializado em ${italiaSubInfo?.name} da Itália. Ensine Felipe, brasileiro com cidadania italiana. IMPORTANTE: todo conteúdo deve ser exclusivamente sobre a ITÁLIA — o país europeu. A palavra "Italia" refere-se ao país, não a uma pessoa. ${italiaSubInfo?.desc}. Não crie conteúdo genérico ou sobre outros países.`:"";
 
   try{
     if(modeId==="quiz"){
@@ -1201,7 +1200,9 @@ async function sendSocratic(){
   S.chatHist.push({role:"user",text}); inp.value=""; render();
   try{
     const msgs=S.chatHist.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
-    const reply=await ai(msgs,`Você conduz um diálogo socrático sobre ${S.track.name}. Aprofunde o entendimento com perguntas e reflexões. Máximo 4 frases completas.`,2000);
+    const italiaSubInfoReply=["historia","cultura","lingua","cidadania"].includes(S.track?.id)?ITALIA_SUBS.find(s=>s.id===S.track.id):null;
+    const socSys=italiaSubInfoReply?`Você é tutor especializado em ${italiaSubInfoReply.name} da Itália. Conduza diálogo socrático sobre este tema. Aprofunde com perguntas e reflexões. Máximo 4 frases.`:`Você conduz um diálogo socrático sobre ${S.track.name}. Aprofunde com perguntas e reflexões. Máximo 4 frases completas.`;
+    const reply=await ai(msgs,socSys,2000);
     S.chatHist.push({role:"ai",text:reply});
   }catch(e){ S.chatHist.push({role:"ai",text:"Erro: "+e.message}); }
   render();
@@ -1252,7 +1253,7 @@ async function sendDoc(){
   try{
     const hist=S.chatHist.slice(0,-1).map(m=>`${m.role==="ai"?"IA":"Aluno"}: ${m.text}`).join("\n");
     const reply=await ai([{role:"user",content:`Documento:\n\n${S.docText}\n\n---\nHistórico:\n${hist}\n\nAluno: ${text}`}],
-      `Você é tutor especialista em ${S.track.name}. Responda com base no documento. Seja preciso e didático.`,4000);
+      (["historia","cultura","lingua","cidadania"].includes(S.track?.id)?`Você é tutor especializado em ${ITALIA_SUBS.find(s=>s.id===S.track.id)?.name} da Itália. Responda com base no documento. Seja preciso e didático.`:`Você é tutor especialista em ${S.track.name}. Responda com base no documento. Seja preciso e didático.`),4000);
     S.chatHist.push({role:"ai",text:reply});
   }catch(e){ S.chatHist.push({role:"ai",text:"Erro: "+e.message}); }
   render();
@@ -1267,15 +1268,17 @@ function renderNoteField(){
   </div>`;
 }
 function renderNoteAndComplete(score,t){
-  const scoreArg=score!==undefined&&score!==null?score:"null";
+  // score can be 0-100 (practice) or undefined (learn modes)
+  const hasScore=(score!==undefined&&score!==null);
+  const xp=calcXP(S.mode,score);
   return `${renderNoteField()}
-    <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:10px" onclick="finishSession(${scoreArg})">
-      +${calcXP(S.mode,score)} XP — Concluir sessão
+    <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:10px" onclick="finishSession(${hasScore?score:'undefined'})">
+      +${xp} XP — Concluir sessão
     </button>`;
 }
 function finishSession(score){
   const note=document.getElementById("sess-note")?.value||"";
-  completeSession(score===null?undefined:score,note);
+  completeSession(score,note);
 }
 
 // ══════════════════════════════════════════════
