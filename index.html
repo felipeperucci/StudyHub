@@ -172,6 +172,18 @@ const TRACKS = [
   {id:"art",    name:"História da Arte", icon:"🎨", color:"#C47DB4", active:false, desc:"Em breve"},
 ];
 
+// Períodos históricos da Itália (ordem cronológica)
+const HISTORIA_PERIODOS = [
+  {id:"roma_antiga",     label:"Roma Antiga",            years:"753 a.C. – 476 d.C.",  icon:"🏛️"},
+  {id:"idade_media",     label:"Idade Média",            years:"476 – 1300",            icon:"⚔️"},
+  {id:"renascimento",    label:"Renascimento",           years:"1300 – 1600",           icon:"🎨"},
+  {id:"estados_italianos",label:"Estados Italianos",    years:"1600 – 1800",           icon:"👑"},
+  {id:"risorgimento",    label:"Risorgimento",           years:"1815 – 1871",           icon:"🇮🇹"},
+  {id:"italia_unificada",label:"Itália Unificada",      years:"1871 – 1914",           icon:"🏭"},
+  {id:"guerras_mundiais",label:"Guerras Mundiais",       years:"1914 – 1945",           icon:"🕊️"},
+  {id:"republica",       label:"República Italiana",     years:"1946 – hoje",           icon:"🗳️"},
+];
+
 // Italia subcategories
 const ITALIA_SUBS = [
   {id:"historia",    icon:"🏛️", name:"História",          desc:"De Roma Antiga à República — fatos, personagens e momentos cruciais", color:"#C9874C", weight:0.30},
@@ -228,6 +240,7 @@ let S = {
   vConvHist: [],
   // italia
   italiaSub: null,
+  historiaPeriodo: null, // selected period for history
   // misc
   analysisText: "", analysisLoading: false,
   loaded: false,
@@ -559,6 +572,7 @@ function resetSession(){
   S.fcFlipped=false; S.chAnswer=""; S.chRevealed=false; S.chScore=null; S.chFeedback="";
   S.chatHist=[]; S.chunks=[]; S.chunkIdx=0; S.docText="";
   S.voiceMode=null; S.vListening=false; S.vTranscript=""; S.vShadowPhrase=""; S.vDictadoPhrase=""; S.vConvHist=[];
+  // don't reset historiaPeriodo — keep selection between sessions
 }
 
 // ══════════════════════════════════════════════
@@ -704,6 +718,29 @@ function openTrack(id){
 }
 
 // ══════════════════════════════════════════════
+// HISTORIA — period selector
+// ══════════════════════════════════════════════
+function renderPeriodoSelector(sub){
+  return `<div style="margin-bottom:20px">
+    <div style="font-family:monospace;font-size:10px;color:#777;letter-spacing:1px;margin-bottom:10px">
+      PERÍODO HISTÓRICO
+      ${S.historiaPeriodo?`<span style="color:#C9874C;margin-left:8px">· ${HISTORIA_PERIODOS.find(p=>p.id===S.historiaPeriodo)?.label}</span>`:"<span style='color:#444;margin-left:8px'>· livre (IA escolhe)</span>"}
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px">
+      <div style="padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid ${!S.historiaPeriodo?"#C9874C":"#2a2a3e"};background:${!S.historiaPeriodo?"#C9874C18":"#0e0e1c"};color:${!S.historiaPeriodo?"#C9874C":"#666"}"
+        onclick="S.historiaPeriodo=null;render()">Livre</div>
+      ${HISTORIA_PERIODOS.map(p=>`
+        <div style="padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .15s;border:1px solid ${S.historiaPeriodo===p.id?"#C9874C":"#2a2a3e"};background:${S.historiaPeriodo===p.id?"#C9874C18":"#0e0e1c"};color:${S.historiaPeriodo===p.id?"#C9874C":"#777"}"
+          onclick="S.historiaPeriodo='${p.id}';render()"
+          title="${p.years}">
+          ${p.icon} ${p.label}
+        </div>`).join("")}
+    </div>
+    ${S.historiaPeriodo?`<div style="font-size:11px;color:#555;margin-top:8px;font-family:monospace">${HISTORIA_PERIODOS.find(p=>p.id===S.historiaPeriodo)?.years}</div>`:""}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
 // ITALIA — subcategory picker + track page
 // ══════════════════════════════════════════════
 function renderItalia(){
@@ -714,8 +751,10 @@ function renderItalia(){
     // Show mode picker for selected subcategory
     const sub=ITALIA_SUBS.find(s=>s.id===S.italiaSub);
     const isLingua=(sub.id==="lingua");
+    const isHistoria=(sub.id==="historia");
     return `
       <button class="btn-ghost" style="margin-bottom:20px" onclick="S.italiaSub=null;render()">← Voltar</button>
+      ${isHistoria?renderPeriodoSelector(sub):""}
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
         <span style="font-size:36px">${sub.icon}</span>
         <div>
@@ -899,7 +938,9 @@ async function startMode(modeId){
   const italiaCtx=["historia","cultura","lingua","cidadania"].includes(t.id);
   const italiaSubInfo=italiaCtx?ITALIA_SUBS.find(s=>s.id===t.id):null;
   const italiaTheme=italiaCtx?italiaSubInfo?.name:"";
-  const italiaSys=italiaCtx?`Você é um tutor especializado em ${italiaSubInfo?.name} da Itália. Ensine Felipe, brasileiro com cidadania italiana. IMPORTANTE: todo conteúdo deve ser exclusivamente sobre a ITÁLIA — o país europeu. A palavra "Italia" refere-se ao país, não a uma pessoa. ${italiaSubInfo?.desc}. Não crie conteúdo genérico ou sobre outros países.`:"";
+  const periodoInfo=t.id==="historia"&&S.historiaPeriodo?HISTORIA_PERIODOS.find(p=>p.id===S.historiaPeriodo):null;
+  const periodoCtx=periodoInfo?`\nFoco no período: ${periodoInfo.label} (${periodoInfo.years}). Crie conteúdo EXCLUSIVAMENTE sobre este período histórico da Itália.`:"";
+  const italiaSys=italiaCtx?`Você é um tutor especializado em ${italiaSubInfo?.name} da Itália. Ensine Felipe, brasileiro com cidadania italiana. IMPORTANTE: todo conteúdo deve ser exclusivamente sobre a ITÁLIA — o país europeu. A palavra "Italia" refere-se ao país, não a uma pessoa. ${italiaSubInfo?.desc}. Não crie conteúdo genérico ou sobre outros países.${periodoCtx}`:"";
 
   try{
     if(modeId==="quiz"){
@@ -1273,16 +1314,20 @@ function renderNoteField(){
   </div>`;
 }
 function renderNoteAndComplete(score,t){
-  // score can be 0-100 (practice) or undefined (learn modes)
-  const hasScore=(score!==undefined&&score!==null);
-  const xp=calcXP(S.mode,score);
+  // Use -1 as sentinel for "no score" (learn modes)
+  // Cannot pass undefined through HTML onclick attributes
+  const hasScore=(score!==undefined&&score!==null&&!isNaN(score));
+  const sentinel=hasScore?score:-1;
+  const xp=calcXP(S.mode,hasScore?score:undefined);
   return `${renderNoteField()}
-    <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:10px" onclick="finishSession(${hasScore?score:'undefined'})">
+    <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:10px" onclick="finishSession(${sentinel})">
       +${xp} XP — Concluir sessão
     </button>`;
 }
-function finishSession(score){
+function finishSession(sentinel){
   const note=document.getElementById("sess-note")?.value||"";
+  // Convert sentinel back: -1 means no score
+  const score=sentinel===-1?undefined:sentinel;
   completeSession(score,note);
 }
 
