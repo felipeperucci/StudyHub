@@ -394,6 +394,38 @@ function fmtDate(iso){
   return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
 }
 function totalLevel(){ return Object.values(S.stats).reduce((s,t)=>s+t.level,0); }
+// Activity tracker: sessions per day (last 35 days)
+function getActivityData(){
+  const days={};
+  const now=new Date();
+  for(let i=34;i>=0;i--){
+    const d=new Date(now-i*86400000).toISOString().slice(0,10);
+    days[d]=0;
+  }
+  (S.history||[]).forEach(h=>{
+    const d=h.date?.slice(0,10);
+    if(d&&days[d]!==undefined) days[d]++;
+  });
+  return days;
+}
+
+// Calculate global daily streak (any track)
+function globalStreak(){
+  const today=new Date().toISOString().slice(0,10);
+  const days=new Set((S.history||[]).map(h=>h.date?.slice(0,10)).filter(Boolean));
+  let streak=0;
+  let check=new Date();
+  // if no session today, start from yesterday
+  if(!days.has(today)) check=new Date(Date.now()-86400000);
+  while(true){
+    const d=check.toISOString().slice(0,10);
+    if(!days.has(d)) break;
+    streak++;
+    check=new Date(check-86400000);
+  }
+  return streak;
+}
+
 function italiaScore(){
   return ITALIA_SUBS.reduce((sum,sub)=>{
     const s=S.stats[sub.id]||DEF_STATS();
@@ -496,7 +528,16 @@ async function completeSession(score,note=""){
   const s=S.stats[t.id];
   const newXP=s.xp+xp;
   const leveled=newXP>=s.xpNext;
-  S.stats[t.id]={xp:leveled?newXP-s.xpNext:newXP,level:leveled?s.level+1:s.level,xpNext:leveled?Math.round(s.xpNext*1.5):s.xpNext,streak:s.streak+1};
+  // Streak: count consecutive DAYS, not sessions
+  const today=new Date().toISOString().slice(0,10);
+  const lastSession=(S.history||[]).find(h=>h.trackId===t.id);
+  const lastDay=lastSession?.date?.slice(0,10);
+  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  let newStreak=s.streak;
+  if(lastDay===today) newStreak=s.streak; // same day: don't increment
+  else if(lastDay===yesterday) newStreak=s.streak+1; // consecutive: increment
+  else newStreak=1; // gap or first time: reset to 1
+  S.stats[t.id]={xp:leveled?newXP-s.xpNext:newXP,level:leveled?s.level+1:s.level,xpNext:leveled?Math.round(s.xpNext*1.5):s.xpNext,streak:newStreak};
   S.totalXP+=xp;
 
   // Log
@@ -573,7 +614,7 @@ function renderHome(){
       <div style="text-align:right">
         <div style="font-family:monospace;font-size:10px;color:#555;margin-bottom:2px">XP TOTAL</div>
         <div style="font-weight:800;font-size:26px;color:#C9A84C">${fmt(S.totalXP)}</div>
-        <div style="font-family:monospace;font-size:10px;color:#333">NVL ${totalLevel()}</div>
+        <div style="font-family:monospace;font-size:10px;color:#333">NVL ${totalLevel()} · 🔥 ${globalStreak()}d</div>
       </div>
     </div>
 
@@ -649,7 +690,7 @@ function renderTrackCard(t){
     <div style="font-size:11px;color:#666;margin-bottom:${t.active?12:0}px">${t.desc}</div>
     ${t.active?`
       <div class="xpbar"><div class="xpfill" style="width:${pct}%;background:${t.color};box-shadow:0 0 8px ${h(t.color,.4)}"></div></div>
-      <div class="xprow"><span>${s.xp}/${s.xpNext} XP</span><span>${recentSessions} sessões${s.streak>0?" · 🔥"+s.streak:""}</span></div>
+      <div class="xprow"><span>${s.xp}/${s.xpNext} XP</span><span>${recentSessions} sessões${s.streak>0?" · 🔥"+s.streak+"d":""}</span></div>
     `:""}
   </div>`;
 }
@@ -1443,6 +1484,44 @@ async function toggleConv(){
 // ══════════════════════════════════════════════
 // ROADMAP
 // ══════════════════════════════════════════════
+function renderHeatmap(){
+  const data=getActivityData();
+  const entries=Object.entries(data);
+  const maxVal=Math.max(...Object.values(data),1);
+  const weeks=[];
+  for(let i=0;i<entries.length;i+=7) weeks.push(entries.slice(i,i+7));
+  const dayLabels=["D","S","T","Q","Q","S","S"];
+
+  return `<div style="margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-family:monospace;font-size:10px;color:#555;letter-spacing:1px">ATIVIDADE — ÚLTIMOS 35 DIAS</div>
+      <div style="font-family:monospace;font-size:10px;color:#C9A84C">🔥 ${globalStreak()} dias seguidos</div>
+    </div>
+    <div style="display:flex;gap:4px;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:3px;margin-right:2px">
+        ${dayLabels.map(l=>`<div style="font-size:9px;color:#333;font-family:monospace;height:14px;line-height:14px">${l}</div>`).join("")}
+      </div>
+      ${weeks.map(week=>`
+        <div style="display:flex;flex-direction:column;gap:3px">
+          ${week.map(([date,count])=>{
+            const intensity=count===0?0:Math.max(0.15,count/maxVal);
+            const bg=count===0?"#0e0e1c":`rgba(201,168,76,${intensity})`;
+            const border=count===0?"#1a1a2e":"#C9A84C44";
+            const d=new Date(date+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"short"});
+            return `<div title="${d}: ${count} sessão(ões)"
+              style="width:14px;height:14px;border-radius:3px;background:${bg};border:1px solid ${border};cursor:default"></div>`;
+          }).join("")}
+        </div>
+      `).join("")}
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:8px;justify-content:flex-end">
+      <span style="font-size:10px;color:#333;font-family:monospace">menos</span>
+      ${[0,.25,.5,.75,1].map(v=>`<div style="width:12px;height:12px;border-radius:2px;background:${v===0?"#0e0e1c":`rgba(201,168,76,${v})`};border:1px solid ${v===0?"#1a1a2e":"#C9A84C44"}"></div>`).join("")}
+      <span style="font-size:10px;color:#333;font-family:monospace">mais</span>
+    </div>
+  </div>`;
+}
+
 function renderRoadmap(){
   const total=S.history.length;
   const xpTotal=S.totalXP;
@@ -1451,6 +1530,8 @@ function renderRoadmap(){
   return `
     <div style="font-weight:800;font-size:22px;margin-bottom:4px">Roadmap</div>
     <div style="color:#666;font-size:13px;margin-bottom:24px">Seu histórico de aprendizado</div>
+
+    ${renderHeatmap()}
 
     <div class="stats3">
       <div class="stat"><div class="stat-n" style="color:#C9A84C">${total}</div><div class="stat-l">SESSÕES</div></div>
