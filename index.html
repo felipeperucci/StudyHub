@@ -1014,15 +1014,15 @@ function renderNoteField(){
   </div>`;
 }
 function renderNoteAndComplete(score,t){
-  const scoreStr=score!==undefined&&score!==null?`, ${score}`:"";
+  const scoreArg=score!==undefined&&score!==null?score:"null";
   return `${renderNoteField()}
-    <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:10px" onclick="finishSession(${scoreStr})">
+    <button class="btn btn-primary btn-full" style="background:${t.color};margin-top:10px" onclick="finishSession(${scoreArg})">
       +${calcXP(S.mode,score)} XP — Concluir sessão
     </button>`;
 }
 function finishSession(score){
   const note=document.getElementById("sess-note")?.value||"";
-  completeSession(score,note);
+  completeSession(score===null?undefined:score,note);
 }
 
 // ══════════════════════════════════════════════
