@@ -1,10 +1,10 @@
 {
   "stats": {
     "tp": {
-      "xp": 25,
+      "xp": 55,
       "level": 2,
       "xpNext": 150,
-      "streak": 7
+      "streak": 8
     },
     "sql": {
       "xp": 0,
@@ -19,8 +19,18 @@
       "streak": 3
     }
   },
-  "totalXP": 215,
+  "totalXP": 245,
   "history": [
+    {
+      "date": "2026-06-14T14:36:06.891Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "quiz",
+      "topic": "Uma subsidiária (D) localizada no País X paga roya",
+      "xp": 30,
+      "score": 100,
+      "note": ""
+    },
     {
       "date": "2026-05-27T01:29:00.201Z",
       "trackId": "tp",
@@ -131,5 +141,13 @@
       "note": "",
       "title": "O mÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©todo CPL ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© mais adequado para qual t"
     }
-  ]
+  ],
+  "seen": {
+    "tp": [
+      {
+        "topic": "Uma subsidiária (D) localizada no País X paga roya",
+        "date": "2026-06-14T14:36:06.891Z"
+      }
+    ]
+  }
 }
