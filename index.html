@@ -214,7 +214,7 @@ const VOICE_MODES = [
 const DEF_STATS = () => ({xp:0,level:1,xpNext:100,streak:0});
 let S = {
   page: "home",
-  stats: {tp:DEF_STATS(),sql:DEF_STATS(),es:DEF_STATS(),historia:DEF_STATS(),cultura:DEF_STATS(),lingua:DEF_STATS(),cidadania:DEF_STATS()},
+  stats: {tp:DEF_STATS(),sql:DEF_STATS(),es:DEF_STATS(),historia:DEF_STATS(),cultura:DEF_STATS(),lingua:DEF_STATS(),cidadania:DEF_STATS(),italia:DEF_STATS()},
   totalXP: 0,
   history: [],        // {date,trackId,mode,topic,xp,score,note}
   seen: {},           // {trackId: [{topic,date}]} — spaced repetition memory
@@ -241,6 +241,10 @@ let S = {
   // italia
   italiaSub: null,
   historiaPeriodo: null, // selected period for history
+  cadernoInput: "", // current note being typed
+  cadernoFilter: null, // filter by track
+  notesFocus: 50,  // 0=explorar, 50=balanceado, 100=focar nas notas
+  notes: [],       // caderno notes
   // misc
   analysisText: "", analysisLoading: false,
   loaded: false,
@@ -304,9 +308,14 @@ function applyData(d){
   if(typeof d.totalXP==="number") S.totalXP = d.totalXP;
   if(d.history) S.history = d.history;
   if(d.seen) S.seen = d.seen;
+  // Ensure all known track/sub ids have stats initialized
+  if(d.notes) S.notes=d.notes; else if(!S.notes) S.notes=[];
+  if(d.notesFocus!==undefined) S.notesFocus=d.notesFocus;
+  const allIds=["tp","sql","es","historia","cultura","lingua","cidadania","italia"];
+  allIds.forEach(id=>{ if(!S.stats[id]) S.stats[id]=DEF_STATS(); });
 }
 async function saveData(){
-  const data = {stats:S.stats,totalXP:S.totalXP,history:S.history,seen:S.seen};
+  const data = {stats:S.stats,totalXP:S.totalXP,history:S.history,seen:S.seen,notes:S.notes||[],notesFocus:S.notesFocus||50};
   sl("sh_data",JSON.stringify(data));
   const ok = await ghWrite(data,_ghSha);
   if(ok){ const gh=await ghRead(); if(gh) _ghSha=gh.sha; }
@@ -389,10 +398,27 @@ function buildMemoryContext(trackId){
   const recentNotes = (S.history||[]).filter(h=>h.trackId===trackId&&h.note).slice(0,5).map(h=>h.note);
   const weakTopics = (S.history||[]).filter(h=>h.trackId===trackId&&h.score!==undefined&&h.score<60).slice(0,5).map(h=>h.topic).filter(Boolean);
   const level = S.stats[trackId]?.level||1;
+  const focus = S.notesFocus||50;
+
+  // Caderno notes for this track (or general)
+  const cadernoNotes=(S.notes||[]).filter(n=>!n.trackId||n.trackId===trackId).slice(0,5).map(n=>n.text);
+
   const parts = [`Nível do aluno: ${level}/10`];
   if(seen.length) parts.push(`Tópicos vistos recentemente (NÃO repita): ${seen.join(", ")}`);
   if(weakTopics.length) parts.push(`Tópicos com dificuldade (pode reforçar): ${weakTopics.join(", ")}`);
-  if(recentNotes.length) parts.push(`Anotações recentes: ${recentNotes.join(" | ")}`);
+  if(recentNotes.length) parts.push(`Anotações de sessões: ${recentNotes.join(" | ")}`);
+
+  if(cadernoNotes.length){
+    if(focus===0){
+      parts.push(`[Caderno do aluno — IGNORAR para seleção de conteúdo]: ${cadernoNotes.join(" | ")}`);
+    } else if(focus<=40){
+      parts.push(`[Caderno do aluno — considere levemente]: ${cadernoNotes.join(" | ")}`);
+    } else if(focus<=70){
+      parts.push(`[Caderno do aluno — considere junto com outros critérios]: ${cadernoNotes.join(" | ")}`);
+    } else {
+      parts.push(`[Caderno do aluno — PRIORIZE estes pontos mas varie o conteúdo]: ${cadernoNotes.join(" | ")}`);
+    }
+  }
   return parts.join("\n");
 }
 
@@ -530,6 +556,7 @@ function calcXP(mode,score){
 }
 async function completeSession(score,note=""){
   const t=S.track; const m=S.mode;
+  if(!t||!m){ notif("Erro: sessão inválida","#E05C5C"); return; }
   const xp=calcXP(m,score);
   const topic=S.item?.title||S.item?.front||S.item?.q?.slice(0,50)||m;
 
@@ -537,6 +564,7 @@ async function completeSession(score,note=""){
   if(topic&&t) recordTopic(t.id,topic);
 
   // Update stats
+  if(!S.stats[t.id]) S.stats[t.id]=DEF_STATS();
   const s=S.stats[t.id];
   const newXP=s.xp+xp;
   const leveled=newXP>=s.xpNext;
@@ -554,6 +582,8 @@ async function completeSession(score,note=""){
 
   // Log
   S.history.unshift({date:new Date().toISOString(),trackId:t.id,trackName:t.name,mode:m,topic,xp,score,note});
+  // Also save inline note to caderno if non-empty
+  if(note.trim()){ if(!S.notes) S.notes=[]; S.notes.unshift({date:new Date().toISOString(),trackId:t.id,trackName:t.name,text:note,source:"sessão"}); }
   if(S.history.length>200) S.history=S.history.slice(0,200);
 
   await saveData();
@@ -587,6 +617,7 @@ function render(){
        :S.page==="track"?renderTrack()
        :S.page==="session"?renderSession()
        :S.page==="italia"?renderItalia()
+       :S.page==="caderno"?renderCaderno()
        :S.page==="roadmap"?renderRoadmap()
        :S.page==="analysis"?renderAnalysis()
        :S.page==="settings"?renderSettings():""}
@@ -598,7 +629,7 @@ function render(){
 // NAV
 // ══════════════════════════════════════════════
 function renderNav(){
-  const pages=[["home","Home"],["roadmap","Roadmap"],["analysis","Análise IA"],["settings","Config"]];
+  const pages=[["home","Home"],["caderno","Caderno"],["roadmap","Roadmap"],["analysis","Análise IA"],["settings","Config"]];
   return `<nav class="nav">
     <div class="logo" onclick="go('home')">Study<em>Hub</em></div>
     <div class="nav-links">
@@ -1326,7 +1357,6 @@ function renderNoteAndComplete(score,t){
 }
 function finishSession(sentinel){
   const note=document.getElementById("sess-note")?.value||"";
-  // Convert sentinel back: -1 means no score
   const score=sentinel===-1?undefined:sentinel;
   completeSession(score,note);
 }
@@ -1533,6 +1563,109 @@ async function toggleConv(){
     }catch(e){ notif(e.message,"#E05C5C"); }
     setTimeout(()=>{const el=document.getElementById("chat-msgs");if(el)el.scrollTop=el.scrollHeight;},50);
   },()=>render());
+}
+
+// ══════════════════════════════════════════════
+// CADERNO
+// ══════════════════════════════════════════════
+function renderCaderno(){
+  const notes=S.notes||[];
+  const filtered=S.cadernoFilter?notes.filter(n=>n.trackId===S.cadernoFilter):notes;
+  const focus=S.notesFocus||50;
+  const focusLabel=focus===0?"Explorar — IA ignora as notas":focus<=40?"Leve — IA considera pouco":focus<=70?"Balanceado — IA considera junto com outros critérios":"Focar — IA prioriza suas notas";
+  const focusColor=focus===0?"#555":focus<=40?"#5B8CFF":focus<=70?"#C9A84C":"#E05C5C";
+  const allTracks=[...TRACKS.filter(t=>t.active&&t.id!=="italia"),...ITALIA_SUBS];
+
+  return `
+    <div style="font-weight:800;font-size:22px;margin-bottom:4px">Caderno</div>
+    <div style="color:#666;font-size:13px;margin-bottom:24px">Anotações livres que orientam seu aprendizado</div>
+
+    <!-- Focus slider -->
+    <div class="card" style="margin-bottom:20px;border-color:#C9A84C22">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-weight:700;font-size:14px">Influência no conteúdo</div>
+        <div style="font-size:12px;font-family:monospace;color:${focusColor}">${focusLabel}</div>
+      </div>
+      <input type="range" min="0" max="100" value="${focus}" step="10"
+        style="width:100%;accent-color:#C9A84C;cursor:pointer"
+        oninput="S.notesFocus=parseInt(this.value);render()"/>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;font-family:monospace;color:#444">
+        <span>Explorar</span><span>Balanceado</span><span>Focar</span>
+      </div>
+    </div>
+
+    <!-- New note -->
+    <div class="card" style="margin-bottom:20px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:12px">Nova anotação</div>
+      <div style="margin-bottom:10px">
+        <label class="label">Trilha (opcional)</label>
+        <select class="input" id="note-track" style="cursor:pointer">
+          <option value="">Geral (todas as trilhas)</option>
+          ${allTracks.map(t=>`<option value="${t.id}">${t.icon||""} ${t.name}</option>`).join("")}
+        </select>
+      </div>
+      <textarea class="textarea" id="note-input" placeholder="Escreva sua observação, dúvida ou ponto fraco aqui..." style="min-height:80px;margin-bottom:10px">${S.cadernoInput||""}</textarea>
+      <button class="btn btn-primary btn-full" style="background:#C9A84C" onclick="saveNote()">Salvar anotação</button>
+    </div>
+
+    <!-- Filter -->
+    ${notes.length>0?`
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px">
+      <div style="padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid ${!S.cadernoFilter?"#C9A84C":"#2a2a3e"};background:${!S.cadernoFilter?"#C9A84C18":"#0e0e1c"};color:${!S.cadernoFilter?"#C9A84C":"#666"}"
+        onclick="S.cadernoFilter=null;render()">Todas</div>
+      ${[...new Set(notes.map(n=>n.trackId).filter(Boolean))].map(tid=>{
+        const t=allTracks.find(t=>t.id===tid)||{name:tid,icon:"📝"};
+        return `<div style="padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid ${S.cadernoFilter===tid?"#C9A84C":"#2a2a3e"};background:${S.cadernoFilter===tid?"#C9A84C18":"#0e0e1c"};color:${S.cadernoFilter===tid?"#C9A84C":"#666"}"
+          onclick="S.cadernoFilter='${tid}';render()">${t.icon||""} ${t.name}</div>`;
+      }).join("")}
+    </div>`:""}
+
+    <!-- Notes list -->
+    ${filtered.length===0
+      ?`<div style="text-align:center;color:#333;font-size:13px;padding:40px">Nenhuma anotação ainda. Escreva acima!</div>`
+      :`<div style="display:flex;flex-direction:column;gap:10px">
+        ${filtered.map((note,i)=>{
+          const t=allTracks.find(t=>t.id===note.trackId);
+          const realIdx=notes.indexOf(note);
+          return `<div class="card" style="border-color:${note.trackId?"#2a2a3e":"#1a1a2e"};position:relative">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div style="font-size:11px;font-family:monospace;color:#555">
+                ${fmtDate(note.date)}
+                ${t?`<span style="margin-left:8px;color:#777">${t.icon||""} ${t.name}</span>`:""}
+                ${note.source?`<span style="margin-left:8px;color:#444">· de sessão</span>`:""}
+              </div>
+              <button onclick="deleteNote(${realIdx})" style="background:none;border:none;color:#333;cursor:pointer;font-size:16px;line-height:1;padding:0" title="Excluir">×</button>
+            </div>
+            <div style="color:#ccc;font-size:14px;line-height:1.7;white-space:pre-wrap">${note.text}</div>
+          </div>`;
+        }).join("")}
+      </div>`}`;
+}
+
+function saveNote(){
+  const text=document.getElementById("note-input")?.value?.trim();
+  const trackId=document.getElementById("note-track")?.value||null;
+  if(!text){ notif("Escreva algo antes de salvar","#E05C5C"); return; }
+  if(!S.notes) S.notes=[];
+  const trackInfo=[...TRACKS,...ITALIA_SUBS].find(t=>t.id===trackId);
+  S.notes.unshift({
+    date:new Date().toISOString(),
+    trackId:trackId||null,
+    trackName:trackInfo?.name||null,
+    text,
+    source:"caderno"
+  });
+  S.cadernoInput="";
+  saveData();
+  notif("Anotação salva ✓");
+  render();
+}
+
+function deleteNote(idx){
+  if(!confirm("Excluir esta anotação?")) return;
+  S.notes.splice(idx,1);
+  saveData();
+  render();
 }
 
 // ══════════════════════════════════════════════
