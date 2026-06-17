@@ -17,6 +17,36 @@
       "level": 1,
       "xpNext": 100,
       "streak": 3
+    },
+    "historia": {
+      "xp": 0,
+      "level": 1,
+      "xpNext": 100,
+      "streak": 0
+    },
+    "cultura": {
+      "xp": 0,
+      "level": 1,
+      "xpNext": 100,
+      "streak": 0
+    },
+    "lingua": {
+      "xp": 0,
+      "level": 1,
+      "xpNext": 100,
+      "streak": 0
+    },
+    "cidadania": {
+      "xp": 0,
+      "level": 1,
+      "xpNext": 100,
+      "streak": 0
+    },
+    "italia": {
+      "xp": 0,
+      "level": 1,
+      "xpNext": 100,
+      "streak": 0
     }
   },
   "totalXP": 320,
@@ -194,5 +224,15 @@
         "date": "2026-06-14T15:21:37.156Z"
       }
     ]
-  }
+  },
+  "notes": [
+    {
+      "date": "2026-06-17T23:20:22.662Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "text": "Eu tenho um gap conceitual do que é custo, receita, despesa, operational expenses, lucro operacional, DRE, balancete, coisas assim. Não sou de contábeis nem tenho muita noção desses termos, só meio me jogo e improviso, meio que sei pra que cada um serve e é isso, mas sinto que preciso saber na ponta da língua e entender exatamente cada um",
+      "source": "caderno"
+    }
+  ],
+  "notesFocus": 50
 }
