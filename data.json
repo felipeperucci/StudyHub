@@ -19,10 +19,10 @@
       "streak": 3
     },
     "historia": {
-      "xp": 0,
+      "xp": 25,
       "level": 1,
       "xpNext": 100,
-      "streak": 0
+      "streak": 1
     },
     "cultura": {
       "xp": 0,
@@ -49,8 +49,17 @@
       "streak": 0
     }
   },
-  "totalXP": 345,
+  "totalXP": 370,
   "history": [
+    {
+      "date": "2026-06-18T22:51:19.327Z",
+      "trackId": "historia",
+      "trackName": "Italia",
+      "mode": "guide",
+      "topic": "guide",
+      "xp": 25,
+      "note": "\n1. Júlio César foi um general e político romano central na transição da República para o Império.\n2. Suas ações e ambições desestabilizaram as instituições republicanas, levando a guerras civis.\n3. Sua ditadura vitalícia marcou o ponto sem retorno para o fim da República Romana."
+    },
     {
       "date": "2026-06-18T21:56:14.630Z",
       "trackId": "tp",
@@ -232,9 +241,22 @@
         "topic": "guide",
         "date": "2026-06-18T21:56:14.629Z"
       }
+    ],
+    "historia": [
+      {
+        "topic": "guide",
+        "date": "2026-06-18T22:51:19.327Z"
+      }
     ]
   },
   "notes": [
+    {
+      "date": "2026-06-18T22:51:19.327Z",
+      "trackId": "historia",
+      "trackName": "Italia",
+      "text": "\n1. Júlio César foi um general e político romano central na transição da República para o Império.\n2. Suas ações e ambições desestabilizaram as instituições republicanas, levando a guerras civis.\n3. Sua ditadura vitalícia marcou o ponto sem retorno para o fim da República Romana.",
+      "source": "sessão"
+    },
     {
       "date": "2026-06-17T23:20:22.662Z",
       "trackId": "tp",
