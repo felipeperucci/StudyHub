@@ -242,7 +242,9 @@ let S = {
   italiaSub: null,
   historiaPeriodo: null, // selected period for history
   cadernoInput: "", // current note being typed
-  cadernoFilter: null, // filter by track
+  cadernoFilter: null,
+  cadernoSearch: "",
+  editingNoteIdx: null,
   notesFocus: 50,  // 0=explorar, 50=balanceado, 100=focar nas notas
   notes: [],       // caderno notes
   // misc
@@ -1570,7 +1572,11 @@ async function toggleConv(){
 // ══════════════════════════════════════════════
 function renderCaderno(){
   const notes=S.notes||[];
-  const filtered=S.cadernoFilter?notes.filter(n=>n.trackId===S.cadernoFilter):notes;
+  const filtered=notes.filter(n=>{
+    const matchFilter=!S.cadernoFilter||n.trackId===S.cadernoFilter;
+    const matchSearch=!S.cadernoSearch||n.text.toLowerCase().includes(S.cadernoSearch.toLowerCase());
+    return matchFilter&&matchSearch;
+  });
   const focus=S.notesFocus||50;
   const focusLabel=focus===0?"Explorar — IA ignora as notas":focus<=40?"Leve — IA considera pouco":focus<=70?"Balanceado — IA considera junto com outros critérios":"Focar — IA prioriza suas notas";
   const focusColor=focus===0?"#555":focus<=40?"#5B8CFF":focus<=70?"#C9A84C":"#E05C5C";
@@ -1608,8 +1614,15 @@ function renderCaderno(){
       <button class="btn btn-primary btn-full" style="background:#C9A84C" onclick="saveNote()">Salvar anotação</button>
     </div>
 
-    <!-- Filter -->
+    <!-- Search + Filter -->
     ${notes.length>0?`
+    <div style="margin-bottom:14px;position:relative">
+      <input class="input" id="note-search" placeholder="🔍 Pesquisar anotações..."
+        value="${S.cadernoSearch||""}"
+        oninput="S.cadernoSearch=this.value;render()"
+        style="padding-right:${S.cadernoSearch?"36px":"14px"}"/>
+      ${S.cadernoSearch?`<button onclick="S.cadernoSearch='';render()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;cursor:pointer;font-size:16px">×</button>`:""}
+    </div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px">
       <div style="padding:5px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid ${!S.cadernoFilter?"#C9A84C":"#2a2a3e"};background:${!S.cadernoFilter?"#C9A84C18":"#0e0e1c"};color:${!S.cadernoFilter?"#C9A84C":"#666"}"
         onclick="S.cadernoFilter=null;render()">Todas</div>
@@ -1622,21 +1635,33 @@ function renderCaderno(){
 
     <!-- Notes list -->
     ${filtered.length===0
-      ?`<div style="text-align:center;color:#333;font-size:13px;padding:40px">Nenhuma anotação ainda. Escreva acima!</div>`
+      ?`<div style="text-align:center;color:#333;font-size:13px;padding:40px">${notes.length===0?"Nenhuma anotação ainda. Escreva acima!":"Nenhuma anotação encontrada."}</div>`
       :`<div style="display:flex;flex-direction:column;gap:10px">
-        ${filtered.map((note,i)=>{
+        ${filtered.map((note)=>{
           const t=allTracks.find(t=>t.id===note.trackId);
           const realIdx=notes.indexOf(note);
-          return `<div class="card" style="border-color:${note.trackId?"#2a2a3e":"#1a1a2e"};position:relative">
+          const isEditing=S.editingNoteIdx===realIdx;
+          const q=S.cadernoSearch?.toLowerCase();
+          const highlighted=q?note.text.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<mark style="background:#C9A84C33;color:#C9A84C;border-radius:3px">${m}</mark>`):note.text;
+          return `<div class="card" style="border-color:${isEditing?"#C9A84C55":"#1a1a2e"}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
               <div style="font-size:11px;font-family:monospace;color:#555">
                 ${fmtDate(note.date)}
                 ${t?`<span style="margin-left:8px;color:#777">${t.icon||""} ${t.name}</span>`:""}
-                ${note.source?`<span style="margin-left:8px;color:#444">· de sessão</span>`:""}
+                ${note.source==="sessão"?`<span style="margin-left:8px;color:#444">· de sessão</span>`:""}
               </div>
-              <button onclick="deleteNote(${realIdx})" style="background:none;border:none;color:#333;cursor:pointer;font-size:16px;line-height:1;padding:0" title="Excluir">×</button>
+              <div style="display:flex;gap:8px">
+                <button onclick="startEditNote(${realIdx})" style="background:none;border:none;color:#555;cursor:pointer;font-size:13px;padding:0" title="Editar">✏️</button>
+                <button onclick="deleteNote(${realIdx})" style="background:none;border:none;color:#333;cursor:pointer;font-size:16px;line-height:1;padding:0" title="Excluir">×</button>
+              </div>
             </div>
-            <div style="color:#ccc;font-size:14px;line-height:1.7;white-space:pre-wrap">${note.text}</div>
+            ${isEditing?`
+              <textarea class="textarea" id="edit-note-${realIdx}" style="min-height:80px;margin-bottom:8px">${note.text}</textarea>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-primary" style="background:#C9A84C;flex:1" onclick="saveEditNote(${realIdx})">Salvar</button>
+                <button class="btn-ghost" onclick="S.editingNoteIdx=null;render()">Cancelar</button>
+              </div>
+            `:`<div style="color:#ccc;font-size:14px;line-height:1.7;white-space:pre-wrap">${highlighted}</div>`}
           </div>`;
         }).join("")}
       </div>`}`;
@@ -1665,6 +1690,22 @@ function deleteNote(idx){
   if(!confirm("Excluir esta anotação?")) return;
   S.notes.splice(idx,1);
   saveData();
+  render();
+}
+function startEditNote(idx){
+  S.editingNoteIdx=idx;
+  render();
+  // Focus textarea after render
+  setTimeout(()=>document.getElementById("edit-note-"+idx)?.focus(),50);
+}
+function saveEditNote(idx){
+  const val=document.getElementById("edit-note-"+idx)?.value?.trim();
+  if(!val){ notif("Anotação não pode ser vazia","#E05C5C"); return; }
+  S.notes[idx].text=val;
+  S.notes[idx].edited=new Date().toISOString();
+  S.editingNoteIdx=null;
+  saveData();
+  notif("Anotação atualizada ✓");
   render();
 }
 
