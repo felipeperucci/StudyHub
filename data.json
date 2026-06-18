@@ -1,10 +1,10 @@
 {
   "stats": {
     "tp": {
-      "xp": 130,
-      "level": 2,
-      "xpNext": 150,
-      "streak": 11
+      "xp": 5,
+      "level": 3,
+      "xpNext": 225,
+      "streak": 1
     },
     "sql": {
       "xp": 0,
@@ -49,8 +49,17 @@
       "streak": 0
     }
   },
-  "totalXP": 320,
+  "totalXP": 345,
   "history": [
+    {
+      "date": "2026-06-18T21:56:14.630Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "guide",
+      "topic": "guide",
+      "xp": 25,
+      "note": ""
+    },
     {
       "date": "2026-06-14T15:21:37.156Z",
       "trackId": "tp",
@@ -216,12 +225,12 @@
         "date": "2026-06-14T15:04:14.040Z"
       },
       {
-        "topic": "guide",
-        "date": "2026-06-14T15:21:03.253Z"
-      },
-      {
         "topic": "Ajustes de Capital no TNMM",
         "date": "2026-06-14T15:21:37.156Z"
+      },
+      {
+        "topic": "guide",
+        "date": "2026-06-18T21:56:14.629Z"
       }
     ]
   },
