@@ -1039,25 +1039,35 @@ SOLUÇÃO: [solução detalhada e didática]`}],italiaSys);
 
 ${ctx}
 
-Estruture em 4 blocos separados por ---BLOCO---:
+Separe os blocos com a linha exata: ---BLOCO---
+
+---BLOCO---
 ## 1. Contexto
-[por que isso importa, onde aparece na prática]
+Por que este tópico importa e onde aparece na prática. (máximo 150 palavras)
 
 ---BLOCO---
-
 ## 2. O Conceito
-[explicação clara com definição precisa]
+Explicação clara e precisa. (máximo 200 palavras)
 
 ---BLOCO---
-
 ## 3. Exemplo Prático
-[exemplo real do ambiente profissional]
+Exemplo real e completo, com início, meio e fim. (máximo 200 palavras)
 
 ---BLOCO---
-
 ## 4. Para Fixar
-[3 pontos-chave para lembrar]`}],italiaSys,4000);
-      S.chunks=text.split("---BLOCO---").map(s=>s.trim()).filter(Boolean);
+Exatamente 3 pontos-chave numerados. (máximo 100 palavras)
+
+IMPORTANTE: Cada bloco deve ser completo e ter fim. Não corte no meio de uma frase ou exemplo.`}],italiaSys,6000);
+      S.chunks=text.split("---BLOCO---").map(s=>s.trim()).filter(Boolean).filter(s=>s.length>20);
+      // Validate: if last chunk seems cut off (ends mid-sentence), merge with previous
+      if(S.chunks.length>1){
+        const last=S.chunks[S.chunks.length-1];
+        const endsClean=/[.!?"""»)\]]\s*$/.test(last.trim())||/\d\s*$/.test(last.trim());
+        if(!endsClean&&S.chunks.length>2){
+          S.chunks[S.chunks.length-2]+="\n\n"+last;
+          S.chunks.pop();
+        }
+      }
       S.chunkIdx=0;
       const guideTitle=S.chunks[0]?.match(/##[^\n]+/)?.[0]?.replace(/##\s*/,"")?.trim();
       if(guideTitle) recordTopic(t.id, guideTitle);
@@ -1073,7 +1083,7 @@ Estrutura:
 3. **Exemplo prático** — situação real
 4. **Por que importa** — relevância profissional
 
-Seja específico, direto e útil. Não use introduções genéricas.`}],italiaSys,5000);
+Seja específico, direto e útil. Não use introduções genéricas. Escreva o texto COMPLETO — não corte no meio de uma frase.`}],italiaSys,6000);
       S.chunks=[text]; S.chunkIdx=0;
 
     } else if(modeId==="socratic"){
