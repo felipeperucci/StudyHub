@@ -350,6 +350,7 @@ let S = {
   editingNoteIdx: null,
   notesFocus: 50,  // 0=explorar, 50=balanceado, 100=focar nas notas
   notes: [],       // caderno notes
+  expandedHistoryIdx: null,
   // misc
   analysisText: "", analysisLoading: false,
   loaded: false,
@@ -718,8 +719,22 @@ async function completeSession(score,note=""){
   S.stats[t.id]={xp:leveled?newXP-s.xpNext:newXP,level:leveled?s.level+1:s.level,xpNext:leveled?Math.round(s.xpNext*1.5):s.xpNext,streak:newStreak};
   S.totalXP+=xp;
 
+  // Build content snapshot for library
+  let contentSnapshot = null;
+  if(S.item && (m==="quiz"||m==="flashcard"||m==="challenge")){
+    contentSnapshot = {type:m, item:{...S.item}};
+  } else if((m==="guide"||m==="brief") && S.chunks.length){
+    contentSnapshot = {type:m, chunks:[...S.chunks]};
+  } else if(m==="socratic" && S.chatHist.length){
+    contentSnapshot = {type:"chat", history:[...S.chatHist]};
+  } else if(m==="doc" && S.chatHist.length){
+    contentSnapshot = {type:"chat", history:[...S.chatHist], docText:S.docText.slice(0,500)};
+  } else if(m&&m.startsWith("voice_") && S.vConvHist.length){
+    contentSnapshot = {type:"chat", history:[...S.vConvHist]};
+  }
+
   // Log
-  S.history.unshift({date:new Date().toISOString(),trackId:t.id,trackName:t.name,mode:m,topic,xp,score,note});
+  S.history.unshift({date:new Date().toISOString(),trackId:t.id,trackName:t.name,mode:m,topic,xp,score,note,content:contentSnapshot});
   // Also save inline note to caderno if non-empty
   if(note.trim()){ if(!S.notes) S.notes=[]; S.notes.unshift({date:new Date().toISOString(),trackId:t.id,trackName:t.name,text:note,source:"sessão"}); }
   if(S.history.length>200) S.history=S.history.slice(0,200);
@@ -1920,6 +1935,75 @@ function saveEditNote(idx){
 }
 
 // ══════════════════════════════════════════════
+// CONTENT SNAPSHOT RENDERER
+// ══════════════════════════════════════════════
+function renderContentSnapshot(snap, trackColor){
+  if(!snap) return '<div style="color:#444;font-size:13px;font-style:italic">Conteúdo não salvo (sessões antigas)</div>';
+  const c=trackColor||"#C9A84C";
+
+  if(snap.type==="quiz" && snap.item){
+    const item=snap.item;
+    return `
+      <div style="font-weight:700;font-size:14px;color:#eee;margin-bottom:14px;line-height:1.6">${item.q||""}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+        ${(item.opts||[]).map(opt=>{
+          const isAns=opt[0]===item.ans;
+          return `<div style="padding:9px 13px;border-radius:8px;font-size:13px;border:1px solid ${isAns?"#3a8a3a44":"#1e1e2e"};background:${isAns?"#0f2010":"#0e0e1c"};color:${isAns?"#7dd87d":"#888"}">${opt}${isAns?" ✓":""}</div>`;
+        }).join("")}
+      </div>
+      ${item.exp?`<div style="color:#999;font-size:13px;line-height:1.7;padding:12px;background:#0a0a14;border-radius:8px;border:1px solid #1a1a2e">${item.exp}</div>`:""}`;
+  }
+
+  if(snap.type==="flashcard" && snap.item){
+    const item=snap.item;
+    return `
+      <div style="background:${h(c,.06)};border:1px solid ${h(c,.2)};border-radius:12px;padding:16px;margin-bottom:10px">
+        <div style="font-size:10px;font-family:monospace;color:${c};margin-bottom:8px">CONCEITO</div>
+        <div style="font-weight:700;font-size:16px;color:#eee">${item.front||""}</div>
+      </div>
+      <div style="background:#0e0e1c;border:1px solid #1e1e2e;border-radius:12px;padding:16px;margin-bottom:10px">
+        <div style="font-size:10px;font-family:monospace;color:#555;margin-bottom:8px">EXPLICAÇÃO</div>
+        <div style="color:#ccc;font-size:14px;line-height:1.8">${mdToHtml(item.back||"")}</div>
+      </div>
+      ${item.tip?`<div style="font-size:12px;color:#C9A84C88;padding:8px 12px;background:#15130a;border-radius:8px;border:1px solid #C9A84C1a">💡 ${item.tip}</div>`:""}`;
+  }
+
+  if(snap.type==="challenge" && snap.item){
+    const item=snap.item;
+    return `
+      <div style="background:${h(c,.05)};border:1px solid ${h(c,.18)};border-radius:12px;padding:14px;margin-bottom:10px">
+        <div style="font-weight:800;color:${c};font-size:14px;margin-bottom:7px">⚡ ${item.title||""}</div>
+        <div style="color:#ccc;font-size:13px;line-height:1.7;margin-bottom:8px">${mdToHtml(item.scenario||"")}</div>
+        <div style="font-size:13px;font-weight:600;color:#eee">Tarefa: ${item.task||""}</div>
+      </div>
+      ${item.solution?`<div style="background:#0e0e1c;border:1px solid #2a2a3e;border-radius:12px;padding:14px">
+        <div style="font-size:10px;font-family:monospace;color:#7d9dd8;margin-bottom:8px">SOLUÇÃO</div>
+        <div style="color:#bbb;font-size:13px;line-height:1.8;white-space:pre-wrap">${item.solution}</div>
+      </div>`:""}`;
+  }
+
+  if((snap.type==="guide"||snap.type==="brief") && snap.chunks){
+    return snap.chunks.map((chunk,i)=>`
+      <div style="background:#0e0e1c;border:1px solid #1e1e2e;border-radius:12px;padding:16px;margin-bottom:10px;font-size:14px;color:#ddd;line-height:1.85">
+        ${mdToHtml(chunk)}
+      </div>`).join("");
+  }
+
+  if(snap.type==="chat" && snap.history){
+    return `
+      ${snap.docText?`<div style="background:#0a0a14;border:1px solid #1a1a2e;border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:11px;color:#555;font-family:monospace">📄 Documento: "${snap.docText}..."</div>`:""}
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${snap.history.map(m=>`
+          <div style="padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.7;max-width:92%;${m.role==="user"?"background:#1a1a2e;color:#ddd;align-self:flex-end;border:1px solid #2a2a4e;margin-left:auto":"background:#0e0e1c;color:#ddd;align-self:flex-start;border:1px solid #1e1e2e"}">
+            ${m.role!=="user"?mdToHtml(m.text||""):(m.text||"")}
+          </div>`).join("")}
+      </div>`;
+  }
+
+  return '<div style="color:#444;font-size:13px">Tipo de conteúdo não suportado</div>';
+}
+
+// ══════════════════════════════════════════════
 // ROADMAP
 // ══════════════════════════════════════════════
 function renderHeatmap(){
@@ -2007,14 +2091,31 @@ function renderRoadmap(){
         ${S.history.slice(0,40).map(item=>{
           const t=trackById(item.trackId);
           const mInfo=modeById(item.mode)||{label:item.mode};
+          const realIdx=S.history.indexOf(item);
           const italiaSubInfo=ITALIA_SUBS.find(s=>s.id===item.trackId);
+          const isExpanded=S.expandedHistoryIdx===realIdx;
+          const tColor=t?.color||"#C9A84C";
           return `<div class="tl-item">
-            <div class="tl-dot" style="border-color:${t?.color||"#555"};background:${h(t?.color||"#555",.15)}"></div>
+            <div class="tl-dot" style="border-color:${tColor};background:${h(tColor,.15)}"></div>
             <div class="tl-date">${fmtDate(item.date)}</div>
-            <div class="tl-card" style="border-color:${h(t?.color||"#555",.12)}">
-              <div class="tl-title">${italiaSubInfo?`🇮🇹 Italia › ${italiaSubInfo.name}`:t?.icon||""} ${italiaSubInfo?"":item.trackName+" ·"} ${mInfo.label}</div>
-              <div class="tl-meta">+${item.xp} XP${item.score!=null?" · score "+item.score+"/100":""} ${item.topic?"· "+item.topic:""}</div>
-              ${item.note?`<div class="tl-note">"${item.note}"</div>`:""}
+            <div class="tl-card" style="border-color:${isExpanded?h(tColor,.35):h(tColor,.12)};transition:border-color .2s">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+                <div style="flex:1;min-width:0">
+                  <div class="tl-title">${italiaSubInfo?`🇮🇹 Italia › ${italiaSubInfo.name}`:t?.icon||""} ${italiaSubInfo?"":item.trackName+" ·"} ${mInfo.label}</div>
+                  <div class="tl-meta">+${item.xp} XP${item.score!=null?" · score "+item.score+"/100":""} ${item.topic?"· "+item.topic:""}</div>
+                  ${item.note?`<div class="tl-note">"${item.note}"</div>`:""}
+                </div>
+                ${item.content?`<button
+                  onclick="S.expandedHistoryIdx=S.expandedHistoryIdx===${realIdx}?null:${realIdx};render()"
+                  style="flex-shrink:0;background:none;border:1px solid ${isExpanded?h(tColor,.4):"#2a2a3e"};border-radius:8px;color:${isExpanded?tColor:"#555"};cursor:pointer;padding:5px 10px;font-size:11px;font-family:monospace;transition:all .2s">
+                  ${isExpanded?"▲ fechar":"▼ ver"}
+                </button>`:""}
+              </div>
+              ${isExpanded&&item.content?`
+                <div style="margin-top:14px;padding-top:14px;border-top:1px solid #1a1a2e">
+                  ${renderContentSnapshot(item.content,tColor)}
+                </div>
+              `:""}
             </div>
           </div>`;
         }).join("")}
@@ -2197,4 +2298,3 @@ function attachAll(){
 </script>
 </body>
 </html>
-
