@@ -1782,21 +1782,35 @@ function renderCaderno(){
           if(!seen.length&&!weak.length&&!trackNotes.length) return "";
           return `<div style="background:#0a0a14;border:1px solid #1a1a2e;border-radius:12px;padding:14px">
             <div style="font-weight:700;font-size:13px;margin-bottom:10px">${t.icon||"📚"} ${t.name}</div>
-            ${seen.length?`<div style="margin-bottom:8px">
-              <div style="font-size:10px;font-family:monospace;color:#555;margin-bottom:5px">TÓPICOS VISTOS (7 dias) — IA não vai repetir</div>
+            ${seen.length?`<div style="margin-bottom:10px">
+              <div style="font-size:10px;font-family:monospace;color:#555;margin-bottom:6px;display:flex;justify-content:space-between">
+                <span>VISTOS RECENTEMENTE</span>
+                <span style="color:#333">${seen.length} tópico(s)</span>
+              </div>
               <div style="display:flex;flex-wrap:wrap;gap:5px">
-                ${seen.map(s=>`<span style="font-size:11px;background:#1a1a2e;border:1px solid #2a2a3e;border-radius:6px;padding:3px 8px;color:#666">${s}</span>`).join("")}
+                ${seen.slice(0,8).map((s,si)=>{
+                  // Only show clean curriculum topics, skip raw AI text (too long)
+                  const label=CURRICULUM[t.id]?.find(c=>c.toLowerCase().includes(s.toLowerCase().slice(0,15)))||s;
+                  const clean=label.length>35?label.slice(0,35)+"…":label;
+                  return `<span style="font-size:11px;background:#1a1a2e;border:1px solid #2a2a3e;border-radius:6px;padding:3px 8px;color:#777;display:flex;align-items:center;gap:5px">
+                    ${clean}
+                    <span onclick="removeSeen('${t.id}',${si})" style="cursor:pointer;color:#444;font-size:13px;line-height:1" title="Remover">×</span>
+                  </span>`;
+                }).join("")}
               </div>
             </div>`:""}
-            ${weak.length?`<div style="margin-bottom:8px">
-              <div style="font-size:10px;font-family:monospace;color:#E05C5C88;margin-bottom:5px">PONTOS FRACOS — IA pode reforçar</div>
+            ${weak.length?`<div style="margin-bottom:10px">
+              <div style="font-size:10px;font-family:monospace;color:#E05C5C66;margin-bottom:6px">PONTOS FRACOS</div>
               <div style="display:flex;flex-wrap:wrap;gap:5px">
-                ${weak.map(s=>`<span style="font-size:11px;background:#20100e;border:1px solid #8a3a3a44;border-radius:6px;padding:3px 8px;color:#d87d7d88">${s}</span>`).join("")}
+                ${weak.map(s=>{
+                  const clean=s.length>35?s.slice(0,35)+"…":s;
+                  return `<span style="font-size:11px;background:#20100e;border:1px solid #8a3a3a33;border-radius:6px;padding:3px 8px;color:#d87d7d77">${clean}</span>`;
+                }).join("")}
               </div>
             </div>`:""}
             ${trackNotes.length?`<div>
-              <div style="font-size:10px;font-family:monospace;color:#C9A84C88;margin-bottom:5px">NOTAS DO CADERNO — influência: ${focus}%</div>
-              ${trackNotes.map(n=>`<div style="font-size:12px;color:#777;padding:4px 0;border-bottom:1px solid #1a1a2e">${n.text.slice(0,80)}${n.text.length>80?"...":""}</div>`).join("")}
+              <div style="font-size:10px;font-family:monospace;color:#C9A84C66;margin-bottom:6px">CADERNO — influência ${focus}%</div>
+              ${trackNotes.map(n=>`<div style="font-size:12px;color:#777;padding:5px 0;border-bottom:1px solid #1a1a2e;line-height:1.5">${n.text.slice(0,100)}${n.text.length>100?"…":""}</div>`).join("")}
             </div>`:""}
           </div>`;
         }).filter(Boolean).join("")}
@@ -1890,6 +1904,13 @@ function renderCaderno(){
           </div>`;
         }).join("")}
       </div>`}`;
+}
+
+function removeSeen(trackId, idx){
+  if(!S.seen[trackId]) return;
+  S.seen[trackId].splice(idx,1);
+  saveData();
+  render();
 }
 
 function saveNote(){
@@ -2090,36 +2111,58 @@ function renderRoadmap(){
       :`<div class="tl">
         ${S.history.slice(0,40).map(item=>{
           const t=trackById(item.trackId);
+          const italiaSubInfo=ITALIA_SUBS.find(s=>s.id===item.trackId);
+          const tColor=(italiaSubInfo?.color)||t?.color||"#C9A84C";
           const mInfo=modeById(item.mode)||{label:item.mode};
           const realIdx=S.history.indexOf(item);
-          const italiaSubInfo=ITALIA_SUBS.find(s=>s.id===item.trackId);
           const isExpanded=S.expandedHistoryIdx===realIdx;
-          const tColor=t?.color||"#C9A84C";
+          const trackLabel=italiaSubInfo?`🇮🇹 Italia › ${italiaSubInfo.name}`:`${t?.icon||""} ${item.trackName}`;
           return `<div class="tl-item">
             <div class="tl-dot" style="border-color:${tColor};background:${h(tColor,.15)}"></div>
             <div class="tl-date">${fmtDate(item.date)}</div>
-            <div class="tl-card" style="border-color:${isExpanded?h(tColor,.35):h(tColor,.12)};transition:border-color .2s">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+            <div class="tl-card" style="border-color:${isExpanded?h(tColor,.4):h(tColor,.12)};transition:border-color .2s">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
                 <div style="flex:1;min-width:0">
-                  <div class="tl-title">${italiaSubInfo?`🇮🇹 Italia › ${italiaSubInfo.name}`:t?.icon||""} ${italiaSubInfo?"":item.trackName+" ·"} ${mInfo.label}</div>
-                  <div class="tl-meta">+${item.xp} XP${item.score!=null?" · score "+item.score+"/100":""} ${item.topic?"· "+item.topic:""}</div>
+                  <div class="tl-title">${trackLabel} · ${mInfo.label}</div>
+                  <div class="tl-meta" style="margin-top:3px">
+                    +${item.xp} XP
+                    ${item.score!=null?` · <span style="color:${item.score>=70?"#5dba7d":item.score>=40?"#C9A84C":"#d87d7d"}">${item.score}/100</span>`:""}
+                    ${item.topic?` · ${item.topic}`:""}
+                  </div>
                   ${item.note?`<div class="tl-note">"${item.note}"</div>`:""}
                 </div>
                 ${item.content?`<button
-                  onclick="S.expandedHistoryIdx=S.expandedHistoryIdx===${realIdx}?null:${realIdx};render()"
-                  style="flex-shrink:0;background:none;border:1px solid ${isExpanded?h(tColor,.4):"#2a2a3e"};border-radius:8px;color:${isExpanded?tColor:"#555"};cursor:pointer;padding:5px 10px;font-size:11px;font-family:monospace;transition:all .2s">
-                  ${isExpanded?"▲ fechar":"▼ ver"}
+                  onclick="reopenSession(${realIdx})"
+                  style="flex-shrink:0;background:${h(tColor,.1)};border:1px solid ${h(tColor,.3)};border-radius:8px;color:${tColor};cursor:pointer;padding:6px 12px;font-size:12px;font-weight:700;transition:all .2s;white-space:nowrap">
+                  ↩ Rever
                 </button>`:""}
               </div>
-              ${isExpanded&&item.content?`
-                <div style="margin-top:14px;padding-top:14px;border-top:1px solid #1a1a2e">
+              ${isExpanded?`
+                <div style="margin-top:14px;padding-top:14px;border-top:1px solid #1e1e2e">
                   ${renderContentSnapshot(item.content,tColor)}
+                  <button onclick="S.expandedHistoryIdx=null;render()" class="btn-ghost" style="width:100%;margin-top:12px;font-size:12px">Fechar ▲</button>
                 </div>
               `:""}
             </div>
           </div>`;
         }).join("")}
       </div>`}`;
+}
+
+// ══════════════════════════════════════════════
+// REOPEN SESSION FROM HISTORY
+// ══════════════════════════════════════════════
+function reopenSession(idx){
+  const item=S.history[idx];
+  if(!item||!item.content) return;
+  // Set expanded to show full content
+  S.expandedHistoryIdx=idx;
+  render();
+  // Scroll to it
+  setTimeout(()=>{
+    const cards=document.querySelectorAll(".tl-card");
+    if(cards[idx]) cards[idx].scrollIntoView({behavior:"smooth",block:"start"});
+  },100);
 }
 
 // ══════════════════════════════════════════════
