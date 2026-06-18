@@ -1,7 +1,7 @@
 {
   "stats": {
     "tp": {
-      "xp": 5,
+      "xp": 30,
       "level": 3,
       "xpNext": 225,
       "streak": 1
@@ -49,8 +49,17 @@
       "streak": 0
     }
   },
-  "totalXP": 370,
+  "totalXP": 395,
   "history": [
+    {
+      "date": "2026-06-18T22:54:49.992Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "guide",
+      "topic": "guide",
+      "xp": 25,
+      "note": "Para fixar, lembre-se destes 3 pontos-chave:\n1. A cadeia de valor é a sequência de atividades (P&D, produção, vendas, etc.) que geram valor, receita, e incorrem em custos e despesas para o produto final.\n2. A alocação de lucros distribui o lucro operacional total do grupo entre suas entidades, conforme a contribuição de cada uma na cadeia de valor.\n3. Uma alocação justa é essencial para a conformidade fiscal, garantindo que o lucro seja tributado nos países onde o valor foi efetivamente criado, evitando riscos de Transfer Pricing."
+    },
     {
       "date": "2026-06-18T22:51:19.327Z",
       "trackId": "historia",
@@ -238,8 +247,12 @@
         "date": "2026-06-14T15:21:37.156Z"
       },
       {
+        "topic": "1. Contexto",
+        "date": "2026-06-18T22:52:38.143Z"
+      },
+      {
         "topic": "guide",
-        "date": "2026-06-18T21:56:14.629Z"
+        "date": "2026-06-18T22:54:49.992Z"
       }
     ],
     "historia": [
@@ -250,6 +263,13 @@
     ]
   },
   "notes": [
+    {
+      "date": "2026-06-18T22:54:49.992Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "text": "Para fixar, lembre-se destes 3 pontos-chave:\n1. A cadeia de valor é a sequência de atividades (P&D, produção, vendas, etc.) que geram valor, receita, e incorrem em custos e despesas para o produto final.\n2. A alocação de lucros distribui o lucro operacional total do grupo entre suas entidades, conforme a contribuição de cada uma na cadeia de valor.\n3. Uma alocação justa é essencial para a conformidade fiscal, garantindo que o lucro seja tributado nos países onde o valor foi efetivamente criado, evitando riscos de Transfer Pricing.",
+      "source": "sessão"
+    },
     {
       "date": "2026-06-18T22:51:19.327Z",
       "trackId": "historia",
