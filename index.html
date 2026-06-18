@@ -209,6 +209,109 @@ const VOICE_MODES = [
 ];
 
 // ══════════════════════════════════════════════
+// CURRICULUM — curated topic lists per track
+// ══════════════════════════════════════════════
+const CURRICULUM = {
+  tp: [
+    // Fundamentos
+    "Princípio Arm's Length","Partes relacionadas","Análise de comparabilidade","Análise funcional (FAR)",
+    "Tested party","Comparable Uncontrolled Price (PCI/CUP)","Resale Price Method (PRL/RPM)",
+    "Cost Plus Method (CPL)","Transactional Net Margin Method (TNMM)","Profit Split Method",
+    // Intermediário
+    "Interquartile Range (IQR)","Arm's length range","Ajustes de comparabilidade",
+    "Seleção do método mais apropriado","Delineamento de transações controladas",
+    "Análise de risco em TP","DEMPE e intangíveis","Royalties entre partes relacionadas",
+    "Serviços intragrupo e LVAS","Acordos de compartilhamento de custos (CSA)",
+    // Avançado
+    "Pillar Two e TP","Country-by-Country Reporting (CbCR)","Master File e Local File",
+    "Acordos de Preços Antecipados (APA)","Regras brasileiras de TP (IN 1312)","Novo framework OCDE no Brasil",
+    "Estruturas de financiamento intragrupo","Cadeia de valor e alocação de lucros",
+    "Auditorias fiscais em TP","Transfer pricing em commodities",
+  ],
+  sql: [
+    // Básico
+    "SELECT, FROM, WHERE básico","ORDER BY e LIMIT","Operadores de comparação e lógicos",
+    "NULL e IS NULL","LIKE e wildcards","DISTINCT","Aliases (AS)",
+    // Intermediário
+    "INNER JOIN","LEFT JOIN e RIGHT JOIN","FULL OUTER JOIN","CROSS JOIN",
+    "GROUP BY e funções de agregação","HAVING","Subqueries","CTEs (WITH)",
+    "UNION e UNION ALL","CASE WHEN","COALESCE e NULLIF",
+    // Avançado
+    "Window functions (ROW_NUMBER, RANK, DENSE_RANK)","LAG e LEAD","PARTITION BY",
+    "Índices e performance","EXPLAIN e plano de execução","CTEs recursivas",
+    "Transações e ACID","Views e Materialized Views","Stored procedures","Otimização de queries",
+  ],
+  es: [
+    // Básico
+    "Ser vs Estar","Presente do indicativo regular","Artigos definidos e indefinidos",
+    "Gênero e número dos substantivos","Pronomes pessoais","Vocabulário de apresentações",
+    // Intermediário
+    "Pretérito Indefinido","Pretérito Imperfecto","Diferença Indefinido vs Imperfecto",
+    "Futuro simple","Condicional simple","Pronomes de objeto direto e indireto",
+    "Verbos reflexivos","Por vs Para","Vocabulário de reuniões e negócios",
+    "Discordar com educação em espanhol","Expressar dúvida e hipótese",
+    // Avançado
+    "Subjuntivo presente","Subjuntivo passado","Orações condicionais (si + subjuntivo)",
+    "Estilo indireto","Voz passiva","Vocabulário fiscal e tributário em espanhol",
+    "Regionalismos: México, Argentina, Espanha","Expressões idiomáticas de negócios",
+  ],
+  historia: [
+    "Fundação de Roma e a monarquia","A República Romana","O Senado e as instituições republicanas",
+    "As Guerras Púnicas","Júlio César e o fim da República","O Império Romano de Augusto",
+    "Pax Romana","Declínio e queda do Império Romano","Invasões bárbaras e a Alta Idade Média",
+    "O papel da Igreja Católica na Itália medieval","As Cruzadas e a Itália",
+    "As cidades-estado italianas","Veneza como potência marítima","Florença e os Médici",
+    "O Renascimento italiano — contexto histórico","Maquiavel e O Príncipe",
+    "A Reforma Protestante e a resposta italiana","O domínio espanhol e austríaco",
+    "Napoleão na Itália","O Risorgimento","Garibaldi e os Mil","Unificação da Itália (1861)",
+    "A Itália na Primeira Guerra Mundial","O fascismo e Mussolini","A Segunda Guerra Mundial na Itália",
+    "A Resistência italiana","A República de 1946","O milagre econômico italiano",
+    "Os Anos de Chumbo","A Primeira República e Tangentopoli","A Itália contemporânea",
+  ],
+  cultura: [
+    "Identidade regional: Norte vs Sul","A gastronomia italiana por região",
+    "O vinho italiano — regiões e tradições","A moda italiana (Milão, grandes casas)",
+    "O cinema italiano (neorrealismo, Fellini)","A ópera e a música clássica italiana",
+    "A arquitetura italiana por época","O futebol como fenômeno cultural",
+    "A família na cultura italiana","Festas e tradições regionais",
+    "A língua italiana e seus dialetos","A literatura italiana (Dante, Calvino, Eco)",
+    "Arte renascentista — contexto cultural","O Vaticano e o papel da Igreja hoje",
+    "A diáspora italiana no Brasil","Estereótipos vs realidade italiana",
+  ],
+  lingua: [
+    "Pronúncia e o alfabeto italiano","Artigos definidos e indefinidos",
+    "Gênero e plural dos substantivos","Ser e Estar: essere vs stare",
+    "Presente do indicativo — verbos regulares","Verbos irregulares essenciais (avere, essere, andare)",
+    "Números, datas e horas","Vocabulário cotidiano básico","Adjetivos e concordância",
+    "Pronomes pessoais sujeito","Pretérito Perfeito (Passato Prossimo)","Verbos auxiliares avere vs essere",
+    "Pretérito Imperfeito (Imperfetto)","Por que estudar italiano como cidadão italiano",
+    "Vocabulário de família e relações","Vocabulário de trabalho e profissões",
+    "Expressões de cortesia e formalidade","Preposições italianas","Futuro simples",
+    "Condicional — pedidos educados","Frases úteis para a Itália",
+  ],
+  cidadania: [
+    "Como funciona a cidadania italiana por descendência","Direitos e deveres do cidadão italiano",
+    "A Constituição italiana de 1948","O sistema político italiano","Parlamento e governo na Itália",
+    "As regiões autônomas italianas","A União Europeia e o passaporte italiano",
+    "A diáspora brasileira de origem italiana","Diferenças culturais Brasil-Itália",
+    "Como obter documentos italianos no Brasil","O AIRE — registro de italianos no exterior",
+    "Sistema de saúde e previdência social na Itália","Trabalhar na Itália como cidadão",
+    "Estudar na Itália — universidades e bolsas","A Itália na OTAN e relações internacionais",
+  ],
+};
+
+// Get available (not yet seen) topics for a track
+function getAvailableTopics(trackId){
+  const all=CURRICULUM[trackId]||[];
+  if(!all.length) return [];
+  const seen=new Set(getSeenTopics(trackId).map(t=>t.toLowerCase()));
+  // Also check history topics
+  const histSeen=new Set((S.history||[]).filter(h=>h.trackId===trackId).map(h=>(h.topic||"").toLowerCase().slice(0,40)));
+  const available=all.filter(t=>!seen.has(t.toLowerCase())&&![...histSeen].some(h=>h.includes(t.toLowerCase().slice(0,15))));
+  return available.length>0?available:all; // if all seen, loop back
+}
+
+// ══════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════
 const DEF_STATS = () => ({xp:0,level:1,xpNext:100,streak:0});
@@ -384,8 +487,18 @@ function hasAI(){ return !!(gl("sh_gemini")||gl("sh_groq")); }
 function getSeenTopics(trackId){
   const seen = S.seen[trackId]||[];
   const now = Date.now();
-  // Topics seen in last 7 days
-  return seen.filter(t=>now-new Date(t.date).getTime()<7*24*60*60*1000).map(t=>t.topic);
+  // Topics seen in last 30 days (with decay — older topics can come back)
+  const DAY=24*60*60*1000;
+  return seen
+    .filter(t=>{
+      const age=(now-new Date(t.date).getTime())/DAY;
+      // Seen < 3 days: definitely avoid
+      // 3-14 days: avoid
+      // 14-30 days: include but with lower priority (still in list)
+      return age<30;
+    })
+    .sort((a,b)=>new Date(b.date)-new Date(a.date))
+    .map(t=>t.topic);
 }
 function recordTopic(trackId,topic){
   if(!S.seen[trackId]) S.seen[trackId]=[];
@@ -401,26 +514,49 @@ function buildMemoryContext(trackId){
   const weakTopics = (S.history||[]).filter(h=>h.trackId===trackId&&h.score!==undefined&&h.score<60).slice(0,5).map(h=>h.topic).filter(Boolean);
   const level = S.stats[trackId]?.level||1;
   const focus = S.notesFocus||50;
-
-  // Caderno notes for this track (or general)
   const cadernoNotes=(S.notes||[]).filter(n=>!n.trackId||n.trackId===trackId).slice(0,5).map(n=>n.text);
 
+  // Get available topics from curriculum (not yet seen)
+  const available = getAvailableTopics(trackId);
+  // Pick 5 suggestions weighted by caderno notes and weak topics
+  let suggestions = [];
+  if(available.length){
+    // If focus is high and there are caderno notes, bias towards related topics
+    if(focus>=50&&cadernoNotes.length){
+      const noteText = cadernoNotes.join(" ").toLowerCase();
+      const related = available.filter(t=>noteText.split(/\s+/).some(w=>w.length>4&&t.toLowerCase().includes(w)));
+      const unrelated = available.filter(t=>!related.includes(t));
+      suggestions = [...related.slice(0,3), ...unrelated.slice(0,2)];
+    } else {
+      // Shuffle and pick 5
+      suggestions = [...available].sort(()=>Math.random()-.5).slice(0,5);
+    }
+  }
+
   const parts = [`Nível do aluno: ${level}/10`];
-  if(seen.length) parts.push(`Tópicos vistos recentemente (NÃO repita): ${seen.join(", ")}`);
-  if(weakTopics.length) parts.push(`Tópicos com dificuldade (pode reforçar): ${weakTopics.join(", ")}`);
-  if(recentNotes.length) parts.push(`Anotações de sessões: ${recentNotes.join(" | ")}`);
+
+  if(suggestions.length){
+    parts.push(`ESCOLHA UM destes tópicos para esta sessão (são os que o aluno ainda não viu ou precisa reforçar): ${suggestions.join(" | ")}`);
+    parts.push(`NÃO use outros tópicos fora desta lista — esta seleção foi feita com base no histórico do aluno.`);
+  } else {
+    if(seen.length) parts.push(`Tópicos já vistos (evite repetir): ${seen.slice(0,10).join(", ")}`);
+  }
+
+  if(weakTopics.length) parts.push(`Pontos fracos do aluno (score baixo): ${weakTopics.join(", ")}`);
+  if(recentNotes.length) parts.push(`Anotações de sessões anteriores: ${recentNotes.join(" | ")}`);
 
   if(cadernoNotes.length){
     if(focus===0){
-      parts.push(`[Caderno do aluno — IGNORAR para seleção de conteúdo]: ${cadernoNotes.join(" | ")}`);
+      parts.push(`Notas do caderno (ignorar na seleção de conteúdo): ${cadernoNotes.join(" | ")}`);
     } else if(focus<=40){
-      parts.push(`[Caderno do aluno — considere levemente]: ${cadernoNotes.join(" | ")}`);
+      parts.push(`Notas do caderno (considere levemente): ${cadernoNotes.join(" | ")}`);
     } else if(focus<=70){
-      parts.push(`[Caderno do aluno — considere junto com outros critérios]: ${cadernoNotes.join(" | ")}`);
+      parts.push(`Notas do caderno (considere junto com outros critérios): ${cadernoNotes.join(" | ")}`);
     } else {
-      parts.push(`[Caderno do aluno — PRIORIZE estes pontos mas varie o conteúdo]: ${cadernoNotes.join(" | ")}`);
+      parts.push(`Notas do caderno (PRIORIZE — o aluno quer focar nisso agora): ${cadernoNotes.join(" | ")}`);
     }
   }
+
   return parts.join("\n");
 }
 
@@ -1602,13 +1738,77 @@ function renderCaderno(){
         <div style="font-weight:700;font-size:14px">Influência no conteúdo</div>
         <div style="font-size:12px;font-family:monospace;color:${focusColor}">${focusLabel}</div>
       </div>
-      <input type="range" min="0" max="100" value="${focus}" step="10"
-        style="width:100%;accent-color:#C9A84C;cursor:pointer"
-        oninput="S.notesFocus=parseInt(this.value);render()"/>
-      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;font-family:monospace;color:#444">
-        <span>Explorar</span><span>Balanceado</span><span>Focar</span>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:4px">
+        ${[
+          {v:0,  label:"Livre",      desc:"IA ignora notas"},
+          {v:25, label:"Leve",       desc:"Considera pouco"},
+          {v:50, label:"Balanceado", desc:"Equilibrado"},
+          {v:75, label:"Orientado",  desc:"Prioriza notas"},
+          {v:100,label:"Focar",      desc:"Segue as notas"},
+        ].map(opt=>`
+          <div onclick="S.notesFocus=${opt.v};saveData();render()"
+            style="border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;border:1px solid ${focus===opt.v?"#C9A84C":"#2a2a3e"};background:${focus===opt.v?"#C9A84C18":"#0e0e1c"};transition:all .15s">
+            <div style="font-size:12px;font-weight:700;color:${focus===opt.v?"#C9A84C":"#666"}">${opt.label}</div>
+            <div style="font-size:10px;color:${focus===opt.v?"#C9A84C88":"#444"};margin-top:3px;font-family:monospace">${opt.desc}</div>
+          </div>`).join("")}
       </div>
     </div>
+
+    <!-- Memory status -->
+    <details style="margin-bottom:20px">
+      <summary style="cursor:pointer;font-family:monospace;font-size:11px;color:#555;letter-spacing:1px;padding:10px 0;list-style:none;display:flex;align-items:center;gap:8px">
+        <span>▶</span> VER MEMÓRIA DA IA
+      </summary>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+        ${[...TRACKS.filter(t=>t.active&&t.id!=="italia"),...ITALIA_SUBS].map(t=>{
+          const seen=getSeenTopics(t.id);
+          const weak=(S.history||[]).filter(h=>h.trackId===t.id&&h.score<60).slice(0,3).map(h=>h.topic).filter(Boolean);
+          const trackNotes=(S.notes||[]).filter(n=>n.trackId===t.id).slice(0,3);
+          if(!seen.length&&!weak.length&&!trackNotes.length) return "";
+          return `<div style="background:#0a0a14;border:1px solid #1a1a2e;border-radius:12px;padding:14px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:10px">${t.icon||"📚"} ${t.name}</div>
+            ${seen.length?`<div style="margin-bottom:8px">
+              <div style="font-size:10px;font-family:monospace;color:#555;margin-bottom:5px">TÓPICOS VISTOS (7 dias) — IA não vai repetir</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px">
+                ${seen.map(s=>`<span style="font-size:11px;background:#1a1a2e;border:1px solid #2a2a3e;border-radius:6px;padding:3px 8px;color:#666">${s}</span>`).join("")}
+              </div>
+            </div>`:""}
+            ${weak.length?`<div style="margin-bottom:8px">
+              <div style="font-size:10px;font-family:monospace;color:#E05C5C88;margin-bottom:5px">PONTOS FRACOS — IA pode reforçar</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px">
+                ${weak.map(s=>`<span style="font-size:11px;background:#20100e;border:1px solid #8a3a3a44;border-radius:6px;padding:3px 8px;color:#d87d7d88">${s}</span>`).join("")}
+              </div>
+            </div>`:""}
+            ${trackNotes.length?`<div>
+              <div style="font-size:10px;font-family:monospace;color:#C9A84C88;margin-bottom:5px">NOTAS DO CADERNO — influência: ${focus}%</div>
+              ${trackNotes.map(n=>`<div style="font-size:12px;color:#777;padding:4px 0;border-bottom:1px solid #1a1a2e">${n.text.slice(0,80)}${n.text.length>80?"...":""}</div>`).join("")}
+            </div>`:""}
+          </div>`;
+        }).filter(Boolean).join("")}
+        ${![...TRACKS.filter(t=>t.active&&t.id!=="italia"),...ITALIA_SUBS].some(t=>getSeenTopics(t.id).length)?
+          `<div style="color:#333;font-size:13px;text-align:center;padding:20px">Nenhuma memória ainda — complete algumas sessões.</div>`:""}
+        <button class="btn-ghost btn-full" style="font-size:12px;margin-bottom:8px" onclick="if(confirm('Limpar toda a memória de tópicos vistos?')){S.seen={};saveData();render()}">🗑 Limpar memória de tópicos</button>
+        <!-- Curriculum progress per track -->
+        <div style="font-family:monospace;font-size:10px;color:#444;letter-spacing:1px;margin-bottom:10px">CURRÍCULO — PROGRESSO POR TRILHA</div>
+        ${[...TRACKS.filter(t=>t.active&&t.id!=="italia"),...ITALIA_SUBS].map(t=>{
+          const all=CURRICULUM[t.id]||[];
+          if(!all.length) return "";
+          const seenSet=new Set(getSeenTopics(t.id).map(s=>s.toLowerCase()));
+          const histSeen=new Set((S.history||[]).filter(h=>h.trackId===t.id).map(h=>(h.topic||"").toLowerCase().slice(0,40)));
+          const done=all.filter(tp=>seenSet.has(tp.toLowerCase())||[...histSeen].some(h=>h.includes(tp.toLowerCase().slice(0,15)))).length;
+          const pct=Math.round((done/all.length)*100);
+          return `<div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:12px;color:#ccc">${t.icon||""} ${t.name}</span>
+              <span style="font-family:monospace;font-size:11px;color:#555">${done}/${all.length} · ${pct}%</span>
+            </div>
+            <div style="height:4px;background:#111122;border-radius:99px;overflow:hidden">
+              <div style="width:${pct}%;height:100%;background:${t.color||"#C9A84C"};border-radius:99px"></div>
+            </div>
+          </div>`;
+        }).filter(Boolean).join("")}
+      </div>
+    </details>
 
     <!-- New note -->
     <div class="card" style="margin-bottom:20px">
@@ -1996,4 +2196,6 @@ function attachAll(){
 })();
 </script>
 </body>
+</html>
+
 </html>
