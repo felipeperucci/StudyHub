@@ -1,7 +1,7 @@
 {
   "stats": {
     "tp": {
-      "xp": 30,
+      "xp": 45,
       "level": 3,
       "xpNext": 225,
       "streak": 1
@@ -49,8 +49,23 @@
       "streak": 0
     }
   },
-  "totalXP": 395,
+  "totalXP": 410,
   "history": [
+    {
+      "date": "2026-07-02T00:39:13.987Z",
+      "trackId": "tp",
+      "trackName": "Transfer Pricing",
+      "mode": "brief",
+      "topic": "brief",
+      "xp": 15,
+      "note": "",
+      "content": {
+        "type": "brief",
+        "chunks": [
+          "Olá! Hoje vamos mergulhar em um conceito fundamental e muito prático do Transfer Pricing que você ainda não viu ou precisa reforçar, e que lida diretamente com a movimentação de custos e receitas dentro de um grupo.\n\n---\n\n### 1. O conceito de hoje: Serviços Intragrupo e Serviços de Baixo Valor Agregado (LVAS)\n\n**Contexto:** Dentro de um grupo multinacional, é comum que uma empresa forneça serviços para outra, como suporte de TI, RH, contabilidade, jurídico ou marketing. A questão é: como essas empresas devem cobrar umas das outras por esses serviços? É aí que entram os **Serviços Intragrupo** e, especificamente, os **Serviços de Baixo Valor Agregado (LVAS)**.\n\n---\n\n### 2. Como funciona\n\n*   **Serviços Intragrupo:** São quaisquer serviços prestados entre empresas que fazem parte do mesmo grupo econômico (partes relacionadas). Para que a cobrança desses serviços seja considerada \"justa\" para fins fiscais, ela precisa seguir o **Princípio Arm's Length**. Isso significa que o preço cobrado deve ser o mesmo que seria cobrado se as empresas fossem totalmente independentes.\n*   **Serviços de Baixo Valor Agregado (LVAS):** São um tipo específico de serviço intragrupo que tem características muito particulares:\n    *   **Não são atividades essenciais:** Eles não representam o *core business* do grupo (ex: uma empresa de tecnologia não tem como core business a contabilidade interna).\n    *   **Não usam intangíveis únicos:** Não envolvem o uso de patentes exclusivas ou marcas valiosas do grupo.\n    *   **Não geram riscos significativos:** As empresas que prestam esses serviços não assumem grandes riscos.\n    *   **São de natureza auxiliar/administrativa:** Pense em suporte de TI de rotina, contabilidade básica, serviços de RH administrativos, serviços jurídicos gerais.\n*   **Por que os LVAS são especiais?** Encontrar comparações para precificar esses serviços no mercado aberto pode ser muito difícil. Por isso, as diretrizes da OCDE (Organização para a Cooperação e Desenvolvimento Econômico) permitem uma abordagem simplificada para os LVAS: geralmente, a empresa que presta o serviço calcula todos os seus **custos** diretos e indiretos para oferecer esse serviço e adiciona uma margem de lucro pequena e padronizada (por exemplo, 5%). Essa margem é considerada um lucro justo para serviços de baixo risco e valor.\n\n---\n\n### 3. Exemplo prático\n\nImagine o \"Grupo GlobalTech\", que tem uma empresa-mãe no Brasil (GlobalTech Brasil) e uma subsidiária na Alemanha (GlobalTech Alemanha).\n\n*   A **GlobalTech Brasil** tem uma equipe de TI que oferece suporte técnico básico e manutenção de sistemas para todas as empresas do grupo, incluindo a subsidiária alemã. Este é um exemplo clássico de **Serviço de Baixo Valor Agregado (LVAS)**.\n*   **Como funciona a cobrança?**\n    1.  A GlobalTech Brasil calcula todos os seus **custos** para prestar esse serviço de TI: salários dos técnicos, licenças de software, depreciação de equipamentos, etc. Digamos que o custo total para atender a subsidiária alemã seja de R$ 10.000 por mês.\n    2.  Como é um LVAS, a GlobalTech Brasil aplica uma margem de lucro de 5% sobre esses custos.\n    3.  O valor a ser cobrado da GlobalTech Alemanha seria: R$ 10.000 (custos) + R$ 500 (5% de margem) = R$ 10.500.\n*   **Impacto nos termos contábeis que você mencionou:**\n    *   Para a **GlobalTech Brasil**, os R$ 10.500 que ela cobra são uma **receita** (dinheiro que entra pela venda do serviço).\n    *   Para a **GlobalTech Alemanha**, esses R$ 10.500 são uma **despesa operacional** (um gasto necessário para manter suas operações, pois sem o suporte de TI, ela não conseguiria funcionar bem).\n    *   Essa **receita** na GlobalTech Brasil aumenta seu **lucro operacional**, enquanto essa **despesa** na GlobalTech Alemanha reduz seu **lucro operacional**.\n\n---\n\n### 4. Por que importa\n\n1.  **Conformidade Fiscal e Alocação Justa de Lucros:** A forma como os serviços intragrupo são precificados afeta diretamente o lucro operacional de cada entidade do grupo. Se a GlobalTech Brasil cobrasse demais, o lucro da subsidiária alemã seria artificialmente reduzido, e a Alemanha poderia perder arrecadação de impostos. Se cobrasse de menos, o Brasil seria prejudicado. O uso da metodologia de LVAS garante que o lucro seja alocado de forma justa, com base nos **custos** incorridos e na contribuição de valor, sendo tributado nos países onde o valor foi efetivamente criado ou o suporte foi prestado.\n2.  **Evitar Riscos de Transfer Pricing:** Cobranças indevidas (muito altas ou muito baixas) por serviços intragrupo são um alvo comum para as autoridades fiscais. Elas podem questionar se o preço segue o Princípio Arm's Length. Se não seguir, podem ajustar o lucro das empresas, o que pode gerar multas e dupla tributação (o mesmo lucro sendo tributado em dois países diferentes).\n3.  **Conexão com a Cadeia de Valor:** Mesmo sendo \"de baixo valor agregado\", esses serviços são parte integrante da **cadeia de valor** do grupo. Eles dão suporte às atividades principais (P&D, produção, vendas) que geram o produto final. A correta alocação dos **custos** e **despesas** desses serviços garante que a **alocação de lucros** do grupo reflita a contribuição de cada entidade para o valor total, mantendo a conformidade fiscal e evitando riscos de Transfer Pricing."
+        ]
+      }
+    },
     {
       "date": "2026-06-18T22:54:49.992Z",
       "trackId": "tp",
@@ -249,6 +264,10 @@
       {
         "topic": "guide",
         "date": "2026-06-18T22:54:49.992Z"
+      },
+      {
+        "topic": "brief",
+        "date": "2026-07-02T00:39:13.987Z"
       }
     ],
     "historia": [
